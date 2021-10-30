@@ -8,7 +8,6 @@ data class LichessJSON(
     val puzzle: Puzzle
 )
 
-
 @Serializable
 data class Puzzle (
     val id: String,

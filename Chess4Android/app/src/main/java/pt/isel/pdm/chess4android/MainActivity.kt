@@ -25,6 +25,8 @@ class MainActivity : AppCompatActivity() {
 
     private var lichessDailyPuzzleURL: String = "https://lichess.org/api/puzzle/daily"
     private var lichessGameOfTheDay: LichessJSON? = null
+    private var lichessGameOfTheDayPuzzle: List<String>? = null
+    private var lichessGameOfTheDaySolution: List<String>? = null
     private var grandTopTitle: TextView? = null
     private var getGameButton: Button? = null
 
@@ -48,19 +50,15 @@ class MainActivity : AppCompatActivity() {
     private fun getTodaysGame(){
         val queue = Volley.newRequestQueue(this) //https://developer.android.com/training/volley/simple
         val responseListener = Response.Listener<String> { response -> //https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/basic-serialization.md
-            Log.i(TAG, response.toString())
-            //val data0 = Json.decodeFromString<LichessJSON>(response) //alternative 1, not ignoring unknown keys can lead to problems
-            //val data1 = Json { ignoreUnknownKeys=true }.decodeFromString(Data.serializer(),response) //alternative 2
+            log(response.toString())
+
             lichessGameOfTheDay = Json { ignoreUnknownKeys = true }.decodeFromString(LichessJSON.serializer(),response)
 
-            Log.i(TAG, lichessGameOfTheDay?.game?.pgn.toString())
-            /*//using import org.json.JSONObject, which makes it a bit harder for us
-            val jsonData = JSONObject(response)
-            Log.i(TAG, "Response is: $response")
-            val iterator = jsonData.keys()
-            while(iterator.hasNext()){
-                Log.i(TAG, "Response is: ${iterator.next()}")
-            }*/
+            lichessGameOfTheDayPuzzle = lichessGameOfTheDay?.game?.pgn?.split(" ")
+            lichessGameOfTheDaySolution = lichessGameOfTheDay?.puzzle?.solution
+
+            log(lichessGameOfTheDayPuzzle.toString())
+            log(lichessGameOfTheDaySolution.toString())
 
             toast("Game updated")
         }
@@ -81,6 +79,10 @@ class MainActivity : AppCompatActivity() {
                 func
             }
             .show()
+    }
+
+    private fun log(string: String){
+        Log.i(TAG, string)
     }
 }
 
