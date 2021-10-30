@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Chess4Android</string>
+    <string name="getGameButton">Get today\'s game</string>
 </resources>

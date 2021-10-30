@@ -1,0 +1,38 @@
+{
+"game":{
+        "id":"vpjeAHTM",
+        "perf":{
+                "icon": "",
+                "name":"Rapid"
+               },
+        "rated":true,
+        "players":[
+		   {"userId":"garry_maxus",
+                    "name":"Garry_Maxus (1712)",
+                    "color":"white"},
+                   {"userId":"nelson100765",
+                    "name":"Nelson100765 (1751)",
+                    "color":"black"}
+                  ],
+        "pgn":"e4 e5 Nf3 Nc6 Bb5 a6 Ba4 Nf6 d3 b5 Bb3 Be7 O-O O-O Nc3 d6 Nd5 Na5 Nxf6+ Bxf6 Bd5 c6 Bb3 Nxb3 axb3 d5 Bd2 Bg4 Re1 Re8 h3 Bh5 g4 Bg6 g5 Be7 h4 f6 gxf6 Bxf6 Bg5 d4 Qd2 Rf8 Nxe5 Bxg5 Qxg5 Rf6 f4 Qd6 Kf2",
+        "clock":"20+5"
+       },
+
+"puzzle":{
+          "id":"rYK96",
+          "rating":2236,
+          "plays":78787,
+          "initialPly":50,
+          "solution":[
+                      "h7h6",
+                      "g5g3",
+                      "d6e5"
+                     ],
+          "themes":[
+                    "middlegame",
+                    "short",
+                    "advantage",
+                    "pin"
+                   ]
+       }
+}

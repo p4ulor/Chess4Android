@@ -6,9 +6,18 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.AttributeSet
 import android.widget.GridLayout
+import android.widget.TextView
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import pt.isel.pdm.chess4android.R
 import pt.isel.pdm.chess4android.views.Tile.Type
+import android.widget.Toast
+
+//import androidx.test.core.app.ApplicationProvider.getApplicationContext
+import com.android.volley.Request
+import com.android.volley.Response
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
+
 
 /**
  * Custom view that implements a chess board.
@@ -26,7 +35,7 @@ class BoardView(private val ctx: Context, attrs: AttributeSet?) : GridLayout(ctx
 
     data class Position(val letter: Char, val number: Byte, val icon: Int)
 
-    private final val readyChessTable = arrayOf(
+    private val readyChessTable = arrayOf(
         Position('a',8, R.drawable.ic_black_rook),
         Position('b',8, R.drawable.ic_black_knight),
         Position('c',8, R.drawable.ic_black_bishop),
