@@ -14,8 +14,8 @@ data class Puzzle (
     val rating: Int,
     val plays: Int,
     val initialPly: Int,
-    val solution: ArrayList<String>,
-    val themes: ArrayList<String>
+    val solution: Array<String>,
+    val themes: Array<String>
 )
 
 @Serializable

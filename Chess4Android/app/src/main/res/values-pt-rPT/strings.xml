@@ -2,4 +2,10 @@
 <resources>
     <string name="app_name">ChessParaAndroid</string>
     <string name="getGameButton">Carregar o jogo para hoje</string>
+    <string name="continueButton">Continuar</string>
+    <string name="retry">Retentar</string>
+    <string name="jsonError">Erro, está ligado ao wifi?</string>
+    <string name="puzzleUpdated">Puzzle atualizado</string>
+    <string name="alreadyUpdated">Você tem o puzzle para hoje</string>
+    <string name="WTFerror">QTF, sem puzzle ou solução válida</string>
 </resources>

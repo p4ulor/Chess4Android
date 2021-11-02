@@ -1,4 +1,10 @@
 <resources>
     <string name="app_name">Chess4Android</string>
     <string name="getGameButton">Get today\'s game</string>
+    <string name="continueButton">Continue</string>
+    <string name="retry">Retry</string>
+    <string name="jsonError">Error, check wifi connection?</string>
+    <string name="puzzleUpdated">Puzzle updated</string>
+    <string name="alreadyUpdated">You already have the puzzle for today</string>
+    <string name="WTFerror">WTF, no valid puzzle or solution</string>
 </resources>
