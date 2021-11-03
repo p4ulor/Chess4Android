@@ -5,7 +5,9 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.drawable.VectorDrawable
+import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import pt.isel.pdm.chess4android.R
 
@@ -20,12 +22,11 @@ import pt.isel.pdm.chess4android.R
  * @property tilesPerSide   The number of tiles in each side of the chess board
  */
 @SuppressLint("ViewConstructor")
-class Tile( private val ctx: Context, private val type: Type, private val tilesPerSide: Int, private val icon: VectorDrawableCompat) : View(ctx) {
+class Tile( private val ctx: Context, public val type: Type, private val tilesPerSide: Int, private val icon: VectorDrawableCompat) : View(ctx) {
 
-    private val padding = 6 //the bigger this value, the smaller the chess-piece icon inside each Tile (square)
+    public val padding = 6 //the bigger this value, the smaller the chess-piece icon inside each Tile (square)
 
     //private val icon = VectorDrawableCompat.create(ctx.resources, R.drawable.ic_white_knight, null)
-
 
     enum class Type { WHITE, BLACK }
 
