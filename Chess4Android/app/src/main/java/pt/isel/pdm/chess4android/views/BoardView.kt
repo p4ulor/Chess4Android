@@ -10,7 +10,6 @@ import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import pt.isel.pdm.chess4android.R
 import pt.isel.pdm.chess4android.model.BOARDSIZE
 import pt.isel.pdm.chess4android.model.Board
-import pt.isel.pdm.chess4android.views.Tile.Type
 
 //import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import pt.isel.pdm.chess4android.model.Piece
@@ -24,11 +23,23 @@ var TileMatrix = arrayOfNulls<Tile>(side*side)
 @SuppressLint("ClickableViewAccessibility")
 class BoardView(private val ctx: Context, attrs: AttributeSet?) : GridLayout(ctx, attrs) {
 
+    private val blankIcon = VectorDrawableCompat.create(ctx.resources, R.drawable.ic_blank, null)
 
-    private val brush = Paint().apply {
-        ctx.resources.getColor(R.color.chess_board_black, null)
-        style = Paint.Style.STROKE
-        strokeWidth = 10F
+    init {
+        rowCount = side
+        columnCount = side
+        var i = 0
+        repeat(side * side) {
+            val row = it / side
+            val column = it % side
+            val tile = Tile(ctx, (row + column) % 2 == 0, side,
+                ((if(row==1 || row==0 || row==6 || row==7) getDrawablePiece(Board.companion_chessTable[i])
+                else blankIcon)!!)
+            )
+            if(row==1 || row==0 || row==6 || row==7) tile.piece= Board.companion_chessTable[i++]
+            TileMatrix[it] = tile
+            addView(tile)
+        }
     }
 
     private fun getDrawablePiece(piece: Piece) : VectorDrawableCompat? {
@@ -47,25 +58,10 @@ class BoardView(private val ctx: Context, attrs: AttributeSet?) : GridLayout(ctx
         return VectorDrawableCompat.create(ctx.resources, xmlID, null)
     }
 
-    private val blankIcon = VectorDrawableCompat.create(ctx.resources, R.drawable.ic_blank, null)
-
-    init {
-        rowCount = side
-        columnCount = side
-        var i = 0
-        repeat(side * side) {
-            val row = it / side
-            val column = it % side
-            val tile = Tile(ctx, if((row + column) % 2 == 0) Type.WHITE else Type.BLACK, side,
-                ((if(row==1 || row==0 || row==6 || row==7) getDrawablePiece(Board.companion_chessTable[i])
-                else blankIcon)!!)
-            )
-            if(row==1 || row==0 || row==6 || row==7) tile.piece= Board.companion_chessTable[i++]
-
-            TileMatrix[it] = tile
-            addView(tile)
-
-        }
+    private val brush = Paint().apply {
+        ctx.resources.getColor(R.color.chess_board_black, null)
+        style = Paint.Style.STROKE
+        strokeWidth = 10F
     }
 
     override fun dispatchDraw(canvas: Canvas) {

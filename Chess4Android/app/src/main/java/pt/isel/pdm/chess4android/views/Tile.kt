@@ -4,13 +4,9 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.graphics.drawable.VectorDrawable
-import android.util.Log
 import android.view.View
-import android.widget.Toast
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import pt.isel.pdm.chess4android.R
-import pt.isel.pdm.chess4android.model.ChessPieces
 import pt.isel.pdm.chess4android.model.Piece
 
 /**
@@ -20,22 +16,17 @@ import pt.isel.pdm.chess4android.model.Piece
  * Implementation note: This view is not to be used with the designer tool.
  * You need to adapt this view to suit your needs. ;)
  *
- * @property type           The tile's type (i.e. black or white)
+ * @property isWhite           The tile's type (i.e. black or white)
  * @property tilesPerSide   The number of tiles in each side of the chess board
  */
 @SuppressLint("ViewConstructor")
-class Tile(private val ctx: Context, val type: Type, private val tilesPerSide: Int, private val icon: VectorDrawableCompat) : View(ctx) {
+class Tile(private val ctx: Context, val isWhite: Boolean, private val tilesPerSide: Int, private val icon: VectorDrawableCompat) : View(ctx) {
 
-
-    val padding = 6 //the bigger this value, the smaller the chess-piece icon inside each Tile (square)
-    var piece: Piece? = null;
-
-    //private val icon = VectorDrawableCompat.create(ctx.resources, R.drawable.ic_white_knight, null)
-
-    enum class Type { WHITE, BLACK }
+    private val padding = 6 //the bigger this value, the smaller the chess-piece icon inside each Tile (square)
+    var piece: Piece? = null
 
     private val brush = Paint().apply {
-        color = ctx.resources.getColor(if (type == Type.WHITE) R.color.chess_board_white else R.color.chess_board_black, null)
+        color = ctx.resources.getColor(if (isWhite) R.color.chess_board_white else R.color.chess_board_black, null)
         style = Paint.Style.FILL_AND_STROKE
     }
 

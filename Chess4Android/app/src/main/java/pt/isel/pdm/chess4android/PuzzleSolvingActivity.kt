@@ -14,6 +14,9 @@ private const val TAG = "MY_LOG_PuzzleSolvingActivity"
 
 class PuzzleSolvingActivity : AppCompatActivity() {
 
+    private var lichessGameOfTheDayPuzzle: Array<String>? = null
+    private var lichessGameOfTheDaySolution: Array<String>? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_puzzle_solving)
@@ -23,12 +26,13 @@ class PuzzleSolvingActivity : AppCompatActivity() {
                 Log.i(TAG, name) //very interesting, kotlin. tile.type.toString().lowercase().replaceFirstChar { it.uppercaseChar() }
             }
         }
-
+        lichessGameOfTheDayPuzzle = intent.getStringArrayExtra("puzzle")
+        lichessGameOfTheDaySolution = intent.getStringArrayExtra("solution")
     }
 
-    override fun onBackPressed() {
+    /*override fun onBackPressed() {
         toast(R.string.cantBack)
-    }
+    }*/
     private fun toast(text: String) = Toast.makeText(this, text, Toast.LENGTH_LONG).show()
 
     private fun toast(id: Int) = toast(getString(id))
