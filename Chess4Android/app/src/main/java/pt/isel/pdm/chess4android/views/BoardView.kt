@@ -5,12 +5,10 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.AttributeSet
-import android.util.Log
-import android.view.View
 import android.widget.GridLayout
-import android.widget.Toast
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import pt.isel.pdm.chess4android.R
+import pt.isel.pdm.chess4android.model.BOARDSIZE
 import pt.isel.pdm.chess4android.model.Board
 import pt.isel.pdm.chess4android.views.Tile.Type
 
@@ -21,7 +19,7 @@ import pt.isel.pdm.chess4android.model.Piece
 /**
  * Custom view that implements a chess board.
  */
-const val side = 8
+const val side = BOARDSIZE
 var TileMatrix = arrayOfNulls<Tile>(side*side)
 @SuppressLint("ClickableViewAccessibility")
 class BoardView(private val ctx: Context, attrs: AttributeSet?) : GridLayout(ctx, attrs) {
@@ -33,7 +31,7 @@ class BoardView(private val ctx: Context, attrs: AttributeSet?) : GridLayout(ctx
         strokeWidth = 10F
     }
 
-    private fun getPiece(piece: Piece) : VectorDrawableCompat? {
+    private fun getDrawablePiece(piece: Piece) : VectorDrawableCompat? {
         return when(piece.pieceLetter){
             ' ' -> if(piece.isWhite) getIcon(R.drawable.ic_white_pawn) else getIcon(R.drawable.ic_black_pawn)
             'b' -> if(piece.isWhite) getIcon(R.drawable.ic_white_bishop) else getIcon(R.drawable.ic_black_bishop)
@@ -59,11 +57,14 @@ class BoardView(private val ctx: Context, attrs: AttributeSet?) : GridLayout(ctx
             val row = it / side
             val column = it % side
             val tile = Tile(ctx, if((row + column) % 2 == 0) Type.WHITE else Type.BLACK, side,
-                (if(row==1 || row==0 || row==6 || row==7) getPiece(Board.companion_chessTable[i++])!!
-                else blankIcon)!!
+                ((if(row==1 || row==0 || row==6 || row==7) getDrawablePiece(Board.companion_chessTable[i])
+                else blankIcon)!!)
             )
+            if(row==1 || row==0 || row==6 || row==7) tile.piece= Board.companion_chessTable[i++]
+
+            TileMatrix[it] = tile
             addView(tile)
-            TileMatrix[i]=tile
+
         }
     }
 

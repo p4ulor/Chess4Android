@@ -29,6 +29,8 @@ sealed class ChessPieces (private val indicadedMovement: Direction) { //https://
             if (possibleMovements.contains(indicadedMovement)) return true
             return false
         }
+
+        override fun toString(): String = "Pawn"
     }
 
     data class Bishop (private val indicadedMovement: Direction) : Piece() {
@@ -46,6 +48,8 @@ sealed class ChessPieces (private val indicadedMovement: Direction) { //https://
             if (possibleMovements.contains(indicadedMovement)) return true
             return false
         }
+
+        override fun toString(): String = "Bishop"
     }
 
     data class Knight (private val indicadedMovement: Direction) : Piece() {
@@ -63,6 +67,8 @@ sealed class ChessPieces (private val indicadedMovement: Direction) { //https://
             if (possibleMovements.contains(indicadedMovement)) return true
             return false
         }
+
+        override fun toString(): String = "Knight"
     }
 
     data class Rook (private val indicadedMovement: Direction) : Piece() {
@@ -80,6 +86,8 @@ sealed class ChessPieces (private val indicadedMovement: Direction) { //https://
             if (possibleMovements.contains(indicadedMovement)) return true
             return false
         }
+
+        override fun toString(): String = "Rook"
     }
 
     data class King (private val indicadedMovement: Direction) : Piece() {
@@ -97,6 +105,8 @@ sealed class ChessPieces (private val indicadedMovement: Direction) { //https://
             if (possibleMovements.contains(indicadedMovement)) return true
             return false
         }
+
+        override fun toString(): String = "King"
     }
 
     data class Queen (private val indicadedMovement: Direction) : Piece() {
@@ -114,6 +124,8 @@ sealed class ChessPieces (private val indicadedMovement: Direction) { //https://
             if (possibleMovements.contains(indicadedMovement)) return true
             return false
         }
+
+        override fun toString(): String = "Queen"
     }
 }
 
