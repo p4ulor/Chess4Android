@@ -77,15 +77,39 @@ private var chessPiecesTablePositions = arrayOf(
     ChessPieces.Rook('h', 1, true)
 )
 
-class Board (private val puzzle: String) {
+class Board {
     companion object { val companion_chessTable = chessPiecesTablePositions } //chessPiecesTablePositions will be read only for classes that want to acess it
 
+    private var puzzle: String? = null
+    constructor( puzzle: String) {
+        this.puzzle = puzzle
+    }
 
-
-    fun isSpotWithoutAPiece(letter: Char, number: Byte) : Boolean {
+    fun getPieceColorAtPosition(position: Position) : Boolean? {
         chessPiecesTablePositions.forEach {
-                piece -> if (piece.position.letter==letter && piece.position.number==number) return false
+                piece -> if (piece.position.letter==position.letter && piece.position.number==position.number && piece.pieceLetter!=PIECES.EMPTY) return piece.isWhite
+        }
+        return null
+    }
+
+    fun isPositionEmpty(position: Position) : Boolean { //true = white, false = black
+        chessPiecesTablePositions.forEach {
+                piece -> if (piece.position.letter==position.letter && piece.position.number==position.number && piece.pieceLetter==PIECES.EMPTY) return false
         }
         return true
+    }
+
+    fun getIndexOfPieceWithPosition(position: Position) : Int {
+        chessPiecesTablePositions.forEachIndexed {
+                index, piece -> if (piece.position.letter==position.letter && piece.position.number==position.number ) return index
+        }
+        return -1
+    }
+
+    fun getPieceAtIndex(index: Int) : Piece? = if(index>=0) chessPiecesTablePositions[index] else null
+
+    fun setPieceAtIndex(index: Int, piece: Piece) {
+        if(index<0) throw IllegalArgumentException()
+        chessPiecesTablePositions[index]=piece
     }
 }

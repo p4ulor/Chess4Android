@@ -8,6 +8,7 @@ import android.view.View
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import pt.isel.pdm.chess4android.R
 import pt.isel.pdm.chess4android.model.Piece
+import java.lang.IllegalArgumentException
 
 /**
  * Custom view that implements a chess board tile.
@@ -20,10 +21,12 @@ import pt.isel.pdm.chess4android.model.Piece
  * @property tilesPerSide   The number of tiles in each side of the chess board
  */
 @SuppressLint("ViewConstructor")
-class Tile(private val ctx: Context, val isWhite: Boolean, private val tilesPerSide: Int, private val icon: VectorDrawableCompat) : View(ctx) {
+class Tile (private val ctx: Context, private val isWhite: Boolean, private val tilesPerSide: Int, private val icon: VectorDrawableCompat, val index: Int) : View(ctx) {
 
+    init {
+        if(index<0) throw IllegalArgumentException()
+    }
     private val padding = 6 //the bigger this value, the smaller the chess-piece icon inside each Tile (square)
-    var piece: Piece? = null
 
     private val brush = Paint().apply {
         color = ctx.resources.getColor(if (isWhite) R.color.chess_board_white else R.color.chess_board_black, null)

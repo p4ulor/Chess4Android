@@ -5,8 +5,8 @@ import java.lang.IllegalArgumentException
 val validXPositions = charArrayOf('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h')
 val validYPositions = byteArrayOf(1, 2, 3, 4, 5, 6, 7, 8)
 
-data class Position(public var letter: Char, public val number: Byte) {
-    init {
+data class Position(var letter: Char, val number: Byte) {
+    init { //is called after primary constructor
         if(!isValid()) throw IllegalArgumentException()
     }
     private fun isValid() = validXPositions.contains(letter) && validYPositions.contains(number)
@@ -15,12 +15,16 @@ data class Position(public var letter: Char, public val number: Byte) {
     fun getXDiference(destination: Position) : Int = this.letter-destination.letter //int to make it easy 4 us
     fun getYDiference(destination: Position) : Int = this.number-destination.number //int to make it easy 4 us
 
-    fun isValidMovement(destination: Position) : Boolean = getXDiference(destination) in 1..7 && getYDiference(destination) in 1..7
-
+    fun isValidMovement(destination: Position, maxX: Byte, maxY: Byte) : Boolean {
+        if(maxX<0 || maxY<0 || maxX >= BOARDSIZE || maxY >= BOARDSIZE) throw IllegalArgumentException()
+        val movedInX: Boolean = getXDiference(destination) in 1..maxX //is false if not between range [1, maxX]
+        val movedInY: Boolean = getYDiference(destination) in 1..maxY
+        return !(!movedInX && !movedInY) //is both X and Y axis movements are false, it returns false, otherwise, return true
+    }
 }
 
-abstract class Piece (var position: Position, open val isWhite: Boolean) {
-    abstract val pieceLetter: Char //lowercase
+abstract class Piece (var position: Position, open var isWhite: Boolean) {
+    abstract val pieceLetter: PIECES //lowercase
     abstract val maxTravelDistanceX: Byte //positive value
     abstract val maxTravelDistanceY: Byte //positive value
     abstract fun moveTo(destination: Position): Boolean
@@ -28,20 +32,22 @@ abstract class Piece (var position: Position, open val isWhite: Boolean) {
     constructor(letter: Char, number: Byte, isWhite: Boolean) : this(Position(letter, number), isWhite)
 }
 
-sealed class ChessPieces { //https://antonioleiva.com/sealed-classes-kotlin/
-    data class Pawn (var letter: Char, val number: Byte, override val isWhite: Boolean) : Piece(letter, number, isWhite) {
-        override val pieceLetter = ' '
+sealed class ChessPieces { //https://antonioleiva.com/sealed-classes-kotlin/ //maybe not needed here
+    data class Pawn (var letter: Char, val number: Byte, override var isWhite: Boolean) : Piece(letter, number, isWhite) {
+        override val pieceLetter = PIECES.PAWN
         override val maxTravelDistanceX: Byte = 2
         override val maxTravelDistanceY: Byte = 1
 
-        var firstMoveUsed: Boolean = false
+        private var firstMoveUsed: Boolean = false
 
-        override fun moveTo(destination: Position) : Boolean {
-            if(position.isValidMovement(destination)){
-                if(!firstMoveUsed && position.getYDiference(destination)<=2) {
-                    position = destination
+         override fun moveTo(destination: Position) : Boolean {
+            if(position.isValidMovement(destination, maxTravelDistanceX, maxTravelDistanceY)){ //part checks logical board bounds and piece maxTravelDistance bounds
+                if(!firstMoveUsed && position.getYDiference(destination)<=2) {                //part that checks piece movement *logic*, and its this format for every moveTo method
+                    /*this.*/position = destination
+                    return true
                 } else if(position.getYDiference(destination) == 1){
                     position = destination
+                    return true
                 }
             }
             return false
@@ -50,14 +56,17 @@ sealed class ChessPieces { //https://antonioleiva.com/sealed-classes-kotlin/
         override fun toString(): String = "Pawn"
     }
 
-    data class Bishop (var letter: Char, val number: Byte, override val isWhite: Boolean) : Piece(letter, number, isWhite) {
-        override val pieceLetter = 'b'
+    data class Bishop (var letter: Char, val number: Byte, override var isWhite: Boolean) : Piece(letter, number, isWhite) {
+        override val pieceLetter = PIECES.BISHOP
         override val maxTravelDistanceX: Byte = 7
         override val maxTravelDistanceY: Byte = 7
 
         override fun moveTo(destination: Position) : Boolean {
-            if(this.position.isValidMovement(destination)){
-                //todo
+            if(position.isValidMovement(destination, maxTravelDistanceX, maxTravelDistanceY)){
+                if(position.getXDiference(destination) / position.getYDiference(destination)==0) {
+                    position = destination
+                    return true
+                }
             }
             return false
         }
@@ -65,14 +74,20 @@ sealed class ChessPieces { //https://antonioleiva.com/sealed-classes-kotlin/
         override fun toString(): String = "Bishop"
     }
 
-    data class Knight (var letter: Char, val number: Byte, override val isWhite: Boolean) : Piece(letter, number, isWhite) {
-        override val pieceLetter = 'n'
+    data class Knight (var letter: Char, val number: Byte, override var isWhite: Boolean) : Piece(letter, number, isWhite) {
+        override val pieceLetter = PIECES.KNIGHT
         override val maxTravelDistanceX: Byte = 0 //Knight is an exception
         override val maxTravelDistanceY: Byte = 0 //Knight is an exception
 
         override fun moveTo(destination: Position) : Boolean {
-            if(this.position.isValidMovement(destination)){
-                //todo
+            if(position.isValidMovement(destination, maxTravelDistanceX, maxTravelDistanceY)){
+                val x = position.getXDiference(destination)
+                val y = position.getXDiference(destination)
+                if(x==1 && y==2 || x==2 && y==1 ||x==2 && y==-1 || x==1 && y==-2 ||
+                   x==-1 && y==-2 || x==-2 && y==-1 || x==-2 && y==1 || x==-1 && y==2) {
+                    position = destination
+                    return true
+                }
             }
             return false
         }
@@ -80,14 +95,23 @@ sealed class ChessPieces { //https://antonioleiva.com/sealed-classes-kotlin/
         override fun toString(): String = "Knight"
     }
 
-    data class Rook (var letter: Char, val number: Byte, override val isWhite: Boolean) : Piece(letter, number, isWhite) {
-        override val pieceLetter = 'r'
+    data class Rook (var letter: Char, val number: Byte, override var isWhite: Boolean) : Piece(letter, number, isWhite) {
+        override val pieceLetter = PIECES.ROOK
         override val maxTravelDistanceX: Byte = 7
         override val maxTravelDistanceY: Byte = 7
 
         override fun moveTo(destination: Position) : Boolean {
-            if(this.position.isValidMovement(destination)){
-                //todo
+            if(position.isValidMovement(destination, maxTravelDistanceX, maxTravelDistanceY)){
+                if(position.getXDiference(destination)==0) {
+                    if (position.getYDiference(destination)!=0) {
+                        position = destination
+                        return true
+                    }
+                }
+                else if (position.getYDiference(destination)==0) {
+                    position = destination
+                    return true
+                }
             }
             return false
         }
@@ -95,14 +119,15 @@ sealed class ChessPieces { //https://antonioleiva.com/sealed-classes-kotlin/
         override fun toString(): String = "Rook"
     }
 
-    data class King (var letter: Char, val number: Byte, override val isWhite: Boolean) : Piece(letter, number, isWhite) {
-        override val pieceLetter = 'k'
+    data class King (var letter: Char, val number: Byte, override var isWhite: Boolean) : Piece(letter, number, isWhite) {
+        override val pieceLetter = PIECES.KING
         override val maxTravelDistanceX: Byte = 1
         override val maxTravelDistanceY: Byte = 1
 
         override fun moveTo(destination: Position) : Boolean {
-            if(this.position.isValidMovement(destination)){
-                //todo
+            if(position.isValidMovement(destination, maxTravelDistanceX, maxTravelDistanceY)){
+                position = destination
+                return true
             }
             return false
         }
@@ -110,14 +135,15 @@ sealed class ChessPieces { //https://antonioleiva.com/sealed-classes-kotlin/
         override fun toString(): String = "King"
     }
 
-    data class Queen (var letter: Char, val number: Byte, override val isWhite: Boolean) : Piece(letter, number, isWhite) {
-        override val pieceLetter = 'q'
+    data class Queen (var letter: Char, val number: Byte, override var isWhite: Boolean) : Piece(letter, number, isWhite) {
+        override val pieceLetter = PIECES.QUEEN
         override val maxTravelDistanceX: Byte = 7
         override val maxTravelDistanceY: Byte = 7
 
         override fun moveTo(destination: Position) : Boolean {
-            if(this.position.isValidMovement(destination)){
-                //todo
+            if(position.isValidMovement(destination, maxTravelDistanceX, maxTravelDistanceY)){
+                position = destination
+                return true
             }
             return false
         }
@@ -125,20 +151,24 @@ sealed class ChessPieces { //https://antonioleiva.com/sealed-classes-kotlin/
         override fun toString(): String = "Queen"
     }
 
-    data class Empty (var letter: Char, val number: Byte) : Piece(letter, number, false/*Irrelevant*/) {
-        override val pieceLetter = '-'
+    data class Empty (var letter: Char, val number: Byte) : Piece(letter, number, false) {
+        override val pieceLetter = PIECES.EMPTY
         override val maxTravelDistanceX: Byte = 0
         override val maxTravelDistanceY: Byte = 0
 
-        override fun moveTo(destination: Position) : Boolean {
-            if(this.position.isValidMovement(destination)){
-                //todo
-            }
-            return false
-        }
-
+        override fun moveTo(destination: Position) : Boolean = false
         override fun toString(): String = "Empty"
     }
+}
+
+enum class PIECES {
+    PAWN,
+    BISHOP,
+    KNIGHT,
+    ROOK,
+    KING,
+    QUEEN,
+    EMPTY
 }
 
 /*
