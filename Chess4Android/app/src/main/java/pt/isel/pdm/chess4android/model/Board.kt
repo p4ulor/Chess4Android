@@ -22,6 +22,42 @@ private var chessPiecesTablePositions = arrayOf(
     ChessPieces.Pawn('g', 7, false),
     ChessPieces.Pawn('h', 7, false),
 
+    ChessPieces.Empty('a', 6),
+    ChessPieces.Empty('b', 6),
+    ChessPieces.Empty('c', 6),
+    ChessPieces.Empty('d', 6),
+    ChessPieces.Empty('e', 6),
+    ChessPieces.Empty('f', 6),
+    ChessPieces.Empty('g', 6),
+    ChessPieces.Empty('h', 6),
+
+    ChessPieces.Empty('a', 5),
+    ChessPieces.Empty('b', 5),
+    ChessPieces.Empty('c', 5),
+    ChessPieces.Empty('d', 5),
+    ChessPieces.Empty('e', 5),
+    ChessPieces.Empty('f', 5),
+    ChessPieces.Empty('g', 5),
+    ChessPieces.Empty('h', 5),
+
+    ChessPieces.Empty('a', 4),
+    ChessPieces.Empty('b', 4),
+    ChessPieces.Empty('c', 4),
+    ChessPieces.Empty('d', 4),
+    ChessPieces.Empty('e', 4),
+    ChessPieces.Empty('f', 4),
+    ChessPieces.Empty('g', 4),
+    ChessPieces.Empty('h', 4),
+
+    ChessPieces.Empty('a', 3),
+    ChessPieces.Empty('b', 3),
+    ChessPieces.Empty('c', 3),
+    ChessPieces.Empty('d', 3),
+    ChessPieces.Empty('e', 3),
+    ChessPieces.Empty('f', 3),
+    ChessPieces.Empty('g', 3),
+    ChessPieces.Empty('h', 3),
+
     ChessPieces.Pawn('a', 2, true),
     ChessPieces.Pawn('b', 2, true),
     ChessPieces.Pawn('c', 2, true),
@@ -41,8 +77,15 @@ private var chessPiecesTablePositions = arrayOf(
     ChessPieces.Rook('h', 1, true)
 )
 
-class Board {
-    public var boardDataMatrix = arrayOfNulls<ChessPieces>(BOARDSIZE)
+class Board (private val puzzle: String) {
     companion object { val companion_chessTable = chessPiecesTablePositions } //chessPiecesTablePositions will be read only for classes that want to acess it
 
+
+
+    fun isSpotWithoutAPiece(letter: Char, number: Byte) : Boolean {
+        chessPiecesTablePositions.forEach {
+                piece -> if (piece.position.letter==letter && piece.position.number==number) return false
+        }
+        return true
+    }
 }

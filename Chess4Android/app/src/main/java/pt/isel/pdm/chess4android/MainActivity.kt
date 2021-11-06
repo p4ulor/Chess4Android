@@ -4,10 +4,8 @@ import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.util.Log
 import android.widget.Button
-import android.widget.TextView
 import android.widget.Toast
 import com.android.volley.Request
 import com.android.volley.Response
@@ -22,10 +20,21 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.reflect.KFunction0
 import kotlin.text.StringBuilder
+import android.content.SharedPreferences
+import android.content.SharedPreferences.Editor
+
+
+
+
+
+
 
 private const val TAG = "MY_LOG_MainActivity"
 private const val LICHESSDAILYPUZZLEURL: String = "https://lichess.org/api/puzzle/daily"
 private const val DATEFILE = "latest_data_fetch_date.txt"
+//Bundle and Intent data
+const val PUZZLE = "puzzle"
+const val SOLUTION = "solution"
 
 class MainActivity : AppCompatActivity() {
 
@@ -40,6 +49,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        log("Activity created")
         super.onCreate(savedInstanceState)
         setContentView(binding.root) //mandatory before referencing view's using findViewById
         //setContentView(R.layout.activity_main); //alternative to what's above
@@ -61,12 +71,12 @@ class MainActivity : AppCompatActivity() {
     private fun getTodaysGame(){
         if(getTodaysDate().equals(readDateOfTheLatestPuzzlePull()) && isPuzzleAndSolutionNotNull()){
             toast(R.string.alreadyUpdated)
-            continueButton?.isEnabled = true
+            //continueButton?.isEnabled = true
             return
         }
         val queue = Volley.newRequestQueue(this) //https://developer.android.com/training/volley/simple
         val responseListener = Response.Listener<String> { response -> //https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/basic-serialization.md
-            log(response.toString())
+            //log(response.toString())
 
             val lichessGameOfTheDay: LichessJSON = Json { ignoreUnknownKeys = true }.decodeFromString(LichessJSON.serializer(),response)
 
@@ -93,7 +103,7 @@ class MainActivity : AppCompatActivity() {
 
     //Current date methods
 
-    private fun getTodaysDate() =  SimpleDateFormat("dd/M/yyyy").format(Date()) //M must be uppercase or it will read the minutes
+    private fun getTodaysDate() =  SimpleDateFormat("dd/M/yyyy").format(Date()) //The 'M' must be uppercase or it will read the minutes
 
     private fun readDateOfTheLatestPuzzlePull() : String { //https://developer.android.com/training/data-storage/app-specific
         var sb = StringBuilder()
@@ -111,21 +121,28 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    //Save state methods
+    // "on" overwritten methods / Save state methods
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putStringArray("puzzle", lichessGameOfTheDayPuzzle)
-        outState.putStringArray("solution", lichessGameOfTheDaySolution)
+        outState.putStringArray(PUZZLE, lichessGameOfTheDayPuzzle)
+        outState.putStringArray(SOLUTION, lichessGameOfTheDaySolution)
         super.onSaveInstanceState(outState)
+        log("State saved")
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
-        lichessGameOfTheDayPuzzle = savedInstanceState.getStringArray("puzzle")
-        lichessGameOfTheDaySolution = savedInstanceState.getStringArray("solution")
+        lichessGameOfTheDayPuzzle = savedInstanceState.getStringArray(PUZZLE)
+        lichessGameOfTheDaySolution = savedInstanceState.getStringArray(SOLUTION)
+        log("State restored")
     }
 
-    //Launch other activity
+    override fun onDestroy() {
+        log("Activity destroyed")
+        super.onDestroy()
+    }
+
+    //Launch next activity
     private fun launchGame() {
         if(lichessGameOfTheDayPuzzle==null || lichessGameOfTheDaySolution==null || lichessGameOfTheDayPuzzle?.size==0 || lichessGameOfTheDaySolution?.size==0) {
             toast(R.string.WTFerror)
@@ -154,7 +171,7 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
-    private fun log(string: String) = Log.i(TAG, string)
+    private fun log(s: String) = Log.i(TAG, s)
 
     private fun log(arrayOfStrings: Array<String>?){
         val sb = StringBuilder()

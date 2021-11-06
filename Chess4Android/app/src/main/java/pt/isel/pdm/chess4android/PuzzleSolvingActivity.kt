@@ -4,9 +4,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import pt.isel.pdm.chess4android.model.ChessPieces
-import pt.isel.pdm.chess4android.views.BoardView
-import pt.isel.pdm.chess4android.views.Tile
 import pt.isel.pdm.chess4android.views.TileMatrix
 
 
@@ -22,17 +19,20 @@ class PuzzleSolvingActivity : AppCompatActivity() {
         setContentView(R.layout.activity_puzzle_solving)
         TileMatrix.forEach { tile ->
             tile?.setOnClickListener{
-                val name :String = tile.piece?.toString() ?: "Empty"
-                Log.i(TAG, name) //very interesting, kotlin. tile.type.toString().lowercase().replaceFirstChar { it.uppercaseChar() }
+                val name: String = tile.piece?.toString() ?: "Empty"
+                val color: String =if(tile.piece?.isWhite!!) "White" else "Black"
+                Log.i(TAG, color+" "+name+ " in "+tile.piece?.position?.toString()) //very interesting, kotlin. tile.type.toString().lowercase().replaceFirstChar { it.uppercaseChar() }
             }
         }
-        lichessGameOfTheDayPuzzle = intent.getStringArrayExtra("puzzle")
-        lichessGameOfTheDaySolution = intent.getStringArrayExtra("solution")
+        lichessGameOfTheDayPuzzle = intent.getStringArrayExtra(PUZZLE)
+        lichessGameOfTheDaySolution = intent.getStringArrayExtra(SOLUTION)
     }
 
-    /*override fun onBackPressed() {
-        toast(R.string.cantBack)
-    }*/
+    override fun onBackPressed() {
+        toast(R.string.progressLost)
+        super.onBackPressed()
+    }
+
     private fun toast(text: String) = Toast.makeText(this, text, Toast.LENGTH_LONG).show()
 
     private fun toast(id: Int) = toast(getString(id))

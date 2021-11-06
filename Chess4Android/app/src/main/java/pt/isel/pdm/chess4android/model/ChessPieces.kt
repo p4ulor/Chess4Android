@@ -1,136 +1,148 @@
 package pt.isel.pdm.chess4android.model
 
-data class Position(val letter: Char, val number: Byte)
+import java.lang.IllegalArgumentException
 
-abstract class Piece {
-    abstract val pieceLetter: Char //lowercase
-    abstract val possibleMovements: ArrayList<Direction>
-    abstract val maxTravelDistanceX: Byte //positive value
-    abstract val maxTravelDistanceY: Byte //positive value
-    abstract fun isValidMovement(): Boolean
-    var position: Position = Position(' ', -1 )
-    var isWhite: Boolean = true
+val validXPositions = charArrayOf('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h')
+val validYPositions = byteArrayOf(1, 2, 3, 4, 5, 6, 7, 8)
+
+data class Position(public var letter: Char, public val number: Byte) {
+    init {
+        if(!isValid()) throw IllegalArgumentException()
+    }
+    private fun isValid() = validXPositions.contains(letter) && validYPositions.contains(number)
+    override fun toString(): String = "Letter: $letter, Number: $number"
+
+    fun getXDiference(destination: Position) : Int = this.letter-destination.letter //int to make it easy 4 us
+    fun getYDiference(destination: Position) : Int = this.number-destination.number //int to make it easy 4 us
+
+    fun isValidMovement(destination: Position) : Boolean = getXDiference(destination) in 1..7 && getYDiference(destination) in 1..7
+
 }
 
-//todo rethink about these classes
-sealed class ChessPieces (private val indicadedMovement: Direction) { //https://antonioleiva.com/sealed-classes-kotlin/
-    data class Pawn (private val indicadedMovement: Direction) : Piece() {
+abstract class Piece (var position: Position, open val isWhite: Boolean) {
+    abstract val pieceLetter: Char //lowercase
+    abstract val maxTravelDistanceX: Byte //positive value
+    abstract val maxTravelDistanceY: Byte //positive value
+    abstract fun moveTo(destination: Position): Boolean
+
+    constructor(letter: Char, number: Byte, isWhite: Boolean) : this(Position(letter, number), isWhite)
+}
+
+sealed class ChessPieces { //https://antonioleiva.com/sealed-classes-kotlin/
+    data class Pawn (var letter: Char, val number: Byte, override val isWhite: Boolean) : Piece(letter, number, isWhite) {
         override val pieceLetter = ' '
-        override val possibleMovements = arrayListOf(Direction.UP, Direction.UP_LEFT, Direction.UP_RIGHT) // TODO Do I need to include the inverse for black pieces?
         override val maxTravelDistanceX: Byte = 2
         override val maxTravelDistanceY: Byte = 1
 
-        constructor(letter: Char, number: Byte, white: Boolean) : this(Direction.STILL) {
-            position = Position(letter, number)
-            isWhite = white
-        }
+        var firstMoveUsed: Boolean = false
 
-        override fun isValidMovement(): Boolean {
-            if (possibleMovements.contains(indicadedMovement)) return true
+        override fun moveTo(destination: Position) : Boolean {
+            if(position.isValidMovement(destination)){
+                if(!firstMoveUsed && position.getYDiference(destination)<=2) {
+                    position = destination
+                } else if(position.getYDiference(destination) == 1){
+                    position = destination
+                }
+            }
             return false
         }
 
         override fun toString(): String = "Pawn"
     }
 
-    data class Bishop (private val indicadedMovement: Direction) : Piece() {
+    data class Bishop (var letter: Char, val number: Byte, override val isWhite: Boolean) : Piece(letter, number, isWhite) {
         override val pieceLetter = 'b'
-        override val possibleMovements = arrayListOf(Direction.UP_LEFT, Direction.UP_RIGHT, Direction.DOWN_RIGHT, Direction.DOWN_RIGHT)
         override val maxTravelDistanceX: Byte = 7
         override val maxTravelDistanceY: Byte = 7
 
-        constructor(letter: Char, number: Byte, white: Boolean) : this(Direction.STILL) {
-            position = Position(letter, number)
-            isWhite = white
-        }
-
-        override fun isValidMovement(): Boolean {
-            if (possibleMovements.contains(indicadedMovement)) return true
+        override fun moveTo(destination: Position) : Boolean {
+            if(this.position.isValidMovement(destination)){
+                //todo
+            }
             return false
         }
 
         override fun toString(): String = "Bishop"
     }
 
-    data class Knight (private val indicadedMovement: Direction) : Piece() {
+    data class Knight (var letter: Char, val number: Byte, override val isWhite: Boolean) : Piece(letter, number, isWhite) {
         override val pieceLetter = 'n'
-        override val possibleMovements = arrayListOf(Direction.UP_LEFT, Direction.UP_RIGHT, Direction.DOWN_RIGHT, Direction.DOWN_RIGHT)
-        override val maxTravelDistanceX: Byte = 2
-        override val maxTravelDistanceY: Byte = 2
+        override val maxTravelDistanceX: Byte = 0 //Knight is an exception
+        override val maxTravelDistanceY: Byte = 0 //Knight is an exception
 
-        constructor(letter: Char, number: Byte, white: Boolean) : this(Direction.STILL) {
-            position = Position(letter, number)
-            isWhite = white
-        }
-
-        override fun isValidMovement(): Boolean {
-            if (possibleMovements.contains(indicadedMovement)) return true
+        override fun moveTo(destination: Position) : Boolean {
+            if(this.position.isValidMovement(destination)){
+                //todo
+            }
             return false
         }
 
         override fun toString(): String = "Knight"
     }
 
-    data class Rook (private val indicadedMovement: Direction) : Piece() {
+    data class Rook (var letter: Char, val number: Byte, override val isWhite: Boolean) : Piece(letter, number, isWhite) {
         override val pieceLetter = 'r'
-        override val possibleMovements = arrayListOf(Direction.UP, Direction.DOWN,  Direction.LEFT, Direction.RIGHT)
         override val maxTravelDistanceX: Byte = 7
         override val maxTravelDistanceY: Byte = 7
 
-        constructor(letter: Char, number: Byte, white: Boolean) : this(Direction.STILL) {
-            position = Position(letter, number)
-            isWhite = white
-        }
-
-        override fun isValidMovement(): Boolean {
-            if (possibleMovements.contains(indicadedMovement)) return true
+        override fun moveTo(destination: Position) : Boolean {
+            if(this.position.isValidMovement(destination)){
+                //todo
+            }
             return false
         }
 
         override fun toString(): String = "Rook"
     }
 
-    data class King (private val indicadedMovement: Direction) : Piece() {
+    data class King (var letter: Char, val number: Byte, override val isWhite: Boolean) : Piece(letter, number, isWhite) {
         override val pieceLetter = 'k'
-        override val possibleMovements = arrayListOf(Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT, Direction.UP_LEFT, Direction.UP_RIGHT, Direction.DOWN_LEFT, Direction.DOWN_RIGHT )
         override val maxTravelDistanceX: Byte = 1
         override val maxTravelDistanceY: Byte = 1
 
-        constructor(letter: Char, number: Byte, white: Boolean) : this(Direction.STILL) {
-            position = Position(letter, number)
-            isWhite = white
-        }
-
-        override fun isValidMovement(): Boolean {
-            if (possibleMovements.contains(indicadedMovement)) return true
+        override fun moveTo(destination: Position) : Boolean {
+            if(this.position.isValidMovement(destination)){
+                //todo
+            }
             return false
         }
 
         override fun toString(): String = "King"
     }
 
-    data class Queen (private val indicadedMovement: Direction) : Piece() {
+    data class Queen (var letter: Char, val number: Byte, override val isWhite: Boolean) : Piece(letter, number, isWhite) {
         override val pieceLetter = 'q'
-        override val possibleMovements = arrayListOf(Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT, Direction.UP_LEFT, Direction.UP_RIGHT, Direction.DOWN_LEFT, Direction.DOWN_RIGHT )
         override val maxTravelDistanceX: Byte = 7
         override val maxTravelDistanceY: Byte = 7
 
-        constructor(letter: Char, number: Byte, white: Boolean) : this(Direction.STILL) {
-            position = Position(letter, number)
-            isWhite = white
-        }
-
-        override fun isValidMovement(): Boolean {
-            if (possibleMovements.contains(indicadedMovement)) return true
+        override fun moveTo(destination: Position) : Boolean {
+            if(this.position.isValidMovement(destination)){
+                //todo
+            }
             return false
         }
 
         override fun toString(): String = "Queen"
     }
+
+    data class Empty (var letter: Char, val number: Byte) : Piece(letter, number, false/*Irrelevant*/) {
+        override val pieceLetter = '-'
+        override val maxTravelDistanceX: Byte = 0
+        override val maxTravelDistanceY: Byte = 0
+
+        override fun moveTo(destination: Position) : Boolean {
+            if(this.position.isValidMovement(destination)){
+                //todo
+            }
+            return false
+        }
+
+        override fun toString(): String = "Empty"
+    }
 }
 
-enum class Direction (private var x: Byte, private var y: Byte) {
-    UP(0,1),
+/*
+   UP(0,1),
     DOWN(0,-1),
     LEFT(-1,0),
     RIGHT(1,0),
@@ -140,20 +152,7 @@ enum class Direction (private var x: Byte, private var y: Byte) {
     DOWN_LEFT(-1,-1),
     DOWN_RIGHT(1,-1),
 
-    STILL(0,0);
+    SPECIAL_KNIGHT_1OCLK(1,2),  SPECIAL_KNIGHT_2OCLK(2,1),  SPECIAL_KNIGHT_4OCLK(2,-1),  SPECIAL_KNIGHT_5OCLK(1,-2),
+    SPECIAL_KNIGHT_7OCLK(-1,-2),  SPECIAL_KNIGHT_8OCLK(-2,-1),  SPECIAL_KNIGHT_10OCLK(-2,1),  SPECIAL_KNIGHT_11OCLK(-1,2),
+ */
 
-    fun horizontalInverse(): Direction {
-        return when(this) {
-            UP -> DOWN
-            DOWN -> UP
-            LEFT -> RIGHT
-            RIGHT -> LEFT
-
-            UP_LEFT -> DOWN_LEFT
-            UP_RIGHT -> DOWN_RIGHT
-            DOWN_LEFT -> UP_LEFT
-            DOWN_RIGHT -> UP_RIGHT
-            else -> STILL
-        }
-    }
-}

@@ -7,5 +7,5 @@
     <string name="puzzleUpdated">Puzzle updated</string>
     <string name="alreadyUpdated">You already have the puzzle for today</string>
     <string name="WTFerror">WTF, no valid puzzle or solution</string>
-    <string name="cantBack">You can\'t go back now!</string>
+    <string name="progressLost">Progress lost</string>
 </resources>

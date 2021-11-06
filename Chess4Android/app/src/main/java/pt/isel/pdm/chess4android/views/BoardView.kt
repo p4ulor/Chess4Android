@@ -33,10 +33,10 @@ class BoardView(private val ctx: Context, attrs: AttributeSet?) : GridLayout(ctx
             val row = it / side
             val column = it % side
             val tile = Tile(ctx, (row + column) % 2 == 0, side,
-                ((if(row==1 || row==0 || row==6 || row==7) getDrawablePiece(Board.companion_chessTable[i])
+                ((if(row==1 || row==0 || row==6 || row==7) getDrawablePiece(Board.companion_chessTable[i]) //the if is not stricly necessary but its a little optimization
                 else blankIcon)!!)
             )
-            if(row==1 || row==0 || row==6 || row==7) tile.piece= Board.companion_chessTable[i++]
+            tile.piece = Board.companion_chessTable[i++]
             TileMatrix[it] = tile
             addView(tile)
         }
