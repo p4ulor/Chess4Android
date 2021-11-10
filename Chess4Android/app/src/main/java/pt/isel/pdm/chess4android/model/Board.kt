@@ -1,5 +1,8 @@
 package pt.isel.pdm.chess4android.model
 
+import android.util.Log
+import kotlin.math.abs
+
 const val BOARDSIZE: Int = 8
 
 private var chessPiecesTablePositions = arrayOf(
@@ -112,4 +115,43 @@ class Board {
         if(index<0) throw IllegalArgumentException()
         chessPiecesTablePositions[index]=piece
     }
+
+    fun switchPiecesAtIndexes(index1: Int, piece1: Piece, index2: Int, piece2: Piece){
+        //todo
+    }
+
+    fun movePieceToAndLeaveEmptyBehind(indexDestination: Int, pieceOrigin: Piece){
+        val auxPosition = pieceOrigin.position
+        pieceOrigin.position = getPieceAtIndex(indexDestination)?.position!! //change the piece position to the destination that its going to
+        setPieceAtIndex(indexDestination, pieceOrigin) //change the array
+        setPieceAtIndex(positionToIndex(auxPosition), ChessPieces.Empty(auxPosition.letter, auxPosition.number))
+    }
+
+    private fun letterToColumn(char: Char) : Int {
+        return when(char){
+            'a' -> 0
+            'b' -> 1
+            'c' -> 2
+            'd' -> 3
+            'e' -> 4
+            'f' -> 5
+            'g' -> 6
+            'h' -> 7
+            else -> -1
+        }
+    }
+
+    private fun positionToIndex(position: Position) : Int{
+        log("position->$position")
+        val res : String = (abs(8-(position.number)) * BOARDSIZE + letterToColumn(position.letter)).toString()
+        log("to index -> $res")
+        return abs(8-(position.number)) * BOARDSIZE + letterToColumn(position.letter)
+        //return position.number * BOARDSIZE + letterToColumn(position.letter)
+    }
+
+    fun isNotEmptyPiece(index: Int) : Boolean {
+        return getPieceAtIndex(index)?.pieceLetter!=PIECES.EMPTY
+    }
+
+    private fun log(s: String) = Log.i("MY_LOG_bruh", s)
 }

@@ -4,7 +4,7 @@ import java.lang.IllegalArgumentException
 
 val validXPositions = charArrayOf('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h')
 val validYPositions = byteArrayOf(1, 2, 3, 4, 5, 6, 7, 8)
-
+//                      column,           line
 data class Position(var letter: Char, val number: Byte) {
     init { //is called after primary constructor
         if(!isValid()) throw IllegalArgumentException()
@@ -30,6 +30,7 @@ abstract class Piece (var position: Position, open var isWhite: Boolean) {
     abstract fun moveTo(destination: Position): Boolean
 
     constructor(letter: Char, number: Byte, isWhite: Boolean) : this(Position(letter, number), isWhite)
+
 }
 
 sealed class ChessPieces { //https://antonioleiva.com/sealed-classes-kotlin/ //maybe not needed here

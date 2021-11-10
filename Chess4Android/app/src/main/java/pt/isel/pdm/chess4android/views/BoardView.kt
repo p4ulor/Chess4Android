@@ -55,29 +55,15 @@ class BoardView(private val ctx: Context, attrs: AttributeSet?) : GridLayout(ctx
         }
     }
 
-    fun invalidate(index: Int){
+    fun invalidate(index: Int, piece: Piece ){
         if(index<0 || index >= tileMatrix.size) throw IllegalArgumentException()
         val row = index / side
         val column = index % side
-        val tile = Tile(ctx, (row + column) % 2 == 0, side, getDrawablePiece(Board.companion_chessTable[index]) ?: blankIcon!!, index)
-        tileMatrix[index] = tile
-        addView(tile)
-        tile.invalidate()
-        log("invalidated")
-    }
-
-    private fun letterToColumn(char: Char) : Int {
-        return when(char){
-            'a' -> 0
-            'b' -> 1
-            'c' -> 2
-            'd' -> 3
-            'e' -> 4
-            'f' -> 5
-            'g' -> 6
-            'h' -> 7
-            else -> -1
-        }
+        val img = getDrawablePiece(piece)
+        if(img!=null){
+            tileMatrix[index]?.setIcon(img)?.invalidate()
+            log("invalidated")
+        } else log("invalidate failed")
     }
 
     private fun getIcon(xmlID: Int): VectorDrawableCompat? = VectorDrawableCompat.create(ctx.resources, xmlID, null)
