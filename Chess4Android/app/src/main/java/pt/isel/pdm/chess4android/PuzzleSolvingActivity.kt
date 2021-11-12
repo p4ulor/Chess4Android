@@ -4,9 +4,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import pt.isel.pdm.chess4android.model.BOARD_SIDE_SIZE
 import pt.isel.pdm.chess4android.model.Board
-import pt.isel.pdm.chess4android.model.ChessPieces
-import pt.isel.pdm.chess4android.model.PIECES
 import pt.isel.pdm.chess4android.views.BoardView
 import pt.isel.pdm.chess4android.views.tileMatrix
 
@@ -16,9 +15,11 @@ class PuzzleSolvingActivity : AppCompatActivity() {
 
     private var lichessGameOfTheDayPuzzle: Array<String>? = null
     private var lichessGameOfTheDaySolution: Array<String>? = null
-    private lateinit var myView: BoardView
 
+    private lateinit var myView: BoardView
     private lateinit var board: Board
+
+    private var isWhitesPlaying: Boolean = true
 
     private var currentlySelectedPieceIndex: Int = -1
 
@@ -59,14 +60,20 @@ class PuzzleSolvingActivity : AppCompatActivity() {
         loadGame()
     }
 
-    fun loadGame(){
+    private fun loadGame(){
         if(lichessGameOfTheDayPuzzle!=null){
-            var isWhitesPlaying = true
             lichessGameOfTheDayPuzzle!!.forEachIndexed { index, s ->
                 isWhitesPlaying = index % 2 == 0
+                board.interpretMove(s,isWhitesPlaying)
             }
+            invalidateEverything()
         } else toast(R.string.WTFerror)
+    }
 
+    private fun invalidateEverything() {
+        repeat(BOARD_SIDE_SIZE * BOARD_SIDE_SIZE) {
+            myView.invalidate(it, board.getPieceAtIndex(it))
+        }
     }
 
     override fun onBackPressed() {
@@ -74,10 +81,10 @@ class PuzzleSolvingActivity : AppCompatActivity() {
         super.onBackPressed()
     }
 
+    // UTILITY METHODS
     private fun toast(text: String) = Toast.makeText(this, text, Toast.LENGTH_LONG).show()
 
     private fun toast(id: Int) = toast(getString(id))
 
     private fun log(s: String) = Log.i(TAG, s)
-
 }

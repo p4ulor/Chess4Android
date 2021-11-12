@@ -23,12 +23,6 @@ import kotlin.text.StringBuilder
 import android.content.SharedPreferences
 import android.content.SharedPreferences.Editor
 
-
-
-
-
-
-
 private const val TAG = "MY_LOG_MainActivity"
 private const val LICHESSDAILYPUZZLEURL: String = "https://lichess.org/api/puzzle/daily"
 private const val DATEFILE = "latest_data_fetch_date.txt"
@@ -195,4 +189,3 @@ class MainActivity : AppCompatActivity() {
         return result
     }
 }
-

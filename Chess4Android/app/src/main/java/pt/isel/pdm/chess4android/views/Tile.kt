@@ -49,6 +49,6 @@ class Tile (private val ctx: Context, private val isWhite: Boolean, private val 
 
     fun setIcon (icon: VectorDrawableCompat) : Tile {
         this.icon = icon
-        return this
+        return this //so that we can call invalidate() after calling this method
     }
 }

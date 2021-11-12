@@ -6,7 +6,7 @@
     <string name="retry">Retentar</string>
     <string name="jsonError">Erro, está ligado ao wifi?</string>
     <string name="puzzleUpdated">Puzzle atualizado</string>
-    <string name="alreadyUpdated">Você tem o puzzle para hoje</string>
+    <string name="alreadyUpdated">Você já tem o puzzle para hoje</string>
     <string name="WTFerror">QFT, sem puzzle ou solução válida</string>
     <string name="progressLost">Jogada perdida</string>
 </resources>
