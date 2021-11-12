@@ -107,11 +107,18 @@ class MainActivity : AppCompatActivity() {
 
     private fun readDateOfTheLatestPuzzlePull() : String { //https://developer.android.com/training/data-storage/app-specific
         var sb = StringBuilder()
-        this.openFileInput(DATEFILE).bufferedReader().useLines { lines ->
-            lines.forEach { line -> sb.append(line) }
+        try {
+            this.openFileInput(DATEFILE).bufferedReader().useLines { lines ->
+                lines.forEach { line -> sb.append(line) }
+            }
+            log("$sb was read")
+            return sb.toString()
+        } catch (e: FileNotFoundException){
+            log("$e creating new file...")
+            this.openFileOutput(DATEFILE, MODE_PRIVATE)
+            readDateOfTheLatestPuzzlePull() //could there be a problem by doing this recursively? hmmmm, likely not?
         }
-        log("$sb was read")
-        return sb.toString()
+        return ""
     }
 
     private fun writeDateOfTheLatestPuzzlePulled(string: String) { //same link as above

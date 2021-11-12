@@ -53,11 +53,19 @@ class PuzzleSolvingActivity : AppCompatActivity() {
                     }
                     currentlySelectedPieceIndex = -1
                 }
-                //val name: String = tile.piece?.toString() ?: "Empty"
-                //val color: String =if(tile.piece?.isWhite!!) "White" else "Black"
-                //Log.i(TAG, color+" "+name+ " in "+tile.piece?.position?.toString()) //very interesting, kotlin. tile.type.toString().lowercase().replaceFirstChar { it.uppercaseChar() }
             }
         }
+
+        loadGame()
+    }
+
+    fun loadGame(){
+        if(lichessGameOfTheDayPuzzle!=null){
+            var isWhitesPlaying = true
+            lichessGameOfTheDayPuzzle!!.forEachIndexed { index, s ->
+                isWhitesPlaying = index % 2 == 0
+            }
+        } else toast(R.string.WTFerror)
 
     }
 

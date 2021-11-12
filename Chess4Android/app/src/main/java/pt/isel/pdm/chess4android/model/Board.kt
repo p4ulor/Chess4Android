@@ -95,13 +95,6 @@ class Board {
         return null
     }
 
-    fun isPositionEmpty(position: Position) : Boolean { //true = white, false = black
-        chessPiecesTablePositions.forEach {
-                piece -> if (piece.position.letter==position.letter && piece.position.number==position.number && piece.pieceLetter==PIECES.EMPTY) return false
-        }
-        return true
-    }
-
     fun getIndexOfPieceWithPosition(position: Position) : Int {
         chessPiecesTablePositions.forEachIndexed {
                 index, piece -> if (piece.position.letter==position.letter && piece.position.number==position.number ) return index
@@ -116,15 +109,23 @@ class Board {
         chessPiecesTablePositions[index]=piece
     }
 
-    fun switchPiecesAtIndexes(index1: Int, piece1: Piece, index2: Int, piece2: Piece){
-        //todo
+    fun switchPiecesAtIndexes(index1: Int, index2: Int){
+        val piece1 = getPieceAtIndex(index1)
+        val piece2 = getPieceAtIndex(index2)
+        val auxPosition = piece1?.position
+        if(piece2?.position!=null && auxPosition!=null){
+            piece1?.position = piece2?.position
+            piece2?.position = auxPosition
+            setPieceAtIndex(index2, piece1)
+            setPieceAtIndex(index1, piece2)
+        }
     }
 
     fun movePieceToAndLeaveEmptyBehind(indexDestination: Int, pieceOrigin: Piece){
         val auxPosition = pieceOrigin.position
-        pieceOrigin.position = getPieceAtIndex(indexDestination)?.position!! //change the piece position to the destination that its going to
-        setPieceAtIndex(indexDestination, pieceOrigin) //change the array
-        setPieceAtIndex(positionToIndex(auxPosition), ChessPieces.Empty(auxPosition.letter, auxPosition.number))
+        pieceOrigin.position = getPieceAtIndex(indexDestination)?.position!! //change the position of the piece to the position of the destination that its going to (change the value the object has)
+        setPieceAtIndex(indexDestination, pieceOrigin) //change the array at the index of destination (change the positions at which the objects are located in the array)
+        setPieceAtIndex(positionToIndex(auxPosition), ChessPieces.Empty(auxPosition.letter, auxPosition.number)) //change
     }
 
     private fun letterToColumn(char: Char) : Int {
@@ -143,14 +144,33 @@ class Board {
 
     private fun positionToIndex(position: Position) : Int{
         log("position->$position")
-        val res : String = (abs(8-(position.number)) * BOARDSIZE + letterToColumn(position.letter)).toString()
+        val res : String = ((BOARDSIZE-position.number) * BOARDSIZE + letterToColumn(position.letter)).toString()
         log("to index -> $res")
-        return abs(8-(position.number)) * BOARDSIZE + letterToColumn(position.letter)
-        //return position.number * BOARDSIZE + letterToColumn(position.letter)
+        return (BOARDSIZE-position.number) * BOARDSIZE + letterToColumn(position.letter)
     }
 
-    fun isNotEmptyPiece(index: Int) : Boolean {
-        return getPieceAtIndex(index)?.pieceLetter!=PIECES.EMPTY
+    fun isNotEmptyPiece(index: Int) : Boolean = getPieceAtIndex(index)?.pieceLetter!=PIECES.EMPTY
+
+    fun isPositionEmpty(position: Position) : Boolean {
+        chessPiecesTablePositions.forEach {
+                piece -> if (piece.position.letter==position.letter && piece.position.number==position.number && piece.pieceLetter==PIECES.EMPTY) return false
+        }
+        return true
+    }
+
+    fun stringPosToPosition(string: String){
+        when (string.length) {
+            2 -> { //its to move a pawn
+
+            }
+            3 -> { //neither above or bellow options
+
+            }
+            4 -> { //kills a piece or its a queen castle
+
+            }
+            else -> {}
+        }
     }
 
     private fun log(s: String) = Log.i("MY_LOG_bruh", s)
