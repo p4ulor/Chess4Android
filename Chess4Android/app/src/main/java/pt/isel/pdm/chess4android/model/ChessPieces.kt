@@ -22,6 +22,8 @@ data class Position(var letter: Char, val number: Byte) {
     }
 
     override fun toString(): String = "Letter: $letter, Number: $number"
+    fun isEqual(position: Position) : Boolean = this.letter==position.letter && this.number==position.number
+
 
     fun getXDiference(destination: Position) : Int = this.letter-destination.letter //int to make it (down casting to byte) easy 4 us
     fun getYDiference(destination: Position) : Int = this.number-destination.number //int to make it (down casting to byte) easy 4 us
@@ -39,7 +41,7 @@ data class Position(var letter: Char, val number: Byte) {
         fun convertToPosition(string: String) : Position? {
             if(string.length==2){
                 try {
-                    val position = Position(string[0], string[1].code.toByte())
+                    val position = Position(string[0], string[1].digitToInt().toByte())
                     return position
                 } catch (e: Exception){
                     log(e.toString())

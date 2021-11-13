@@ -95,88 +95,70 @@ class Board {
     // BOOLEANS
     fun isNotEmptyPiece(index: Int) : Boolean = getPieceAtIndex(index).pieceType!=PIECETYPE.EMPTY
 
-    fun isPositionWithPieceType(position: Position, pieceType: PIECETYPE) : Boolean {
-        chessPiecesTablePositions.forEach {
-                piece -> if (piece.position.letter==position.letter && piece.position.number==position.number && piece.pieceType==pieceType)
-            return false
-        }
-        return true
-    }
-    // GET COLOR
-    fun getColorOfPieceAtPosition(position: Position) : Boolean? {
-        chessPiecesTablePositions.forEach { piece ->
-            if (piece.position.letter==position.letter && piece.position.number==position.number && piece.pieceType!=PIECETYPE.EMPTY)
-                    return piece.isWhite
-        }
-        return null
+    fun isPositionWithPieceType(index: Int, pieceType: PIECETYPE) : Boolean {
+        if(getPieceAtIndex(index).pieceType==pieceType) return true
+        return false
     }
 
     // GET PIECE
-    fun getPieceWithColorAndType(isWhite: Boolean, pieceType: PIECETYPE) : Piece? {
-        chessPiecesTablePositions.forEach{ piece ->
-            if (piece.isWhite==isWhite && piece.pieceType==pieceType)
-                return piece
-        }
-        return null
-    }
-
     fun getPieceAtIndex(index: Int) : Piece {
         isOutOfBounds(index)
         return chessPiecesTablePositions[index]
     }
 
-    fun getPieceWithPosition(position: Position) : Piece? {
-        chessPiecesTablePositions.forEachIndexed { index, piece ->
-            if (piece.position.letter==position.letter && piece.position.number==position.number )
-                return piece
-        }
-        return null
-    }
+    // GET INDEX (and thus piece, and its properties), also can serve as method as isPositionWithPieceType : Boolean, per example
 
-    fun getPieceInLineAndIsPieceOfType(position: Position, pieceType: PIECETYPE) : Piece? {
-        chessPiecesTablePositions.forEachIndexed { index, piece ->
-            if (piece.position.letter==position.letter && piece.pieceType==pieceType)
-                return piece
-        }
-        return null
-    }
+    // function use in a nutshell: if param is null, dont evaluate equality when searching for the index, otherwise, do evaluate.
+    private fun getIndexOfPieceWithConditions(column: Char?, line: Byte?, pieceType: PIECETYPE?, isWhite: Boolean?) : Int { // all in one get function. To make it as flexible as possible, we decided to return index, and the calling code wants the piece or whatever property from it, it will get it with the getPieceAtIndex
+        var boolColumn = column!=null
+        val boolLine = line!=null
+        var boolPosition = boolColumn && boolLine
+        var boolType = pieceType!=null
+        var boolIsWhite = isWhite!=null
+        var position: Position? = null
 
-    fun getPieceInLineAndIsPieceOfTypeAndColor(char: Char, pieceType: PIECETYPE, isWhite: Boolean) : Piece? {
-        chessPiecesTablePositions.forEachIndexed { index, piece ->
-            if (piece.position.letter==char && piece.pieceType==pieceType && piece.isWhite==isWhite)
-                return piece
-        }
-        return null
-    }
+        if(boolPosition){
+            try {
+                position = Position(column!!, line!!) //according to our validation above, !! is fine and has to be here
+            } catch (e: IllegalArgumentException){
+                return -1
+            }
 
-    // GET INDEX
-    fun getIndexOfPieceWithPosition(position: Position) : Int {
-        chessPiecesTablePositions.forEachIndexed { index, piece ->
-            if (piece.position.letter==position.letter && piece.position.number==position.number )
-                return index
+        } else if(boolColumn){
+            if(!validXPositions.contains(column!!)) return -1
+        } else if(boolLine){
+            if(!validYPositions.contains(line!!)) return -1
+        }
+
+        var i = -1
+        for(piece in chessPiecesTablePositions){
+            i++
+            if(boolPosition) {
+                if(! piece.position.isEqual(position!!) ) continue
+            }
+            if(boolColumn){
+                if(piece.position.letter!=column) continue
+            }
+            if(boolLine){
+                if(piece.position.number!=line) continue
+            }
+            if(boolType){
+                if(piece.pieceType!=pieceType) continue
+            }
+            if(boolIsWhite){
+                if(piece.isWhite!=isWhite) continue
+            }
+            return i
         }
         return -1
     }
 
-    fun getIndexOfPieceWithPositionAndColor(position: Position, isWhite: Boolean) : Int {
-        chessPiecesTablePositions.forEachIndexed { index, piece ->
-            if (piece.position.letter==position.letter && piece.position.number==position.number && piece.isWhite==isWhite)
-                    return index
-        }
-        return -1
-    }
-
-    fun getIndexOfPieceWithPositionAndColorAndType(position: Position, isWhite: Boolean, pieceType: PIECETYPE) : Int {
-        chessPiecesTablePositions.forEachIndexed { index, piece ->
-            if (piece.position.letter==position.letter && piece.position.number==position.number && piece.isWhite==isWhite && piece.pieceType==pieceType)
-                return index
-        }
-        return -1
-    }
+    // I had to add 2 to the end of the method, because if there are certain params that are null the compiler cannot know which overloaded method is to be called
+    private fun getIndexOfPieceWithConditions2(column: Char?, line: Char?, pieceType: PIECETYPE?, isWhite: Boolean?) : Int = getIndexOfPieceWithConditions(column, line?.code?.toByte(), pieceType, isWhite )
 
     // *** SETS ***
 
-    fun setPieceAtIndex(index: Int, piece: Piece) {
+    private fun setPieceAtIndex(index: Int, piece: Piece) {
         if(isOutOfBounds(index)) return
         chessPiecesTablePositions[index]=piece
     }
@@ -186,6 +168,7 @@ class Board {
     // *** MOVEMENTS ***
 
     fun switchPiecesAtIndexes(index1: Int, index2: Int){
+        if(isOutOfBounds(index1) || isOutOfBounds(index2)) return
         val piece1 = getPieceAtIndex(index1)
         val piece2 = getPieceAtIndex(index2)
         val auxPosition = piece1?.position
@@ -205,6 +188,8 @@ class Board {
         setPieceAtIndex(positionToIndex(auxPosition), ChessPieces.Empty(auxPosition.letter, auxPosition.number)) //change
     }
 
+    private fun movePieceToAndLeaveEmptyBehind(position: Position, pieceOrigin: Piece) = movePieceToAndLeaveEmptyBehind(positionToIndex(position), pieceOrigin)
+
     private fun positionToIndex(position: Position) : Int {
         log("position->$position")
         val res : String = ((BOARD_SIDE_SIZE-position.number) * BOARD_SIDE_SIZE + letterToColumn(position.letter)).toString()
@@ -212,15 +197,15 @@ class Board {
         return (BOARD_SIDE_SIZE-position.number) * BOARD_SIDE_SIZE + letterToColumn(position.letter)
     }
 
-    fun interpretMove(move: String, isWhite: Boolean) : Boolean { //very crucial, and complicated, since the movement registration in the json file are "compressed" in a sense. In other words given, a movement, we sometimes need to infer what piece can perform that move. Example: 2 knights: one in d2, another in g1, movement received: nc4. g1 can't perform that movement, thus, the knight to move is the one in d2. This usually happens when the pieces that can perform the movement are of the same type (same letter). In case there's no letter, it's a pawn and this also must be interpreted properly with logic.
+    fun interpretMove(move: String, isWhite: Boolean) { //very crucial, and complicated, since the movement registration in the json file are "compressed" in a sense. In other words given, a movement, we sometimes need to infer what piece can perform that move. Example: 2 knights: one in d2, another in g1, movement received: nc4. g1 can't perform that movement, thus, the knight to move is the one in d2. This usually happens when the pieces that can perform the movement are of the same type (same letter). In case there's no letter, it's a pawn and this also must be interpreted properly with logic.
         when (move.length){
             2, 3, 4 -> { //its to move a pawn, example: e4 c6 d4 e5. a move that doesn't kill a piece or it's king side castle, example: Nf6 O-O, //a move that doesn't kill a piece but can perform a check or check mate, or a movement that kills a piece, or a pawn move that checks the king or other thing Examples: Qa5+ bd8# dxe5, d2+ (if first letter is a valid chess X (letter) coordinate, then it was a pawn move, otherwise, it was another piece type//a move that doesn't kill a piece but can perform a check or check mate, or a movement that kills a piece, or a pawn move that checks the king or other thing Examples: Qa5+ bd8# dxe5, d2+ (if first letter is a valid chess X (letter) coordinate, then it was a pawn move, otherwise, it was another piece type
                 if (move.contains('x')){
 
                 } else if (letterToPieceType(move[0])==PIECETYPE.PAWN){
                     val position = Position.convertToPosition(move)
-                    val thePawn : ChessPieces.Pawn = getPieceInLineAndIsPieceOfTypeAndColor(move[0], PIECETYPE.PAWN, isWhite) as ChessPieces.Pawn
-                    if(position!=null) thePawn.moveTo(position)
+                    val thePawn : ChessPieces.Pawn? =  getPieceAtIndex(getIndexOfPieceWithConditions2(move[0], null, PIECETYPE.PAWN, isWhite)) as? ChessPieces.Pawn
+                    if(position!=null && thePawn!=null) movePieceToAndLeaveEmptyBehind(position, thePawn)
                 } else { //non pawn movement that doesn't kill a piece
 
                 }
@@ -230,10 +215,10 @@ class Board {
                     //todo
                 }
                 if(move=="0-0-0") {
-                    val thePiece = getPieceWithColorAndType(isWhite, PIECETYPE.KING)
+                    val thePiece =  getPieceAtIndex(getIndexOfPieceWithConditions(null, null, PIECETYPE.KING, isWhite))
                     val theKing : ChessPieces.King? = thePiece as ChessPieces.King
                     if(theKing!=null) { // I mean, is this even possible not to be true? hmm
-                        val theRook = getIndexOfPieceWithPosition(theKing.position) as ChessPieces.Rook
+                        val theRook = getPieceAtIndex(getIndexOfPieceWithConditions2(theKing.letter, theKing.letter, null, null)) as ChessPieces.Rook
                         if(!theKing.firstMoveUsed && theKing.position.number.toInt() == 1 && theRook.position.number.toInt()==1) { //check validity of the move according to the rules
                             //todo check if there are pieces in the way
                         }
@@ -242,7 +227,6 @@ class Board {
             }
             else -> log("Some interpretation failed")
         }
-        return false
     }
 
     // UTILITY METHODS

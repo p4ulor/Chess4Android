@@ -57,17 +57,20 @@ class PuzzleSolvingActivity : AppCompatActivity() {
             }
         }
 
-        loadGame()
+        if(loadGame()) invalidateEverything() //it's easier for us to invalidate everything when loading
     }
 
-    private fun loadGame(){
+    private fun loadGame() : Boolean {
         if(lichessGameOfTheDayPuzzle!=null){
             lichessGameOfTheDayPuzzle!!.forEachIndexed { index, s ->
                 isWhitesPlaying = index % 2 == 0
                 board.interpretMove(s,isWhitesPlaying)
+                if(index==0) return true
             }
-            invalidateEverything()
-        } else toast(R.string.WTFerror)
+            return true
+        }
+        toast(R.string.WTFerror)
+        return false
     }
 
     private fun invalidateEverything() {
