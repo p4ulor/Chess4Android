@@ -202,13 +202,13 @@ enum class PIECETYPE {
     EMPTY
 }
 
-fun letterToPieceType(char: Char) : PIECETYPE {
+fun letterToPieceType(char: Char) : PIECETYPE { //must be in uppercase just like in the json. fixme: is this method call reliable?
     return when(char) {
-        'b' -> PIECETYPE.BISHOP
-        'n' -> PIECETYPE.KNIGHT
-        'r' -> PIECETYPE.ROOK
-        'k' -> PIECETYPE.KING
-        'q' -> PIECETYPE.QUEEN
+        'B' -> PIECETYPE.BISHOP
+        'N' -> PIECETYPE.KNIGHT
+        'R' -> PIECETYPE.ROOK
+        'K' -> PIECETYPE.KING
+        'Q' -> PIECETYPE.QUEEN
         else -> PIECETYPE.PAWN
     }
 }

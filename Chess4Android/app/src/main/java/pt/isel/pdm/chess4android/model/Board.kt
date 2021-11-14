@@ -90,14 +90,16 @@ class Board {
 
     // *** GETS ***
 
-    // AUXILIARY METHODS TO GET's
-
     // BOOLEANS
     fun isNotEmptyPiece(index: Int) : Boolean = getPieceAtIndex(index).pieceType!=PIECETYPE.EMPTY
 
     fun isPositionWithPieceType(index: Int, pieceType: PIECETYPE) : Boolean {
         if(getPieceAtIndex(index).pieceType==pieceType) return true
         return false
+    }
+
+    fun areTherePiecesInTheWayBetween(){
+
     }
 
     // GET PIECE
@@ -134,7 +136,7 @@ class Board {
         for(piece in chessPiecesTablePositions){
             i++
             if(boolPosition) {
-                if(! piece.position.isEqual(position!!) ) continue
+                if(! piece.position.isEqual(position!!) ) continue //according to our validation above, !! is fine and has to be here
             }
             if(boolColumn){
                 if(piece.position.letter!=column) continue
@@ -154,10 +156,9 @@ class Board {
     }
 
     // I had to add 2 to the end of the method, because if there are certain params that are null the compiler cannot know which overloaded method is to be called
-    private fun getIndexOfPieceWithConditions2(column: Char?, line: Char?, pieceType: PIECETYPE?, isWhite: Boolean?) : Int = getIndexOfPieceWithConditions(column, line?.code?.toByte(), pieceType, isWhite )
+    private fun getIndexOfPieceWithConditions2(column: Char?, line: Char?, pieceType: PIECETYPE?, isWhite: Boolean?) : Int = getIndexOfPieceWithConditions(column, line?.digitToInt()?.toByte(), pieceType, isWhite )
 
     // *** SETS ***
-
     private fun setPieceAtIndex(index: Int, piece: Piece) {
         if(isOutOfBounds(index)) return
         chessPiecesTablePositions[index]=piece
@@ -190,43 +191,50 @@ class Board {
 
     private fun movePieceToAndLeaveEmptyBehind(position: Position, pieceOrigin: Piece) = movePieceToAndLeaveEmptyBehind(positionToIndex(position), pieceOrigin)
 
-    private fun positionToIndex(position: Position) : Int {
-        log("position->$position")
-        val res : String = ((BOARD_SIDE_SIZE-position.number) * BOARD_SIDE_SIZE + letterToColumn(position.letter)).toString()
-        log("to index -> $res")
-        return (BOARD_SIDE_SIZE-position.number) * BOARD_SIDE_SIZE + letterToColumn(position.letter)
-    }
-
-    fun interpretMove(move: String, isWhite: Boolean) { //very crucial, and complicated, since the movement registration in the json file are "compressed" in a sense. In other words given, a movement, we sometimes need to infer what piece can perform that move. Example: 2 knights: one in d2, another in g1, movement received: nc4. g1 can't perform that movement, thus, the knight to move is the one in d2. This usually happens when the pieces that can perform the movement are of the same type (same letter). In case there's no letter, it's a pawn and this also must be interpreted properly with logic.
-        when (move.length){
-            2, 3, 4 -> { //its to move a pawn, example: e4 c6 d4 e5. a move that doesn't kill a piece or it's king side castle, example: Nf6 O-O, //a move that doesn't kill a piece but can perform a check or check mate, or a movement that kills a piece, or a pawn move that checks the king or other thing Examples: Qa5+ bd8# dxe5, d2+ (if first letter is a valid chess X (letter) coordinate, then it was a pawn move, otherwise, it was another piece type//a move that doesn't kill a piece but can perform a check or check mate, or a movement that kills a piece, or a pawn move that checks the king or other thing Examples: Qa5+ bd8# dxe5, d2+ (if first letter is a valid chess X (letter) coordinate, then it was a pawn move, otherwise, it was another piece type
-                if (move.contains('x')){
-
-                } else if (letterToPieceType(move[0])==PIECETYPE.PAWN){
-                    val position = Position.convertToPosition(move)
-                    val thePawn : ChessPieces.Pawn? =  getPieceAtIndex(getIndexOfPieceWithConditions2(move[0], null, PIECETYPE.PAWN, isWhite)) as? ChessPieces.Pawn
-                    if(position!=null && thePawn!=null) movePieceToAndLeaveEmptyBehind(position, thePawn)
-                } else { //non pawn movement that doesn't kill a piece
-
-                }
-            }
-            4, 5 -> { //it's 0-0-0 (queen castle)
-                if(move=="O-O") {
-                    //todo
-                }
-                if(move=="0-0-0") {
-                    val thePiece =  getPieceAtIndex(getIndexOfPieceWithConditions(null, null, PIECETYPE.KING, isWhite))
-                    val theKing : ChessPieces.King? = thePiece as ChessPieces.King
-                    if(theKing!=null) { // I mean, is this even possible not to be true? hmm
-                        val theRook = getPieceAtIndex(getIndexOfPieceWithConditions2(theKing.letter, theKing.letter, null, null)) as ChessPieces.Rook
-                        if(!theKing.firstMoveUsed && theKing.position.number.toInt() == 1 && theRook.position.number.toInt()==1) { //check validity of the move according to the rules
-                            //todo check if there are pieces in the way
-                        }
+    //returns false on fail, true on success
+    /*
+   * examples:
+   * pawns: e4, exf5
+   * others: Nf3, Nxg5, Nfg5 (on "conflict" of possibilities), Nfxg5 (on "conflict" of possibilities AND kills piece)
+   * specials: O-O, O-O-O
+   * at the end of these strings, ignores symbols like + and #
+   */
+    fun interpretMove(move: String, isWhite: Boolean) : Boolean { //very crucial, and complicated, since the movement registration in the json file are "compressed" in a sense. In other words, given a movement, we sometimes need to infer what piece can perform that move. Example: 2 knights: one in d2, another in g1, movement received: Nc4. g1 can't perform that movement, thus, the knight to move is the one in d2. This happens when there are pieces that can perform the movement are of the same type (same letter). This must be interpreted properly with logic.
+        if (move.length<7){ //if the length is not inferior to 7, it has to be a bug
+            if(move=="O-O") { //king castle
+                //todo
+            } else if(move=="0-0-0") { //queen castle
+                val thePiece = getPieceAtIndex(getIndexOfPieceWithConditions(null, null, PIECETYPE.KING, isWhite))
+                val theKing: ChessPieces.King? = thePiece as? ChessPieces.King
+                if(theKing!=null) { // I mean, is this even possible not to be true? hmm
+                    val theRook: ChessPieces.Rook? = getPieceAtIndex(getIndexOfPieceWithConditions2(theKing.letter, theKing.letter, null, null)) as? ChessPieces.Rook
+                    if(!theKing.firstMoveUsed && theKing.position.number.toInt() == 1 && theRook?.position?.number?.toInt()==1) { //check validity of the move according to the rules
+                        //todo check if there are pieces in the way
+                        areTherePiecesInTheWayBetween()
                     }
                 }
+            } else { //since we do the check for "O-O" before calling letterToPieceType, we're safe from executing this "If" if it's a "O-O", //If first letter is a valid chess X (letter) coordinate, then it was a pawn move, otherwise, it was another piece type
+                val pieceTypeToMove = letterToPieceType(move[0])
+                if(pieceTypeToMove==PIECETYPE.PAWN){
+                    if(move[1]=='x'){
+
+                    } else {
+                        val position = Position.convertToPosition(move)
+                        val thePawn: ChessPieces.Pawn? = getPieceAtIndex(getIndexOfPieceWithConditions2(move[0], null, PIECETYPE.PAWN, isWhite)) as? ChessPieces.Pawn
+                        if (position != null && thePawn != null) {
+                            movePieceToAndLeaveEmptyBehind(position, thePawn)
+                            return true
+                        }
+                    }
+                } else {
+
+                }
+
             }
-            else -> log("Some interpretation failed")
+        } else {
+            log("Some interpretation failed")
         }
+        return false
     }
 
     // UTILITY METHODS
@@ -242,6 +250,13 @@ class Board {
             'h' -> 7
             else -> -1
         }
+    }
+
+    private fun positionToIndex(position: Position) : Int {
+        log("position->$position")
+        val res : String = ((BOARD_SIDE_SIZE-position.number) * BOARD_SIDE_SIZE + letterToColumn(position.letter)).toString()
+        log("to index -> $res")
+        return (BOARD_SIDE_SIZE-position.number) * BOARD_SIDE_SIZE + letterToColumn(position.letter)
     }
 
     private fun isOutOfBounds (index: Int) : Boolean {

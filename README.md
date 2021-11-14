@@ -1,6 +1,10 @@
 # PDM-2122i-LI5X-G19
 ChessRoyale like app for Mobile Device Programming
 
+## Shortcuts for main source code
+- [src](Chess4Android/app/src/main/java/pt/isel/pdm/chess4android)
+- [layout (activities)](Chess4Android/app/src/main/res/layout)
+
 ## Places to learn coordinates and moves
 - https://lichess.org/analysis
 - http://www.chessfornovices.com/chessnotation2.html
@@ -28,8 +32,8 @@ On kingside castle, the tower goes to the position the king could and would go t
 [Read more here](https://en.wikipedia.org/wiki/Castling
 
 ### Extra (these symbols are placed at the end of a move):
-- + -> means, that it's a check (the color that played can capture the opposite color king)
-- # -> means check mate (game over)
+- \+ -> means, that it's a check (the color that played can capture the opposite color king)
+- \# -> means check mate (game over)
 
 ### Extra rules
 - On a check, you can only move pieces that kill the piece that made the check, block it's path, or move the king out of the reach of that piece
