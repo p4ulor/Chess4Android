@@ -2,6 +2,7 @@ package pt.isel.pdm.chess4android.model
 
 import android.util.Log
 import java.lang.IllegalArgumentException
+import kotlin.math.abs
 
 val validXPositions = charArrayOf('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h')
 val validYPositions = byteArrayOf(1, 2, 3, 4, 5, 6, 7, 8)
@@ -10,6 +11,8 @@ data class Position(var letter: Char, val number: Byte) {
     init { //is called after primary constructor
         if(!isValid()) throw IllegalArgumentException()
     }
+    constructor(string: String) : this(string[0], string[1].digitToInt()?.toByte())
+
     private fun isValid() = validXPositions.contains(/*this.*/letter) && validYPositions.contains(/*this.*/number)
     private fun isValid(string: String) : Boolean { //probably useless, but if needed, I would need to include O, -, +, # and other special chars
         string.forEach { c ->
@@ -24,9 +27,9 @@ data class Position(var letter: Char, val number: Byte) {
     override fun toString(): String = "Letter: $letter, Number: $number"
     fun isEqual(position: Position) : Boolean = this.letter==position.letter && this.number==position.number
 
-
-    fun getXDiference(destination: Position) : Int = this.letter-destination.letter //int to make it (down casting to byte) easy 4 us
-    fun getYDiference(destination: Position) : Int = this.number-destination.number //int to make it (down casting to byte) easy 4 us
+    //these 2 methods bellow are useful for pieces that have specific and strict movement patterns, like pawns, rooks and bishops. Per example, kings and queens dont need these methods because they can move freely to any direction, but are only restricted by the movement distance. Thus, for these 2 examples, only isValidMovement is used.
+    fun getXDiference(destination: Position) : Int = abs(this.letter-destination.letter) //int to make it (down casting to byte) easy 4 us
+    fun getYDiference(destination: Position) : Int = abs(this.number-destination.number) //int to make it (down casting to byte) easy 4 us
 
     fun isValidMovement(destination: Position, maxX: Byte, maxY: Byte) : Boolean {
         if(maxX<0 || maxY<0 || maxX >= BOARD_SIDE_SIZE || maxY >= BOARD_SIDE_SIZE) throw IllegalArgumentException()
@@ -35,9 +38,9 @@ data class Position(var letter: Char, val number: Byte) {
         return !(!movedInX && !movedInY) //is both X and Y axis movements are false, it returns false, otherwise, return true
     }
 
-    //note, when setting a companion function to another function, this function must have the same parameters and compatiable return types
+    //note, when setting a companion function to another function, this function must have compatiable return types, and they tend to have the same parameters
     companion object {
-        fun isValid(string: String) : Boolean = isValid(string)
+        fun isValid(string: String) : Boolean = Position(string).isValid()
         fun convertToPosition(string: String) : Position? {
             if(string.length==2){
                 try {
@@ -56,26 +59,25 @@ abstract class Piece (var position: Position, open var isWhite: Boolean) {
     abstract val pieceType: PIECETYPE //lowercase
     abstract val maxTravelDistanceX: Byte //positive value
     abstract val maxTravelDistanceY: Byte //positive value
-    abstract fun moveTo(destination: Position): Boolean
+    abstract fun canMoveTo(destination: Position): Boolean
 
     constructor(letter: Char, number: Byte, isWhite: Boolean) : this(Position(letter, number), isWhite)
 }
 
 sealed class ChessPieces { //https://antonioleiva.com/sealed-classes-kotlin/ //maybe not needed here?
+
     data class Pawn (var letter: Char, val number: Byte, override var isWhite: Boolean) : Piece(letter, number, isWhite) {
         override val pieceType = PIECETYPE.PAWN
-        override val maxTravelDistanceX: Byte = 2
-        override val maxTravelDistanceY: Byte = 1
+        override val maxTravelDistanceX: Byte = 1
+        override val maxTravelDistanceY: Byte = 2
 
         private var firstMoveUsed: Boolean = false
 
-         override fun moveTo(destination: Position) : Boolean {
+         override fun canMoveTo(destination: Position) : Boolean {
             if(position.isValidMovement(destination, maxTravelDistanceX, maxTravelDistanceY)){ //part checks logical board bounds and piece maxTravelDistance bounds
                 if(!firstMoveUsed && position.getYDiference(destination)<=2) {                //part that checks piece movement *logic*, and its this format for every moveTo method
-                    /*this.*/position = destination
                     return true
                 } else if(position.getYDiference(destination) == 1){
-                    position = destination
                     return true
                 }
             }
@@ -90,10 +92,9 @@ sealed class ChessPieces { //https://antonioleiva.com/sealed-classes-kotlin/ //m
         override val maxTravelDistanceX: Byte = 7
         override val maxTravelDistanceY: Byte = 7
 
-        override fun moveTo(destination: Position) : Boolean {
+        override fun canMoveTo(destination: Position) : Boolean {
             if(position.isValidMovement(destination, maxTravelDistanceX, maxTravelDistanceY)){
-                if(position.getXDiference(destination) / position.getYDiference(destination)==0) {
-                    position = destination
+                if(position.getXDiference(destination)==position.getYDiference(destination)) {
                     return true
                 }
             }
@@ -105,19 +106,17 @@ sealed class ChessPieces { //https://antonioleiva.com/sealed-classes-kotlin/ //m
 
     data class Knight (var letter: Char, val number: Byte, override var isWhite: Boolean) : Piece(letter, number, isWhite) {
         override val pieceType = PIECETYPE.KNIGHT
-        override val maxTravelDistanceX: Byte = 0 //Knight is an exception
-        override val maxTravelDistanceY: Byte = 0 //Knight is an exception
+        override val maxTravelDistanceX: Byte = 0 //Knight is an exception (we will do it hardcoded)
+        override val maxTravelDistanceY: Byte = 0 //Knight is an exception (we will do it hardcoded)
 
-        override fun moveTo(destination: Position) : Boolean {
-            if(position.isValidMovement(destination, maxTravelDistanceX, maxTravelDistanceY)){
-                val x = position.getXDiference(destination)
-                val y = position.getXDiference(destination)
-                if(x==1 && y==2 || x==2 && y==1 ||x==2 && y==-1 || x==1 && y==-2 ||
-                   x==-1 && y==-2 || x==-2 && y==-1 || x==-2 && y==1 || x==-1 && y==2) {
-                    position = destination
-                    return true
-                }
+        override fun canMoveTo(destination: Position) : Boolean {
+            val x = position.getXDiference(destination)
+            val y = position.getYDiference(destination)
+            if(x==1 && y==2 || x==2 && y==1 ||x==2 && y==-1 || x==1 && y==-2 ||
+               x==-1 && y==-2 || x==-2 && y==-1 || x==-2 && y==1 || x==-1 && y==2) { //honestly, a decent and simple approach, this replaces our "isValidMovement" method
+                return true
             }
+
             return false
         }
 
@@ -129,16 +128,12 @@ sealed class ChessPieces { //https://antonioleiva.com/sealed-classes-kotlin/ //m
         override val maxTravelDistanceX: Byte = 7
         override val maxTravelDistanceY: Byte = 7
 
-        override fun moveTo(destination: Position) : Boolean {
+        override fun canMoveTo(destination: Position) : Boolean {
             if(position.isValidMovement(destination, maxTravelDistanceX, maxTravelDistanceY)){
-                if(position.getXDiference(destination)==0) {
-                    if (position.getYDiference(destination)!=0) {
-                        position = destination
-                        return true
-                    }
+                if(position.getXDiference(destination)==0 && position.getYDiference(destination)!=0) {
+                    return true
                 }
-                else if (position.getYDiference(destination)==0) {
-                    position = destination
+                else if (position.getYDiference(destination)!=0 && position.getYDiference(destination)==0) {
                     return true
                 }
             }
@@ -155,9 +150,8 @@ sealed class ChessPieces { //https://antonioleiva.com/sealed-classes-kotlin/ //m
 
         var firstMoveUsed: Boolean = false
 
-        override fun moveTo(destination: Position) : Boolean {
+        override fun canMoveTo(destination: Position) : Boolean {
             if(position.isValidMovement(destination, maxTravelDistanceX, maxTravelDistanceY)){
-                position = destination
                 return true
             }
             return false
@@ -171,9 +165,8 @@ sealed class ChessPieces { //https://antonioleiva.com/sealed-classes-kotlin/ //m
         override val maxTravelDistanceX: Byte = 7
         override val maxTravelDistanceY: Byte = 7
 
-        override fun moveTo(destination: Position) : Boolean {
+        override fun canMoveTo(destination: Position) : Boolean {
             if(position.isValidMovement(destination, maxTravelDistanceX, maxTravelDistanceY)){
-                position = destination
                 return true
             }
             return false
@@ -187,7 +180,7 @@ sealed class ChessPieces { //https://antonioleiva.com/sealed-classes-kotlin/ //m
         override val maxTravelDistanceX: Byte = 0
         override val maxTravelDistanceY: Byte = 0
 
-        override fun moveTo(destination: Position) : Boolean = false
+        override fun canMoveTo(destination: Position) : Boolean = false
         override fun toString(): String = "Empty"
     }
 }

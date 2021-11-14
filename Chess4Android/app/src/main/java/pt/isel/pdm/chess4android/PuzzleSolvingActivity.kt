@@ -64,8 +64,11 @@ class PuzzleSolvingActivity : AppCompatActivity() {
         if(lichessGameOfTheDayPuzzle!=null){
             lichessGameOfTheDayPuzzle!!.forEachIndexed { index, s ->
                 isWhitesPlaying = index % 2 == 0
-                if(!board.interpretMove(s,isWhitesPlaying)) return false
-                if(index==0) return true //useful for testing index by index, movement by movement
+                if(!board.interpretMove(s,isWhitesPlaying)) {
+                    toast(R.string.interpretError)
+                    return false
+                }
+                if(index==10) return true //useful for testing index by index, movement by movement
             }
             return true
         }

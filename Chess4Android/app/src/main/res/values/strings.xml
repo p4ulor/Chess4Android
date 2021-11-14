@@ -8,4 +8,5 @@
     <string name="alreadyUpdated">You already have the puzzle for today</string>
     <string name="WTFerror">WTF, no valid puzzle or solution</string>
     <string name="progressLost">Progress lost</string>
+    <string name="interpretError">Interpretation error of json</string>
 </resources>

@@ -9,8 +9,8 @@ private var chessPiecesTablePositions = arrayOf(
     ChessPieces.Rook('a', 8, false),
     ChessPieces.Knight('b', 8, false),
     ChessPieces.Bishop('c', 8, false),
-    ChessPieces.King('d', 8, false),
-    ChessPieces.Queen('e', 8,false),
+    ChessPieces.Queen('d', 8,false),
+    ChessPieces.King('e', 8, false),
     ChessPieces.Bishop('f', 8, false),
     ChessPieces.Knight('g', 8, false),
     ChessPieces.Rook('h', 8, false),
@@ -72,8 +72,8 @@ private var chessPiecesTablePositions = arrayOf(
     ChessPieces.Rook('a', 1, true),
     ChessPieces.Knight('b', 1, true),
     ChessPieces.Bishop('c', 1, true),
-    ChessPieces.King('d', 1, true),
-    ChessPieces.Queen('e', 1,true),
+    ChessPieces.Queen('d', 1,true),
+    ChessPieces.King('e', 1, true),
     ChessPieces.Bishop('f', 1, true),
     ChessPieces.Knight('g', 1, true),
     ChessPieces.Rook('h', 1, true)
@@ -111,28 +111,29 @@ class Board {
     // GET INDEX (and thus piece, and its properties), also can serve as method as isPositionWithPieceType : Boolean, per example
 
     // function use in a nutshell: if param is null, dont evaluate equality when searching for the index, otherwise, do evaluate.
-    private fun getIndexOfPieceWithConditions(column: Char?, line: Byte?, pieceType: PIECETYPE?, isWhite: Boolean?) : Int { // all in one get function. To make it as flexible as possible, we decided to return index, and the calling code wants the piece or whatever property from it, it will get it with the getPieceAtIndex
+    private fun getIndexesOfPieceWithConditions(column: Char?, line: Byte?, pieceType: PIECETYPE?, isWhite: Boolean?) : IntArray { // all in one get function. To make it as flexible as possible, we decided to return index, and the calling code wants the piece or whatever property from it, it will get it with the getPieceAtIndex
         var boolColumn = column!=null
         val boolLine = line!=null
         var boolPosition = boolColumn && boolLine
         var boolType = pieceType!=null
         var boolIsWhite = isWhite!=null
         var position: Position? = null
-
+        var arrayOfMaxingIndexes = IntArray(BOARD_SIDE_SIZE) { -1 }
         if(boolPosition){
             try {
                 position = Position(column!!, line!!) //according to our validation above, !! is fine and has to be here
             } catch (e: IllegalArgumentException){
-                return -1
+                return arrayOfMaxingIndexes
             }
 
         } else if(boolColumn){
-            if(!validXPositions.contains(column!!)) return -1
+            if(!validXPositions.contains(column!!)) return arrayOfMaxingIndexes
         } else if(boolLine){
-            if(!validYPositions.contains(line!!)) return -1
+            if(!validYPositions.contains(line!!)) return arrayOfMaxingIndexes
         }
 
         var i = -1
+        var index = 0
         for(piece in chessPiecesTablePositions){
             i++
             if(boolPosition) {
@@ -150,13 +151,13 @@ class Board {
             if(boolIsWhite){
                 if(piece.isWhite!=isWhite) continue
             }
-            return i
+            arrayOfMaxingIndexes[index++] = i
         }
-        return -1
+        return arrayOfMaxingIndexes
     }
 
     // I had to add 2 to the end of the method, because if there are certain params that are null the compiler cannot know which overloaded method is to be called
-    private fun getIndexOfPieceWithConditions2(column: Char?, line: Char?, pieceType: PIECETYPE?, isWhite: Boolean?) : Int = getIndexOfPieceWithConditions(column, line?.digitToInt()?.toByte(), pieceType, isWhite )
+    private fun getIndexOfPieceWithConditions2(column: Char?, line: Char?, pieceType: PIECETYPE?, isWhite: Boolean?) : IntArray = getIndexesOfPieceWithConditions(column, line?.digitToInt()?.toByte(), pieceType, isWhite )
 
     // *** SETS ***
     private fun setPieceAtIndex(index: Int, piece: Piece) {
@@ -200,11 +201,13 @@ class Board {
    * at the end of these strings, ignores symbols like + and #
    */
     fun interpretMove(move: String, isWhite: Boolean) : Boolean { //very crucial, and complicated, since the movement registration in the json file are "compressed" in a sense. In other words, given a movement, we sometimes need to infer what piece can perform that move. Example: 2 knights: one in d2, another in g1, movement received: Nc4. g1 can't perform that movement, thus, the knight to move is the one in d2. This happens when there are pieces that can perform the movement are of the same type (same letter). This must be interpreted properly with logic.
+        var move = move //since parameters are readonly, we can "shadow" the variable, make it like we can edit it
         if (move.length<7){ //if the length is not inferior to 7, it has to be a bug
+            val pieceTypeToMove = letterToPieceType(move[0])
             if(move=="O-O") { //king castle
                 //todo
             } else if(move=="0-0-0") { //queen castle
-                val thePiece = getPieceAtIndex(getIndexOfPieceWithConditions(null, null, PIECETYPE.KING, isWhite))
+                /*val thePiece = getPieceAtIndex(getIndexesOfPieceWithConditions(null, null, PIECETYPE.KING, isWhite))
                 val theKing: ChessPieces.King? = thePiece as? ChessPieces.King
                 if(theKing!=null) { // I mean, is this even possible not to be true? hmm
                     val theRook: ChessPieces.Rook? = getPieceAtIndex(getIndexOfPieceWithConditions2(theKing.letter, theKing.letter, null, null)) as? ChessPieces.Rook
@@ -212,29 +215,65 @@ class Board {
                         //todo check if there are pieces in the way
                         areTherePiecesInTheWayBetween()
                     }
-                }
+                }*/
             } else { //since we do the check for "O-O" before calling letterToPieceType, we're safe from executing this "If" if it's a "O-O", //If first letter is a valid chess X (letter) coordinate, then it was a pawn move, otherwise, it was another piece type
-                val pieceTypeToMove = letterToPieceType(move[0])
                 if(pieceTypeToMove==PIECETYPE.PAWN){
-                    if(move[1]=='x'){
-
+                    if(false){ // and check lenght, move[2].isLetter()
+                    //todo
                     } else {
                         val position = Position.convertToPosition(move)
-                        val thePawn: ChessPieces.Pawn? = getPieceAtIndex(getIndexOfPieceWithConditions2(move[0], null, PIECETYPE.PAWN, isWhite)) as? ChessPieces.Pawn
-                        if (position != null && thePawn != null) {
-                            movePieceToAndLeaveEmptyBehind(position, thePawn)
-                            return true
+                        if (position != null) {
+                            val thePawn: ChessPieces.Pawn? = getPieceThatCanMoveTo(position, getIndexOfPieceWithConditions2(move[0], null, PIECETYPE.PAWN, isWhite)) as? ChessPieces.Pawn
+                            if (thePawn != null) {
+                                movePieceToAndLeaveEmptyBehind(position, thePawn)
+                                return true
+                            }
                         }
                     }
-                } else {
+                } else { // other piece movement other than pawn
+                    if(move[1]=='x'){
+                        //todo
+                    } else if(pieceTypeToMove==PIECETYPE.KNIGHT){
+                        var column: Char? = null
+                        if(move[2].isLetter()) {
+                            column = move[1]
+                            move = move.replaceFirst(move[1]+"", "", true)
+                        }
 
+                        val position = Position.convertToPosition(move.replaceFirstChar { "" })
+                        if (position != null) {
+                            val theKnight: ChessPieces.Knight? = getPieceThatCanMoveTo(position, getIndexOfPieceWithConditions2(column, null, PIECETYPE.KNIGHT, isWhite)) as? ChessPieces.Knight
+                            if (theKnight != null) {
+                                movePieceToAndLeaveEmptyBehind(position, theKnight)
+                                return true
+                            }
+                        }
+                    } else if(pieceTypeToMove==PIECETYPE.BISHOP){
+                        val position = Position.convertToPosition(move.replaceFirstChar { "" })
+                        if (position != null) {
+                            val theBishop: ChessPieces.Bishop? = getPieceThatCanMoveTo(position, getIndexOfPieceWithConditions2(null, null, PIECETYPE.BISHOP, isWhite)) as? ChessPieces.Bishop
+                            if (theBishop != null) {
+                                movePieceToAndLeaveEmptyBehind(position, theBishop)
+                                return true
+                            }
+                        }
+                    }
                 }
 
             }
-        } else {
-            log("Some interpretation failed")
         }
+        log("Some interpretation failed")
         return false
+    }
+
+    private fun getPieceThatCanMoveTo(position: Position, array: IntArray) : Piece? {
+        var piece: Piece?
+        for(i in array){
+            if(i==-1) break
+            piece = getPieceAtIndex(i)
+            if(piece.canMoveTo(position)) return piece //if the piece can perform the move, return it
+        }
+        return null
     }
 
     // UTILITY METHODS

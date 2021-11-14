@@ -9,4 +9,5 @@
     <string name="alreadyUpdated">Você já tem o puzzle para hoje</string>
     <string name="WTFerror">QFT, sem puzzle ou solução válida</string>
     <string name="progressLost">Jogada perdida</string>
+    <string name="interpretError">Erro na interpretação do json</string>
 </resources>
