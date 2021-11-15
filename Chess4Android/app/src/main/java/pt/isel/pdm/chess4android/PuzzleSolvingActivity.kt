@@ -66,9 +66,10 @@ class PuzzleSolvingActivity : AppCompatActivity() {
                 isWhitesPlaying = index % 2 == 0
                 if(!board.interpretMove(s,isWhitesPlaying)) {
                     toast(R.string.interpretError)
+                    log(getString(R.string.interpretError)+" at index $index")
                     return false
                 }
-                if(index==11) return true //useful for testing index by index, movement by movement
+                //if(index==14) return true //useful for testing index by index, movement by movement
             }
             return true
         }

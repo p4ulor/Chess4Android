@@ -231,62 +231,104 @@ class Board {
                     }
                 }
             } else if(move=="0-0-0") { //queen castle
-                /*val thePiece = getPieceAtIndex(getIndexesOfPieceWithConditions(null, null, PIECETYPE.KING, isWhite))
-                val theKing: ChessPieces.King? = thePiece as? ChessPieces.King
-                if(theKing!=null) { // I mean, is this even possible not to be true? hmm
-                    val theRook: ChessPieces.Rook? = getPieceAtIndex(getIndexOfPieceWithConditions2(theKing.letter, theKing.letter, null, null)) as? ChessPieces.Rook
-                    if(!theKing.firstMoveUsed && theKing.position.number.toInt() == 1 && theRook?.position?.number?.toInt()==1) { //check validity of the move according to the rules
-                        //todo check if there are pieces in the way
-                        areTherePiecesInTheWayBetween()
+                var theRook: ChessPieces.Rook?
+                var theKing: ChessPieces.King?
+                if(isWhite){
+                    theRook = getPieceAtIndex(56) as? ChessPieces.Rook
+                    theKing = getPieceAtIndex(60) as? ChessPieces.King
+                } else {
+                    theRook = getPieceAtIndex(0) as? ChessPieces.Rook
+                    theKing = getPieceAtIndex(4) as? ChessPieces.King
+
+                }
+                if(theRook!=null && theKing!=null){
+                    if(!theRook.firstMoveUsed && !theKing.firstMoveUsed){
+                        if(isWhite && !isNotEmptyPiece(57) && !isNotEmptyPiece(58) && !isNotEmptyPiece(59) ){
+                            movePieceToAndLeaveEmptyBehind(58, theKing)
+                            movePieceToAndLeaveEmptyBehind(59, theRook)
+                            return true
+                        } else if(!isNotEmptyPiece(1) && !isNotEmptyPiece(2) && !isNotEmptyPiece(3) ) {
+                            movePieceToAndLeaveEmptyBehind(2, theKing)
+                            movePieceToAndLeaveEmptyBehind(3, theRook)
+                            return true
+                        }
                     }
-                }*/
+                }
             } else { //since we do the check for "O-O" before calling letterToPieceType, we're safe from executing this "If" if it's a "O-O", //If first letter is a valid chess X (letter) coordinate, then it was a pawn move, otherwise, it was another piece type
                 if(pieceTypeToMove==PIECETYPE.PAWN){
-                    if(false){ // and check lenght, move[2].isLetter()
-                    //todo
-                    } else {
-                        val position = Position.convertToPosition(move)
-                        if (position != null) {
-                            val thePawn: ChessPieces.Pawn? = getPieceThatCanMoveTo(position, getIndexOfPieceWithConditions2(move[0], null, PIECETYPE.PAWN, isWhite)) as? ChessPieces.Pawn
-                            if (thePawn != null) {
-                                movePieceToAndLeaveEmptyBehind(position, thePawn)
-                                return true
-                            }
+                    val position = if(move[1]=='x') Position.convertToPosition(move.subSequence(2,4).toString()) else Position.convertToPosition(move) //subsequence does like: [2,4[
+                    if (position != null) {
+                        val thePawn: ChessPieces.Pawn? = getPieceThatCanMoveTo(position, getIndexOfPieceWithConditions2(move[0], null, PIECETYPE.PAWN, isWhite)) as? ChessPieces.Pawn //this works for both x and non x cases because the first letter is always the column
+                        if (thePawn != null) {
+                            movePieceToAndLeaveEmptyBehind(position, thePawn)
+                            return true
                         }
                     }
                 } else { // other piece movement other than pawn
-                    if(move[1]=='x'){
-                        //todo
-                    } else if(pieceTypeToMove==PIECETYPE.KNIGHT){
-                        var column: Char? = null
-                        if(move[2].isLetter()) {
+                    //global encoding. Note that String.subSequence is like [2,4[
+                    var column: Char? = null
+                    var position: Position?
+                    if(move[2].isLetter()) { //check for cases Nxg5, Nfg5 and Nfxg5
+                        if(move[1]=='x'){
+                            position = Position.convertToPosition(move.subSequence(2,4).toString())
+                        } else if(move[2]=='x'){
                             column = move[1]
-                            move = move.replaceFirst(move[1]+"", "", true)
+                            position = Position.convertToPosition(move.subSequence(3,5).toString())
                         }
+                        else {
+                            column = move[1]
+                            position = Position.convertToPosition(move.subSequence(2,4).toString())
+                        }
+                    } else {
+                        position = Position.convertToPosition(move.subSequence(1,3).toString()) //remove the initials N, B, Q, K, R, I didnt use replaceFirstChar to remove +, # or other post position symbols
+                    }
 
-                        val position = Position.convertToPosition(move.replaceFirstChar { "" })
-                        if (position != null) {
+                   if(pieceTypeToMove==PIECETYPE.KNIGHT){
+                       if(position != null){
                             val theKnight: ChessPieces.Knight? = getPieceThatCanMoveTo(position, getIndexOfPieceWithConditions2(column, null, PIECETYPE.KNIGHT, isWhite)) as? ChessPieces.Knight
                             if (theKnight != null) {
                                 movePieceToAndLeaveEmptyBehind(position, theKnight)
                                 return true
                             }
-                        }
-                    } else if(pieceTypeToMove==PIECETYPE.BISHOP){
-                        val position = Position.convertToPosition(move.replaceFirstChar { "" })
+                       }
+                   } else if(pieceTypeToMove==PIECETYPE.BISHOP){
                         if (position != null) {
-                            val theBishop: ChessPieces.Bishop? = getPieceThatCanMoveTo(position, getIndexOfPieceWithConditions2(null, null, PIECETYPE.BISHOP, isWhite)) as? ChessPieces.Bishop
+                            val theBishop: ChessPieces.Bishop? = getPieceThatCanMoveTo(position, getIndexOfPieceWithConditions2(column, null, PIECETYPE.BISHOP, isWhite)) as? ChessPieces.Bishop
                             if (theBishop != null) {
                                 movePieceToAndLeaveEmptyBehind(position, theBishop)
                                 return true
                             }
                         }
-                    }
+                   } else if(pieceTypeToMove==PIECETYPE.QUEEN){
+                       if (position != null) {
+                           val theQueen: ChessPieces.Queen? = getPieceThatCanMoveTo(position, getIndexOfPieceWithConditions2(column, null, PIECETYPE.QUEEN, isWhite)) as? ChessPieces.Queen
+                           if (theQueen != null) {
+                               movePieceToAndLeaveEmptyBehind(position, theQueen)
+                               return true
+                           }
+                       }
+                   } else if(pieceTypeToMove==PIECETYPE.ROOK) {
+                       if (position != null) {
+                           val theRook: ChessPieces.Rook? = getPieceThatCanMoveTo(position, getIndexOfPieceWithConditions2(column, null, PIECETYPE.ROOK, isWhite)) as? ChessPieces.Rook
+                           if (theRook != null) {
+                               movePieceToAndLeaveEmptyBehind(position, theRook)
+                               return true
+                           }
+                       }
+                   } else if(pieceTypeToMove==PIECETYPE.KING) {
+                       if (position != null) {
+                           val theKing: ChessPieces.King? = getPieceThatCanMoveTo(position, getIndexOfPieceWithConditions2(column, null, PIECETYPE.KING, isWhite)) as? ChessPieces.King
+                           if (theKing != null) {
+                               movePieceToAndLeaveEmptyBehind(position, theKing)
+                               return true
+                           }
+                       }
+                   }
                 }
 
             }
         }
-        log("Some interpretation failed")
+        log("Some interpretation failed with $move")
         return false
     }
 

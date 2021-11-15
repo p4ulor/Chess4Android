@@ -135,7 +135,7 @@ sealed class ChessPieces { //https://antonioleiva.com/sealed-classes-kotlin/ //m
                 if(position.getXDiference(destination)==0 && position.getYDiference(destination)!=0) {
                     return true
                 }
-                else if (position.getYDiference(destination)!=0 && position.getYDiference(destination)==0) {
+                else if (position.getXDiference(destination)!=0 && position.getYDiference(destination)==0) {
                     return true
                 }
             }
