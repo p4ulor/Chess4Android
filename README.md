@@ -27,8 +27,6 @@ ChessRoyale like app for Mobile Device Programming
 - O-O -> Kingside castle
 - O-O-O -> Queenside castle (meaning the move is done towards the side of where the queen is initially positioned at, in respective to the piece's color)
 
-On kingside castle, the tower goes to the position the king could and would go to. But the king is placed on the opposite side (and direction) of the tower. Meaning he can exceptionaly have a travel distance of 2
-
 [Read more here](https://en.wikipedia.org/wiki/Castling
 
 ### Extra (these symbols are placed at the end of a move):
@@ -39,7 +37,7 @@ On kingside castle, the tower goes to the position the king could and would go t
 - On a check, you can only move pieces that kill the piece that made the check, block it's path, or move the king out of the reach of that piece
 
 #### When a rook reaches the opponent's side limit, it can turn into: a queen, horse, rook, tower or bishop. Format:
-- d1=q
-- d1=q# // turns into queen and checks king
+- d1=q   //turns into queen
+- d1=q#  // turns into queen and checks king
 - gxh1=g // eats piece and turns into queen
 

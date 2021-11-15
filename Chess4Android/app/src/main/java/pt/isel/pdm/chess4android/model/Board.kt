@@ -113,15 +113,17 @@ class Board {
     // function use in a nutshell: if param is null, dont evaluate equality when searching for the index, otherwise, do evaluate.
     private fun getIndexesOfPieceWithConditions(column: Char?, line: Byte?, pieceType: PIECETYPE?, isWhite: Boolean?) : IntArray { // all in one get function. To make it as flexible as possible, we decided to return index, and the calling code wants the piece or whatever property from it, it will get it with the getPieceAtIndex
         var boolColumn = column!=null
-        val boolLine = line!=null
+        var boolLine = line!=null
         var boolPosition = boolColumn && boolLine
         var boolType = pieceType!=null
         var boolIsWhite = isWhite!=null
         var position: Position? = null
         var arrayOfMaxingIndexes = IntArray(BOARD_SIDE_SIZE) { -1 }
-        if(boolPosition){
+        if(boolPosition){ //is position really needed? if we have both line and column?
             try {
                 position = Position(column!!, line!!) //according to our validation above, !! is fine and has to be here
+                boolColumn = false
+                boolLine = false
             } catch (e: IllegalArgumentException){
                 return arrayOfMaxingIndexes
             }
@@ -205,7 +207,29 @@ class Board {
         if (move.length<7){ //if the length is not inferior to 7, it has to be a bug
             val pieceTypeToMove = letterToPieceType(move[0])
             if(move=="O-O") { //king castle
-                //todo
+                var theRook: ChessPieces.Rook?
+                var theKing: ChessPieces.King?
+                if(isWhite){
+                    theRook = getPieceAtIndex(63) as? ChessPieces.Rook
+                    theKing = getPieceAtIndex(60) as? ChessPieces.King
+                } else {
+                    theRook = getPieceAtIndex(7) as? ChessPieces.Rook
+                    theKing = getPieceAtIndex(4) as? ChessPieces.King
+
+                }
+                if(theRook!=null && theKing!=null){
+                    if(!theRook.firstMoveUsed && !theKing.firstMoveUsed){
+                        if(isWhite && !isNotEmptyPiece(61) && !isNotEmptyPiece(62)){
+                            movePieceToAndLeaveEmptyBehind(62, theKing)
+                            movePieceToAndLeaveEmptyBehind(61, theRook)
+                            return true
+                        } else if(!isNotEmptyPiece(5) && !isNotEmptyPiece(6)) {
+                            movePieceToAndLeaveEmptyBehind(6, theKing)
+                            movePieceToAndLeaveEmptyBehind(5, theRook)
+                            return true
+                        }
+                    }
+                }
             } else if(move=="0-0-0") { //queen castle
                 /*val thePiece = getPieceAtIndex(getIndexesOfPieceWithConditions(null, null, PIECETYPE.KING, isWhite))
                 val theKing: ChessPieces.King? = thePiece as? ChessPieces.King

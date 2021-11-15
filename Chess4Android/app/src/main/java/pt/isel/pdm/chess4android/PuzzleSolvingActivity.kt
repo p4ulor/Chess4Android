@@ -68,7 +68,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
                     toast(R.string.interpretError)
                     return false
                 }
-                if(index==10) return true //useful for testing index by index, movement by movement
+                if(index==11) return true //useful for testing index by index, movement by movement
             }
             return true
         }

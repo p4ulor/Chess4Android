@@ -128,6 +128,8 @@ sealed class ChessPieces { //https://antonioleiva.com/sealed-classes-kotlin/ //m
         override val maxTravelDistanceX: Byte = 7
         override val maxTravelDistanceY: Byte = 7
 
+        var firstMoveUsed: Boolean = false
+
         override fun canMoveTo(destination: Position) : Boolean {
             if(position.isValidMovement(destination, maxTravelDistanceX, maxTravelDistanceY)){
                 if(position.getXDiference(destination)==0 && position.getYDiference(destination)!=0) {
