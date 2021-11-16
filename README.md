@@ -1,9 +1,16 @@
 # PDM-2122i-LI5X-G19
-ChessRoyale like app for Mobile Device Programming
+ChessRoyale like app for Mobile Device Programming discipline
+
+### Tag **chess_royale_1**
+This app gets today's chess puzzle and allows the user to solve it.
+
 
 ## Shortcuts for main source code
 - [src](Chess4Android/app/src/main/java/pt/isel/pdm/chess4android)
 - [layout (activities)](Chess4Android/app/src/main/res/layout)
+
+## Consult today's game here
+- https://lichess.org/training/daily
 
 ## Places to learn coordinates and moves
 - https://lichess.org/analysis
@@ -36,8 +43,9 @@ ChessRoyale like app for Mobile Device Programming
 ### Extra rules
 - On a check, you can only move pieces that kill the piece that made the check, block it's path, or move the king out of the reach of that piece
 
-#### When a rook reaches the opponent's side limit, it can turn into: a queen, horse, rook, tower or bishop. Format:
+#### When a pawn reaches the opponent's side limit, it can turn into: a queen, horse, tower or bishop. Format:
 - d1=q   //turns into queen
 - d1=q#  // turns into queen and checks king
 - gxh1=g // eats piece and turns into queen
+- gxh8=q# // pawn at g7 ate rook at h8, turns into queen and checks king
 

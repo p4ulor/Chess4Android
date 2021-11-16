@@ -204,8 +204,17 @@ class Board {
    */
     fun interpretMove(move: String, isWhite: Boolean) : Boolean { //very crucial, and complicated, since the movement registration in the json file are "compressed" in a sense. In other words, given a movement, we sometimes need to infer what piece can perform that move. Example: 2 knights: one in d2, another in g1, movement received: Nc4. g1 can't perform that movement, thus, the knight to move is the one in d2. This happens when there are pieces that can perform the movement are of the same type (same letter). This must be interpreted properly with logic.
         var move = move //since parameters are readonly, we can "shadow" the variable, make it like we can edit it
-        if (move.length<7){ //if the length is not inferior to 7, it has to be a bug
-            val pieceTypeToMove = letterToPieceType(move[0])
+        if (move.length<8){ //if the length is not inferior to 7, it has to be a bug
+            /*
+			* todo cases
+			* - d1=q   //turns into queen
+			* - d1=q#  // turns into queen and checks king
+			* - gxh1=g // eats piece and turns into queen
+			* - gxh8=q# // pawn at g7 ate rook at h8, turns into queen and checks king
+			*/
+			
+			
+			val pieceTypeToMove = letterToPieceType(move[0])
             if(move=="O-O") { //king castle
                 var theRook: ChessPieces.Rook?
                 var theKing: ChessPieces.King?
@@ -230,7 +239,7 @@ class Board {
                         }
                     }
                 }
-            } else if(move=="0-0-0") { //queen castle
+            } else if(move=="O-O-O") { //queen castle
                 var theRook: ChessPieces.Rook?
                 var theKing: ChessPieces.King?
                 if(isWhite){
@@ -270,62 +279,26 @@ class Board {
                     var position: Position?
                     if(move[2].isLetter()) { //check for cases Nxg5, Nfg5 and Nfxg5
                         if(move[1]=='x'){
-                            position = Position.convertToPosition(move.subSequence(2,4).toString())
+                            position = Position.convertToPosition(move.subSequence(2,4).toString()) //Nxg5
                         } else if(move[2]=='x'){
                             column = move[1]
-                            position = Position.convertToPosition(move.subSequence(3,5).toString())
+                            position = Position.convertToPosition(move.subSequence(3,5).toString()) //Nfxg5
                         }
                         else {
                             column = move[1]
-                            position = Position.convertToPosition(move.subSequence(2,4).toString())
+                            position = Position.convertToPosition(move.subSequence(2,4).toString()) //Nfg5
                         }
                     } else {
                         position = Position.convertToPosition(move.subSequence(1,3).toString()) //remove the initials N, B, Q, K, R, I didnt use replaceFirstChar to remove +, # or other post position symbols
                     }
-
-                   if(pieceTypeToMove==PIECETYPE.KNIGHT){
-                       if(position != null){
-                            val theKnight: ChessPieces.Knight? = getPieceThatCanMoveTo(position, getIndexOfPieceWithConditions2(column, null, PIECETYPE.KNIGHT, isWhite)) as? ChessPieces.Knight
-                            if (theKnight != null) {
-                                movePieceToAndLeaveEmptyBehind(position, theKnight)
-                                return true
-                            }
-                       }
-                   } else if(pieceTypeToMove==PIECETYPE.BISHOP){
-                        if (position != null) {
-                            val theBishop: ChessPieces.Bishop? = getPieceThatCanMoveTo(position, getIndexOfPieceWithConditions2(column, null, PIECETYPE.BISHOP, isWhite)) as? ChessPieces.Bishop
-                            if (theBishop != null) {
-                                movePieceToAndLeaveEmptyBehind(position, theBishop)
-                                return true
-                            }
+                    if(position != null) {
+                        val thePiece = pieceToChessPieceCorrespondingToItsType(getPieceThatCanMoveTo(position, getIndexOfPieceWithConditions2(column, null, pieceTypeToMove, isWhite)), pieceTypeToMove)
+                        if(thePiece!=null) {
+                            movePieceToAndLeaveEmptyBehind(position, thePiece)
+                            return true
                         }
-                   } else if(pieceTypeToMove==PIECETYPE.QUEEN){
-                       if (position != null) {
-                           val theQueen: ChessPieces.Queen? = getPieceThatCanMoveTo(position, getIndexOfPieceWithConditions2(column, null, PIECETYPE.QUEEN, isWhite)) as? ChessPieces.Queen
-                           if (theQueen != null) {
-                               movePieceToAndLeaveEmptyBehind(position, theQueen)
-                               return true
-                           }
-                       }
-                   } else if(pieceTypeToMove==PIECETYPE.ROOK) {
-                       if (position != null) {
-                           val theRook: ChessPieces.Rook? = getPieceThatCanMoveTo(position, getIndexOfPieceWithConditions2(column, null, PIECETYPE.ROOK, isWhite)) as? ChessPieces.Rook
-                           if (theRook != null) {
-                               movePieceToAndLeaveEmptyBehind(position, theRook)
-                               return true
-                           }
-                       }
-                   } else if(pieceTypeToMove==PIECETYPE.KING) {
-                       if (position != null) {
-                           val theKing: ChessPieces.King? = getPieceThatCanMoveTo(position, getIndexOfPieceWithConditions2(column, null, PIECETYPE.KING, isWhite)) as? ChessPieces.King
-                           if (theKing != null) {
-                               movePieceToAndLeaveEmptyBehind(position, theKing)
-                               return true
-                           }
-                       }
-                   }
+                    }
                 }
-
             }
         }
         log("Some interpretation failed with $move")
@@ -343,6 +316,18 @@ class Board {
     }
 
     // UTILITY METHODS
+    private fun pieceToChessPieceCorrespondingToItsType(piece: Piece?, pieceType: PIECETYPE) : Piece? {
+        return when(pieceType){
+            PIECETYPE.PAWN -> piece as ChessPieces.Pawn
+            PIECETYPE.BISHOP -> piece as ChessPieces.Bishop
+            PIECETYPE.KNIGHT -> piece as ChessPieces.Knight
+            PIECETYPE.ROOK -> piece as ChessPieces.Rook
+            PIECETYPE.KING -> piece as ChessPieces.King
+            PIECETYPE.QUEEN -> piece as ChessPieces.Queen
+            else -> null
+        }
+    }
+
     private fun letterToColumn(char: Char) : Int {
         return when(char){
             'a' -> 0
