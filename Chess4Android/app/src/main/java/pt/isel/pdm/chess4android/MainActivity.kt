@@ -138,8 +138,13 @@ class MainActivity : AppCompatActivity() {
         log("State restored")
     }
 
+    override fun onPause() {
+        log("paused")
+        super.onPause()
+    }
+
     override fun onDestroy() {
-        log("Activity destroyed")
+        log("destroyed")
         super.onDestroy()
     }
 

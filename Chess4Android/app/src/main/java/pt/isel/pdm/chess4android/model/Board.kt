@@ -4,87 +4,85 @@ import android.util.Log
 
 const val BOARD_SIDE_SIZE: Int = 8
 const val BOARDLENGHT: Int = BOARD_SIDE_SIZE * BOARD_SIDE_SIZE
-private var chessPiecesTablePositions = arrayOf(
-
-    ChessPieces.Rook('a', 8, false),
-    ChessPieces.Knight('b', 8, false),
-    ChessPieces.Bishop('c', 8, false),
-    ChessPieces.Queen('d', 8,false),
-    ChessPieces.King('e', 8, false),
-    ChessPieces.Bishop('f', 8, false),
-    ChessPieces.Knight('g', 8, false),
-    ChessPieces.Rook('h', 8, false),
-
-    ChessPieces.Pawn('a', 7, false),
-    ChessPieces.Pawn('b', 7, false),
-    ChessPieces.Pawn('c', 7, false),
-    ChessPieces.Pawn('d', 7, false),
-    ChessPieces.Pawn('e', 7, false),
-    ChessPieces.Pawn('f', 7, false),
-    ChessPieces.Pawn('g', 7, false),
-    ChessPieces.Pawn('h', 7, false),
-
-    ChessPieces.Empty('a', 6),
-    ChessPieces.Empty('b', 6),
-    ChessPieces.Empty('c', 6),
-    ChessPieces.Empty('d', 6),
-    ChessPieces.Empty('e', 6),
-    ChessPieces.Empty('f', 6),
-    ChessPieces.Empty('g', 6),
-    ChessPieces.Empty('h', 6),
-
-    ChessPieces.Empty('a', 5),
-    ChessPieces.Empty('b', 5),
-    ChessPieces.Empty('c', 5),
-    ChessPieces.Empty('d', 5),
-    ChessPieces.Empty('e', 5),
-    ChessPieces.Empty('f', 5),
-    ChessPieces.Empty('g', 5),
-    ChessPieces.Empty('h', 5),
-
-    ChessPieces.Empty('a', 4),
-    ChessPieces.Empty('b', 4),
-    ChessPieces.Empty('c', 4),
-    ChessPieces.Empty('d', 4),
-    ChessPieces.Empty('e', 4),
-    ChessPieces.Empty('f', 4),
-    ChessPieces.Empty('g', 4),
-    ChessPieces.Empty('h', 4),
-
-    ChessPieces.Empty('a', 3),
-    ChessPieces.Empty('b', 3),
-    ChessPieces.Empty('c', 3),
-    ChessPieces.Empty('d', 3),
-    ChessPieces.Empty('e', 3),
-    ChessPieces.Empty('f', 3),
-    ChessPieces.Empty('g', 3),
-    ChessPieces.Empty('h', 3),
-
-    ChessPieces.Pawn('a', 2, true),
-    ChessPieces.Pawn('b', 2, true),
-    ChessPieces.Pawn('c', 2, true),
-    ChessPieces.Pawn('d', 2, true),
-    ChessPieces.Pawn('e', 2, true),
-    ChessPieces.Pawn('f', 2, true),
-    ChessPieces.Pawn('g', 2, true),
-    ChessPieces.Pawn('h', 2, true),
-
-    ChessPieces.Rook('a', 1, true),
-    ChessPieces.Knight('b', 1, true),
-    ChessPieces.Bishop('c', 1, true),
-    ChessPieces.Queen('d', 1,true),
-    ChessPieces.King('e', 1, true),
-    ChessPieces.Bishop('f', 1, true),
-    ChessPieces.Knight('g', 1, true),
-    ChessPieces.Rook('h', 1, true)
-)
 
 class Board {
-    companion object { val companion_chessTable = chessPiecesTablePositions } //chessPiecesTablePositions will be read only for classes that want to acess it
+    private val startingChessPiecesTablePositions = arrayOf(
 
-    private var puzzle: String? = null
-    constructor( puzzle: String) {
-        this.puzzle = puzzle
+        ChessPieces.Rook('a', 8, false),
+        ChessPieces.Knight('b', 8, false),
+        ChessPieces.Bishop('c', 8, false),
+        ChessPieces.Queen('d', 8,false),
+        ChessPieces.King('e', 8, false),
+        ChessPieces.Bishop('f', 8, false),
+        ChessPieces.Knight('g', 8, false),
+        ChessPieces.Rook('h', 8, false),
+
+        ChessPieces.Pawn('a', 7, false),
+        ChessPieces.Pawn('b', 7, false),
+        ChessPieces.Pawn('c', 7, false),
+        ChessPieces.Pawn('d', 7, false),
+        ChessPieces.Pawn('e', 7, false),
+        ChessPieces.Pawn('f', 7, false),
+        ChessPieces.Pawn('g', 7, false),
+        ChessPieces.Pawn('h', 7, false),
+
+        ChessPieces.Empty('a', 6),
+        ChessPieces.Empty('b', 6),
+        ChessPieces.Empty('c', 6),
+        ChessPieces.Empty('d', 6),
+        ChessPieces.Empty('e', 6),
+        ChessPieces.Empty('f', 6),
+        ChessPieces.Empty('g', 6),
+        ChessPieces.Empty('h', 6),
+
+        ChessPieces.Empty('a', 5),
+        ChessPieces.Empty('b', 5),
+        ChessPieces.Empty('c', 5),
+        ChessPieces.Empty('d', 5),
+        ChessPieces.Empty('e', 5),
+        ChessPieces.Empty('f', 5),
+        ChessPieces.Empty('g', 5),
+        ChessPieces.Empty('h', 5),
+
+        ChessPieces.Empty('a', 4),
+        ChessPieces.Empty('b', 4),
+        ChessPieces.Empty('c', 4),
+        ChessPieces.Empty('d', 4),
+        ChessPieces.Empty('e', 4),
+        ChessPieces.Empty('f', 4),
+        ChessPieces.Empty('g', 4),
+        ChessPieces.Empty('h', 4),
+
+        ChessPieces.Empty('a', 3),
+        ChessPieces.Empty('b', 3),
+        ChessPieces.Empty('c', 3),
+        ChessPieces.Empty('d', 3),
+        ChessPieces.Empty('e', 3),
+        ChessPieces.Empty('f', 3),
+        ChessPieces.Empty('g', 3),
+        ChessPieces.Empty('h', 3),
+
+        ChessPieces.Pawn('a', 2, true),
+        ChessPieces.Pawn('b', 2, true),
+        ChessPieces.Pawn('c', 2, true),
+        ChessPieces.Pawn('d', 2, true),
+        ChessPieces.Pawn('e', 2, true),
+        ChessPieces.Pawn('f', 2, true),
+        ChessPieces.Pawn('g', 2, true),
+        ChessPieces.Pawn('h', 2, true),
+
+        ChessPieces.Rook('a', 1, true),
+        ChessPieces.Knight('b', 1, true),
+        ChessPieces.Bishop('c', 1, true),
+        ChessPieces.Queen('d', 1,true),
+        ChessPieces.King('e', 1, true),
+        ChessPieces.Bishop('f', 1, true),
+        ChessPieces.Knight('g', 1, true),
+        ChessPieces.Rook('h', 1, true)
+    )
+    companion object { val companion_chessTable = Board().startingChessPiecesTablePositions.copyOf() } //startingChessPiecesTablePositions will be read only for classes that want to acess it
+    private var chessPiecesTablePositions = startingChessPiecesTablePositions.copyOf()
+    constructor() {
         assert(chessPiecesTablePositions.size == BOARDLENGHT)
     }
 
@@ -96,10 +94,6 @@ class Board {
     fun isPositionWithPieceType(index: Int, pieceType: PIECETYPE) : Boolean {
         if(getPieceAtIndex(index).pieceType==pieceType) return true
         return false
-    }
-
-    fun areTherePiecesInTheWayBetween(){
-
     }
 
     // GET PIECE
@@ -194,17 +188,17 @@ class Board {
 
     private fun movePieceToAndLeaveEmptyBehind(position: Position, pieceOrigin: Piece) = movePieceToAndLeaveEmptyBehind(positionToIndex(position), pieceOrigin)
 
-    //returns false on fail, true on success
     /*
    * examples:
    * pawns: e4, exf5
    * others: Nf3, Nxg5, Nfg5 (on "conflict" of possibilities), Nfxg5 (on "conflict" of possibilities AND kills piece)
    * specials: O-O, O-O-O
    * at the end of these strings, ignores symbols like + and #
+   * @return false on fail, true on success
    */
     fun interpretMove(move: String, isWhite: Boolean) : Boolean { //very crucial, and complicated, since the movement registration in the json file are "compressed" in a sense. In other words, given a movement, we sometimes need to infer what piece can perform that move. Example: 2 knights: one in d2, another in g1, movement received: Nc4. g1 can't perform that movement, thus, the knight to move is the one in d2. This happens when there are pieces that can perform the movement are of the same type (same letter). This must be interpreted properly with logic.
         var move = move //since parameters are readonly, we can "shadow" the variable, make it like we can edit it
-        if (move.length<8){ //if the length is not inferior to 7, it has to be a bug
+        if (move.length<8){ //if the length is not inferior to 8, it has to be a bug
             /*
 			* todo cases
 			* - d1=q   //turns into queen
@@ -212,53 +206,55 @@ class Board {
 			* - gxh1=g // eats piece and turns into queen
 			* - gxh8=q# // pawn at g7 ate rook at h8, turns into queen and checks king
 			*/
-			
-			
+
 			val pieceTypeToMove = letterToPieceType(move[0])
-            if(move=="O-O") { //king castle
+            if(move=="O-O-O" || move=="O-O") { //king castle or queen castle
+                /*
+                    Pattern analysis with indexes:
+                    O-O-O (queen side)
+                    getPieces:
+                    4(K)  0(R)  (black)
+                    60(K) 56(R) (white)
+
+                    isEmpty 1  2  3,  res -> 2(K)  3(R)(black)
+                    isEmpty 57 58 59, res -> 58(K) 59(R) (white)
+
+
+                    O-O (king side)                          index difference
+                    getPieces:
+                    4(K)   7(R) (black)                           0,  +7
+                    60(K) 63(R) (white)                           0,  +7
+
+                    isEmpty 5  6 ,   res -> 6(K)  5(R) (black)    +4  +4  -    -> +4, +2
+                    isEmpty 61 62,   res -> 62(K) 61(R) (white)   +4  +4  -    -> +4, +2
+
+                 */
                 var theRook: ChessPieces.Rook?
                 var theKing: ChessPieces.King?
+                var sumDif7 = 0
+                var sumDif4 = 0
+                var sumDif2 = 0
+                if(move=="O-O") { //on king side
+                    sumDif7 = 7
+                    sumDif4 = 4
+                    sumDif2 = 2
+                }
                 if(isWhite){
-                    theRook = getPieceAtIndex(63) as? ChessPieces.Rook
+                    theRook = getPieceAtIndex(56+sumDif7) as? ChessPieces.Rook
                     theKing = getPieceAtIndex(60) as? ChessPieces.King
                 } else {
-                    theRook = getPieceAtIndex(7) as? ChessPieces.Rook
+                    theRook = getPieceAtIndex(0+sumDif7) as? ChessPieces.Rook
                     theKing = getPieceAtIndex(4) as? ChessPieces.King
-
                 }
                 if(theRook!=null && theKing!=null){
                     if(!theRook.firstMoveUsed && !theKing.firstMoveUsed){
-                        if(isWhite && !isNotEmptyPiece(61) && !isNotEmptyPiece(62)){
-                            movePieceToAndLeaveEmptyBehind(62, theKing)
-                            movePieceToAndLeaveEmptyBehind(61, theRook)
+                        if(isWhite && !isNotEmptyPiece(57+sumDif4) && !isNotEmptyPiece(58+sumDif4) && if(sumDif7==0) !isNotEmptyPiece(59) else true){
+                            movePieceToAndLeaveEmptyBehind(58+sumDif4, theKing)
+                            movePieceToAndLeaveEmptyBehind(59+sumDif2, theRook)
                             return true
-                        } else if(!isNotEmptyPiece(5) && !isNotEmptyPiece(6)) {
-                            movePieceToAndLeaveEmptyBehind(6, theKing)
-                            movePieceToAndLeaveEmptyBehind(5, theRook)
-                            return true
-                        }
-                    }
-                }
-            } else if(move=="O-O-O") { //queen castle
-                var theRook: ChessPieces.Rook?
-                var theKing: ChessPieces.King?
-                if(isWhite){
-                    theRook = getPieceAtIndex(56) as? ChessPieces.Rook
-                    theKing = getPieceAtIndex(60) as? ChessPieces.King
-                } else {
-                    theRook = getPieceAtIndex(0) as? ChessPieces.Rook
-                    theKing = getPieceAtIndex(4) as? ChessPieces.King
-
-                }
-                if(theRook!=null && theKing!=null){
-                    if(!theRook.firstMoveUsed && !theKing.firstMoveUsed){
-                        if(isWhite && !isNotEmptyPiece(57) && !isNotEmptyPiece(58) && !isNotEmptyPiece(59) ){
-                            movePieceToAndLeaveEmptyBehind(58, theKing)
-                            movePieceToAndLeaveEmptyBehind(59, theRook)
-                            return true
-                        } else if(!isNotEmptyPiece(1) && !isNotEmptyPiece(2) && !isNotEmptyPiece(3) ) {
-                            movePieceToAndLeaveEmptyBehind(2, theKing)
-                            movePieceToAndLeaveEmptyBehind(3, theRook)
+                        } else if(!isNotEmptyPiece(1+sumDif4) && !isNotEmptyPiece(2+sumDif4) && if(sumDif7==0) !isNotEmptyPiece(3) else true) {
+                            movePieceToAndLeaveEmptyBehind(2+sumDif4, theKing)
+                            movePieceToAndLeaveEmptyBehind(3+sumDif2, theRook)
                             return true
                         }
                     }
@@ -315,18 +311,13 @@ class Board {
         return null
     }
 
-    // UTILITY METHODS
-    private fun pieceToChessPieceCorrespondingToItsType(piece: Piece?, pieceType: PIECETYPE) : Piece? {
-        return when(pieceType){
-            PIECETYPE.PAWN -> piece as ChessPieces.Pawn
-            PIECETYPE.BISHOP -> piece as ChessPieces.Bishop
-            PIECETYPE.KNIGHT -> piece as ChessPieces.Knight
-            PIECETYPE.ROOK -> piece as ChessPieces.Rook
-            PIECETYPE.KING -> piece as ChessPieces.King
-            PIECETYPE.QUEEN -> piece as ChessPieces.Queen
-            else -> null
+    fun reset() {
+        repeat(BOARDLENGHT) {
+            setPieceAtIndex(it, startingChessPiecesTablePositions[it] )
         }
     }
+
+    // UTILITY METHODS
 
     private fun letterToColumn(char: Char) : Int {
         return when(char){

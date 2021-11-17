@@ -197,6 +197,8 @@ enum class PIECETYPE {
     EMPTY
 }
 
+// UTILITY METHODS
+
 fun letterToPieceType(char: Char) : PIECETYPE { //must be in uppercase just like in the json. fixme: is this method call reliable?
     return when(char) {
         'B' -> PIECETYPE.BISHOP
@@ -205,6 +207,18 @@ fun letterToPieceType(char: Char) : PIECETYPE { //must be in uppercase just like
         'K' -> PIECETYPE.KING
         'Q' -> PIECETYPE.QUEEN
         else -> PIECETYPE.PAWN
+    }
+}
+
+fun pieceToChessPieceCorrespondingToItsType(piece: Piece?, pieceType: PIECETYPE) : Piece? {
+    return when(pieceType){
+        PIECETYPE.PAWN -> piece as ChessPieces.Pawn
+        PIECETYPE.BISHOP -> piece as ChessPieces.Bishop
+        PIECETYPE.KNIGHT -> piece as ChessPieces.Knight
+        PIECETYPE.ROOK -> piece as ChessPieces.Rook
+        PIECETYPE.KING -> piece as ChessPieces.King
+        PIECETYPE.QUEEN -> piece as ChessPieces.Queen
+        else -> null
     }
 }
 

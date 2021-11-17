@@ -15,7 +15,6 @@ This app gets today's chess puzzle and allows the user to solve it.
 ## Places to learn coordinates and moves
 - https://lichess.org/analysis
 - http://www.chessfornovices.com/chessnotation2.html
-- [How to "castle"](https://youtu.be/4jXQyGaeUV8)
 - https://en.wikipedia.org/wiki/Rules_of_chess
 - https://levelup.gitconnected.com/finding-all-legal-chess-moves-2cb872d05bc6
 - http://www.jimmyvermeer.com/rules.html
@@ -33,8 +32,8 @@ This app gets today's chess puzzle and allows the user to solve it.
 ## Special movements for the king (only when the king is selected, this is possible, when selecting the rook, it can't switch with king)
 - O-O -> Kingside castle
 - O-O-O -> Queenside castle (meaning the move is done towards the side of where the queen is initially positioned at, in respective to the piece's color)
-
-[Read more here](https://en.wikipedia.org/wiki/Castling
+- [Read more here](https://en.wikipedia.org/wiki/Castling
+- [How to "castle"](https://youtu.be/4jXQyGaeUV8)
 
 ### Extra (these symbols are placed at the end of a move):
 - \+ -> means, that it's a check (the color that played can capture the opposite color king)

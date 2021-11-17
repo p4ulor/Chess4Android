@@ -5,9 +5,10 @@
     <string name="continueButton">Continuar</string>
     <string name="retry">Retentar</string>
     <string name="jsonError">Erro, está ligado ao wifi?</string>
-    <string name="puzzleUpdated">Puzzle atualizado</string>
+    <string name="puzzleUpdated">Puzzle atualizado e na memória</string>
     <string name="alreadyUpdated">Você já tem o puzzle para hoje</string>
     <string name="WTFerror">QFT, sem puzzle ou solução válida</string>
     <string name="progressLost">Jogada perdida</string>
     <string name="interpretError">Erro na interpretação do json</string>
+    <string name="loadSuccess">Puzzle carregado com sucesso</string>
 </resources>

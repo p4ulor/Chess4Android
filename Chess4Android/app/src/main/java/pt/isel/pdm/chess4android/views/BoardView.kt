@@ -27,7 +27,7 @@ class BoardView(private val ctx: Context, attrs: AttributeSet?) : GridLayout(ctx
 
     private val blankIcon = VectorDrawableCompat.create(ctx.resources, R.drawable.ic_blank, null)
 
-    init {
+    init { //will always read the startingChessPiecesTablePositions (because the companion object references it)
         rowCount = side
         columnCount = side
         repeat(side * side) {
@@ -61,7 +61,7 @@ class BoardView(private val ctx: Context, attrs: AttributeSet?) : GridLayout(ctx
         val img = getDrawablePiece(piece.pieceType, piece.isWhite)
         if(img!=null){
             tileMatrix[index]?.setIcon(img)?.invalidate()
-            log("invalidated")
+            //log("invalidated")
         } else log("invalidate failed")
     }
 

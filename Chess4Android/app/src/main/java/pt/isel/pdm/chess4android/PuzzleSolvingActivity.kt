@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import pt.isel.pdm.chess4android.model.BOARDLENGHT
 import pt.isel.pdm.chess4android.model.BOARD_SIDE_SIZE
 import pt.isel.pdm.chess4android.model.Board
 import pt.isel.pdm.chess4android.views.BoardView
@@ -24,13 +25,14 @@ class PuzzleSolvingActivity : AppCompatActivity() {
     private var currentlySelectedPieceIndex: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        log("Created")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_puzzle_solving)
 
         lichessGameOfTheDayPuzzle = intent.getStringArrayExtra(PUZZLE)
         lichessGameOfTheDaySolution = intent.getStringArrayExtra(SOLUTION)
 
-        board = Board(lichessGameOfTheDayPuzzle.toString())
+        board = Board()
 
         myView = findViewById(R.id.boardView)
 
@@ -60,6 +62,28 @@ class PuzzleSolvingActivity : AppCompatActivity() {
         if(loadGame()) invalidateEverything() //it's easier for us to invalidate everything when loading
     }
 
+    override fun onStart() {
+        log("Started")
+        super.onStart()
+    }
+
+    override fun onResume() {
+        log("Resumed")
+        super.onResume()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+
+        super.onSaveInstanceState(outState)
+        log("State saved")
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+
+        log("State restored")
+    }
+
     private fun loadGame() : Boolean {
         if(lichessGameOfTheDayPuzzle!=null){
             lichessGameOfTheDayPuzzle!!.forEachIndexed { index, s ->
@@ -71,6 +95,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
                 }
                 //if(index==14) return true //useful for testing index by index, movement by movement
             }
+            toast(R.string.loadSuccess)
             return true
         }
         toast(R.string.WTFerror)
@@ -78,13 +103,20 @@ class PuzzleSolvingActivity : AppCompatActivity() {
     }
 
     private fun invalidateEverything() {
-        repeat(BOARD_SIDE_SIZE * BOARD_SIDE_SIZE) {
+        repeat(BOARDLENGHT) {
             myView.invalidate(it, board.getPieceAtIndex(it))
         }
     }
 
+    override fun onPause() { //runs after onBackBackPressed
+        log("paused")
+        super.onPause()
+    }
+
     override fun onBackPressed() {
+        //board.reset()
         toast(R.string.progressLost)
+        log("progress lost")
         super.onBackPressed()
     }
 
