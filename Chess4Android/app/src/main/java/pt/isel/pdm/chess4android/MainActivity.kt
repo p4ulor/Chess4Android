@@ -26,6 +26,8 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.Window
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
 
 private const val TAG = "MY_LOG_MainActivity"
 private const val LICHESSDAILYPUZZLEURL: String = "https://lichess.org/api/puzzle/daily"
@@ -46,15 +48,18 @@ class MainActivity : AppCompatActivity() {
         ActivityMainBinding.inflate(layoutInflater)
     }
 
+    //private val viewModel: MainActivityViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         log("Activity created")
         super.onCreate(savedInstanceState)
         setContentView(binding.root) //mandatory before referencing view's using findViewById
         //setContentView(R.layout.activity_main); //alternative to what's above
 
-        supportActionBar?.title=getString(R.string.welcome)
+        supportActionBar?.title = getString(R.string.welcome)
 
         //SET VIEWS (text, buttons, etc)
+        //getGameButton = binding.getGameButton alternative
         getGameButton = findViewById(R.id.getGameButton)
         continueButton = findViewById(R.id.continueButton)
 
@@ -198,8 +203,6 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
-    private fun log(s: String) = Log.i(TAG, s)
-
     private fun log(arrayOfStrings: Array<String>?){
         val sb = StringBuilder()
         arrayOfStrings?.forEach { sb.append("$it ") }
@@ -210,8 +213,17 @@ class MainActivity : AppCompatActivity() {
     private fun readTXTFileFromAssets(string: String) : String { //asset files are read only (by the app). The user cannot access them through android's file explorer
         val i: InputStream = baseContext.assets.open(string) //or ctx.resources.assets.open()
         val s: Scanner = Scanner(i).useDelimiter("\\A") //https://stackoverflow.com/questions/309424/how-do-i-read-convert-an-inputstream-into-a-string-in-java
-        val result = if (s.hasNext()) s.next() else ""
+        val result = if (s.hasNext()) s.next() else "" //reads only 1 line
         log(result)
         return result
     }
+}
+
+private fun log(s: String) = Log.i(TAG, s)
+
+class MainActivityViewModel : ViewModel() {
+    init {
+        log("MainActivityViewModel.init()")
+    }
+
 }
