@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">ChessParaAndroid</string>
+    <string name="app_name">ChessParaAndroid G19</string>
     <string name="getGameButton">Carregar o jogo para hoje</string>
     <string name="continueButton">Continuar</string>
     <string name="retry">Retentar</string>
@@ -11,4 +11,9 @@
     <string name="progressLost">Jogada perdida</string>
     <string name="interpretError">Erro na interpretação do json</string>
     <string name="loadSuccess">Puzzle carregado com sucesso</string>
+    <string name="about_menu">Sobre a app</string>
+    <string name="empty">" "</string>
+    <string name="authors">Realizado por:\nPaulo Rosa 44873\nGonçalo Garcia 44787\nTiago Pilaro 46147</string>
+    <string name="attempt">Tente acabar o jogo</string>
+    <string name="welcome">Bem vindo</string>
 </resources>

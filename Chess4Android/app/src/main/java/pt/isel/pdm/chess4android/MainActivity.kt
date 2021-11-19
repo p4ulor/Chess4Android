@@ -22,6 +22,10 @@ import kotlin.reflect.KFunction0
 import kotlin.text.StringBuilder
 import android.content.SharedPreferences
 import android.content.SharedPreferences.Editor
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.Window
 
 private const val TAG = "MY_LOG_MainActivity"
 private const val LICHESSDAILYPUZZLEURL: String = "https://lichess.org/api/puzzle/daily"
@@ -47,6 +51,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root) //mandatory before referencing view's using findViewById
         //setContentView(R.layout.activity_main); //alternative to what's above
+
+        supportActionBar?.title=getString(R.string.welcome)
 
         //SET VIEWS (text, buttons, etc)
         getGameButton = findViewById(R.id.getGameButton)
@@ -146,6 +152,21 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         log("destroyed")
         super.onDestroy()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean { //aula dia 20, 27 outubro
+        menuInflater.inflate(R.menu.credits_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when(item.itemId) {
+            R.id.about -> {
+                startActivity(Intent(this, AboutActivity::class.java))
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     //Launch next activity

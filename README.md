@@ -1,6 +1,11 @@
 # PDM-2122i-LI5X-G19
 ChessRoyale like app for Mobile Device Programming discipline
 
+## Authors
+- Paulo Rosa 44873
+- Gonçalo Garcia 44787
+- Tiago Pilaro 46147
+
 ### Tag **chess_royale_1**
 This app gets today's chess puzzle and allows the user to solve it.
 

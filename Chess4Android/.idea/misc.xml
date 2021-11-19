@@ -20,10 +20,17 @@
         <entry key="..\:/INTELI/GITHUB/MYREPOS/PDM-2122i-LI5X-G19/Chess4Android/app/src/main/res/drawable/ic_black_bishop.xml" value="0.22552083333333334" />
         <entry key="..\:/INTELI/GITHUB/MYREPOS/PDM-2122i-LI5X-G19/Chess4Android/app/src/main/res/drawable/ic_blank.xml" value="0.22552083333333334" />
         <entry key="..\:/INTELI/GITHUB/MYREPOS/PDM-2122i-LI5X-G19/Chess4Android/app/src/main/res/drawable/ic_launcher_background.xml" value="0.1515625" />
+        <entry key="..\:/INTELI/GITHUB/MYREPOS/PDM-2122i-LI5X-G19/Chess4Android/app/src/main/res/drawable/ic_launcher_foreground.xml" value="0.1712962962962963" />
+        <entry key="..\:/INTELI/GITHUB/MYREPOS/PDM-2122i-LI5X-G19/Chess4Android/app/src/main/res/layout-land/activity_about.xml" value="0.165625" />
         <entry key="..\:/INTELI/GITHUB/MYREPOS/PDM-2122i-LI5X-G19/Chess4Android/app/src/main/res/layout-land/activity_main.xml" value="0.34427083333333336" />
         <entry key="..\:/INTELI/GITHUB/MYREPOS/PDM-2122i-LI5X-G19/Chess4Android/app/src/main/res/layout-land/activity_puzzle_solving.xml" value="0.34427083333333336" />
+        <entry key="..\:/INTELI/GITHUB/MYREPOS/PDM-2122i-LI5X-G19/Chess4Android/app/src/main/res/layout/activity_about.xml" value="0.25" />
         <entry key="..\:/INTELI/GITHUB/MYREPOS/PDM-2122i-LI5X-G19/Chess4Android/app/src/main/res/layout/activity_main.xml" value="0.33" />
         <entry key="..\:/INTELI/GITHUB/MYREPOS/PDM-2122i-LI5X-G19/Chess4Android/app/src/main/res/layout/activity_puzzle_solving.xml" value="0.25" />
+        <entry key="..\:/INTELI/GITHUB/MYREPOS/PDM-2122i-LI5X-G19/Chess4Android/app/src/main/res/menu/credits_menu.xml" value="0.25" />
+        <entry key="..\:/INTELI/GITHUB/MYREPOS/PDM-2122i-LI5X-G19/Chess4Android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.22552083333333334" />
+        <entry key="..\:/INTELI/GITHUB/MYREPOS/PDM-2122i-LI5X-G19/Chess4Android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.1638888888888889" />
+        <entry key="..\:/INTELI/GITHUB/MYREPOS/PDM-2122i-LI5X-G19/Chess4Android/app/src/main/res/mipmap-anydpi-v26/launcher_icon.xml" value="0.1638888888888889" />
         <entry key="app/src/main/res/drawable/ic_black_pawn.xml" value="0.35885416666666664" />
         <entry key="app/src/main/res/drawable/ic_chess_pieces_sprite.xml" value="0.35885416666666664" />
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.22135416666666666" />

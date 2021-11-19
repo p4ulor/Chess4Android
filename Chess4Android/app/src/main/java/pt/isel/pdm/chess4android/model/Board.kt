@@ -209,26 +209,6 @@ class Board {
 
 			val pieceTypeToMove = letterToPieceType(move[0])
             if(move=="O-O-O" || move=="O-O") { //king castle or queen castle
-                /*
-                    Pattern analysis with indexes:
-                    O-O-O (queen side)
-                    getPieces:
-                    4(K)  0(R)  (black)
-                    60(K) 56(R) (white)
-
-                    isEmpty 1  2  3,  res -> 2(K)  3(R)(black)
-                    isEmpty 57 58 59, res -> 58(K) 59(R) (white)
-
-
-                    O-O (king side)                          index difference
-                    getPieces:
-                    4(K)   7(R) (black)                           0,  +7
-                    60(K) 63(R) (white)                           0,  +7
-
-                    isEmpty 5  6 ,   res -> 6(K)  5(R) (black)    +4  +4  -    -> +4, +2
-                    isEmpty 61 62,   res -> 62(K) 61(R) (white)   +4  +4  -    -> +4, +2
-
-                 */
                 var theRook: ChessPieces.Rook?
                 var theKing: ChessPieces.King?
                 var sumDif7 = 0

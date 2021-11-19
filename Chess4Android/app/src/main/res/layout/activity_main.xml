@@ -4,11 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:theme="@style/ThemeOverlay.AppCompat.Dark"
     tools:context=".MainActivity">
+
+
+
 
     <!--
     Added by me:
     android:singleLine="false"
+    android:theme="@style/Theme.AppCompat.Light.DarkActionBar"  -> sets button to dark
      -->
     <Button
         android:id="@+id/getGameButton"

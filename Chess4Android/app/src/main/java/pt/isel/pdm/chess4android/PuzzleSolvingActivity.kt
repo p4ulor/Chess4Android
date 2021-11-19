@@ -1,8 +1,10 @@
 package pt.isel.pdm.chess4android
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.MenuItem
 import android.widget.Toast
 import pt.isel.pdm.chess4android.model.BOARDLENGHT
 import pt.isel.pdm.chess4android.model.BOARD_SIDE_SIZE
@@ -28,6 +30,8 @@ class PuzzleSolvingActivity : AppCompatActivity() {
         log("Created")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_puzzle_solving)
+
+        supportActionBar?.title=getString(R.string.attempt)
 
         lichessGameOfTheDayPuzzle = intent.getStringArrayExtra(PUZZLE)
         lichessGameOfTheDaySolution = intent.getStringArrayExtra(SOLUTION)
@@ -76,12 +80,6 @@ class PuzzleSolvingActivity : AppCompatActivity() {
 
         super.onSaveInstanceState(outState)
         log("State saved")
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-
-        log("State restored")
     }
 
     private fun loadGame() : Boolean {

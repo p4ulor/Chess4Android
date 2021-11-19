@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Chess4Android</string>
+    <string name="app_name">Chess4Android G19</string>
     <string name="getGameButton">Get today\'s game</string>
     <string name="continueButton">Continue</string>
     <string name="retry">Retry</string>
@@ -10,4 +10,9 @@
     <string name="progressLost">Progress lost</string>
     <string name="interpretError">Interpretation error of json</string>
     <string name="loadSuccess">Loaded puzzle successfully</string>
+    <string name="about_menu">About menu</string>
+    <string name="empty">" "</string>
+    <string name="authors">Made by:\nPaulo Rosa 44873\nGonçalo Garcia 44787\nTiago Pilaro 46147</string>
+    <string name="welcome">Welcome</string>
+    <string name="attempt">Attempt to finish the game</string>
 </resources>
