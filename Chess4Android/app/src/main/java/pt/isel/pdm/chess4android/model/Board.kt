@@ -80,7 +80,26 @@ class Board {
         ChessPieces.Knight('g', 1, true),
         ChessPieces.Rook('h', 1, true)
     )
-    companion object { val companion_chessTable = Board().startingChessPiecesTablePositions.copyOf() } //startingChessPiecesTablePositions will be read only for classes that want to acess it
+    companion object {
+        val companion_chessTable = Board().startingChessPiecesTablePositions.copyOf()  //startingChessPiecesTablePositions will be read only for classes that want to acess it
+        fun indexToPosition(index: Int) : Position {
+            return Position(numberToLetter(index % BOARD_SIDE_SIZE), (BOARD_SIDE_SIZE / 8).toByte())
+        }
+
+        private fun numberToLetter(n : Int) : Char {
+            return when(n){
+                 0 -> 'a'
+                 1 -> 'b'
+                 2 -> 'c'
+                 3 -> 'd'
+                 4 -> 'e'
+                 5 -> 'f'
+                 6 -> 'g'
+                 7 -> 'h'
+                else -> ' '
+            }
+        }
+    }
     private var chessPiecesTablePositions = startingChessPiecesTablePositions.copyOf()
     constructor() {
         assert(chessPiecesTablePositions.size == BOARDLENGHT)
@@ -89,7 +108,7 @@ class Board {
     // *** GETS ***
 
     // BOOLEANS
-    fun isNotEmptyPiece(index: Int) : Boolean = getPieceAtIndex(index).pieceType!=PIECETYPE.EMPTY
+    private fun isNotEmptyPiece(index: Int) : Boolean = getPieceAtIndex(index).pieceType!=PIECETYPE.EMPTY
 
     fun isPositionWithPieceType(index: Int, pieceType: PIECETYPE) : Boolean {
         if(getPieceAtIndex(index).pieceType==pieceType) return true
@@ -206,8 +225,6 @@ class Board {
 			* - gxh1=g // eats piece and turns into queen
 			* - gxh8=q# // pawn at g7 ate rook at h8, turns into queen and checks king
 			*/
-
-			val pieceTypeToMove = letterToPieceType(move[0])
             if(move=="O-O-O" || move=="O-O") { //king castle or queen castle
                 var theRook: ChessPieces.Rook?
                 var theKing: ChessPieces.King?
@@ -240,6 +257,7 @@ class Board {
                     }
                 }
             } else { //since we do the check for "O-O" before calling letterToPieceType, we're safe from executing this "If" if it's a "O-O", //If first letter is a valid chess X (letter) coordinate, then it was a pawn move, otherwise, it was another piece type
+                val pieceTypeToMove = letterToPieceType(move[0])
                 if(pieceTypeToMove==PIECETYPE.PAWN){
                     val position = if(move[1]=='x') Position.convertToPosition(move.subSequence(2,4).toString()) else Position.convertToPosition(move) //subsequence does like: [2,4[
                     if (position != null) {
@@ -291,6 +309,18 @@ class Board {
         return null
     }
 
+    fun reverseBoard(){ //only the visual representation is reversed
+        chessPiecesTablePositions.reversedArray()
+    }
+
+    /*fun switchPiecesColor() {
+        chessPiecesTablePositions.forEachIndexed { index, piece ->
+            do {
+                switchPiecesAtIndexes(index, positionToIndex(piece.position.horizontalyInvertPosition()))
+            } while(piece.pieceType!=PIECETYPE.EMPTY)
+        }
+    }*/
+
     fun reset() {
         repeat(BOARDLENGHT) {
             setPieceAtIndex(it, startingChessPiecesTablePositions[it] )
@@ -299,6 +329,12 @@ class Board {
 
     // UTILITY METHODS
 
+    private fun positionToIndex(position: Position) : Int {
+        //log("position->$position")
+        val res : String = ((BOARD_SIDE_SIZE-position.number) * BOARD_SIDE_SIZE + letterToColumn(position.letter)).toString()
+        //log("to index -> $res")
+        return (BOARD_SIDE_SIZE-position.number) * BOARD_SIDE_SIZE + letterToColumn(position.letter)
+    }
     private fun letterToColumn(char: Char) : Int {
         return when(char){
             'a' -> 0
@@ -313,13 +349,6 @@ class Board {
         }
     }
 
-    private fun positionToIndex(position: Position) : Int {
-        log("position->$position")
-        val res : String = ((BOARD_SIDE_SIZE-position.number) * BOARD_SIDE_SIZE + letterToColumn(position.letter)).toString()
-        log("to index -> $res")
-        return (BOARD_SIDE_SIZE-position.number) * BOARD_SIDE_SIZE + letterToColumn(position.letter)
-    }
-
     private fun isOutOfBounds (index: Int) : Boolean {
         if( !(0<=index && index< (BOARD_SIDE_SIZE * BOARD_SIDE_SIZE)) ) {
             throw IllegalArgumentException("Index must be greater or equal to zero and bellow $BOARD_SIDE_SIZE")
@@ -327,6 +356,6 @@ class Board {
         }
         return false
     }
-
-    private fun log(s: String) = Log.i("MY_LOG_Board", s)
 }
+
+private fun log(s: String) = Log.i("MY_LOG_Board", s)

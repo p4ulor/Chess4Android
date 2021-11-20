@@ -3,7 +3,6 @@ package pt.isel.pdm.chess4android
 import android.app.Application
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -35,6 +34,7 @@ private const val DATEFILE = "latest_data_fetch_date.txt"
 //LiveData and Intent data keys
 const val PUZZLE = "puzzle"
 const val SOLUTION = "solution"
+const val ISWHITES = "white"
 //Bundle data keys
 const val SCREEN_ORIENTATION = "screen"
 class MainActivity : AppCompatActivity() {
@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity() {
         ActivityMainBinding.inflate(layoutInflater)
     }
 
-    private val thisActivityViewModel: MainActivityViewModel by viewModels()
+    private val thisViewModel: MainActivityViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         log("created")
@@ -63,37 +63,38 @@ class MainActivity : AppCompatActivity() {
 
         getGameButton?.setOnClickListener {
             if(isDataStateNotValid()){
-                if(!thisActivityViewModel.getTodaysGame()) snackBar(R.string.connectionError, MainActivityViewModel::getTodaysGame  )
+                thisViewModel.getTodaysGame()
             }
             else {
                 toast(R.string.alreadyUpdated)
             }
         }
 
-        val didScreenRotate = thisActivityViewModel.currentScreenOrientation.value != applicationContext.resources.configuration.orientation
+        val didScreenRotate = thisViewModel.currentScreenOrientation.value != applicationContext.resources.configuration.orientation
         if(didScreenRotate) {
-            thisActivityViewModel.currentScreenOrientation.value = applicationContext.resources.configuration.orientation
+            thisViewModel.currentScreenOrientation.value = applicationContext.resources.configuration.orientation
         }
 
         //the following code will only execute if the request of the json was sucessful, good example of a good use of the observing capacity of LiveData
-        thisActivityViewModel.isGameReady.observe(this){
+        thisViewModel.isGameReady.observe(this){
             log("observed")
             if(it){
                 //if(applicationContext.resources.configuration.orientation==Configuration.ORIENTATION_LANDSCAPE) toast(R.string.iSurvived)
                 continueButton?.isEnabled=true
-                if(didScreenRotate && thisActivityViewModel.updateDisplayed.value == true) { //could be elvis operator, but intellij optimized
+                if(didScreenRotate && thisViewModel.updateDisplayed.value == true) { //could be elvis operator, but intellij optimized
                     binding.root.postDelayed ({toast(R.string.iSurvived)}, 1000)
                 } else {
                     toast(R.string.puzzleUpdated)
-                    log(thisActivityViewModel.lichessGameOfTheDayPuzzle)
-                    log(thisActivityViewModel.lichessGameOfTheDaySolution)
-                    thisActivityViewModel.updateDisplayed.value=true
+                    log(thisViewModel.lichessGameOfTheDayPuzzle)
+                    log(thisViewModel.lichessGameOfTheDaySolution)
+                    log(thisViewModel.lichessisWhitesOnTop.toString())
+                    thisViewModel.updateDisplayed.value=true
                 }
-            }
+            } else snackBar(R.string.connectionError, MainActivityViewModel::getTodaysGame)
         }
 
         continueButton?.setOnClickListener { launchGame() }
-        log("continue button disabled") //given this we can conclude that the isGameReady is observed AFTER this
+        log("continue button disabled") //on screen rotation, given this we can conclude that the isGameReady is observed AFTER this
         continueButton?.isEnabled = false //previously was if(isDataStateNotValid()) continueButton?.isEnabled = false, which checked for the values and date everytime, which isn't necessary
     }
 
@@ -102,6 +103,10 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         log("destroyed")
         super.onDestroy()
+    }
+
+    override fun onBackPressed() { //https://stackoverflow.com/questions/5914040/onbackpressed-to-hide-not-destroy-activity
+        moveTaskToBack(true)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean { //aula dia 20, 27 outubro
@@ -119,7 +124,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun snackBar(stringID: Int, kFunction1: (MainActivityViewModel) -> Boolean){ //https://material.io/components/snackbars/android#using-snackbars //or function: () -> (Unit) https://stackoverflow.com/a/44132689
+    private fun snackBar(stringID: Int, kFunction1: (MainActivityViewModel) -> Unit){ //https://material.io/components/snackbars/android#using-snackbars //or function: () -> (Unit) https://stackoverflow.com/a/44132689
         Snackbar.make(findViewById(R.id.getGameButton),getString(stringID), Snackbar.LENGTH_INDEFINITE)
             .setAction(R.string.retry) {
                 kFunction1
@@ -129,20 +134,21 @@ class MainActivity : AppCompatActivity() {
 
     //Launch next activity
     private fun launchGame() {
-        if(thisActivityViewModel.isGameReady.value == false) {
+        if(thisViewModel.isGameReady.value == false) {
             toast(R.string.WTFerror)
             return
         }
         val intent = Intent(this, PuzzleSolvingActivity::class.java).apply {
-            putExtra("puzzle", thisActivityViewModel.lichessGameOfTheDayPuzzle)
-            putExtra("solution", thisActivityViewModel.lichessGameOfTheDaySolution)
+            putExtra(PUZZLE, thisViewModel.lichessGameOfTheDayPuzzle)
+            putExtra(SOLUTION, thisViewModel.lichessGameOfTheDaySolution)
+            putExtra(ISWHITES, thisViewModel.lichessisWhitesOnTop)
         }
         startActivity(intent)
     }
 
     //UTILITY METHODS
 
-    private fun isDataStateNotValid() : Boolean = thisActivityViewModel.wasTodaysPuzzleNotPulled() || thisActivityViewModel.isDataNullOrEmpty()
+    private fun isDataStateNotValid() : Boolean = thisViewModel.wasTodaysPuzzleNotPulled() || thisViewModel.isDataNullOrEmpty()
 
     private fun toast(text: String) = Toast.makeText(this, text, Toast.LENGTH_LONG).show()
 
@@ -165,15 +171,15 @@ class MainActivityViewModel(application: Application, private val state: SavedSt
     //since we didnt absolutely need to notify the Activity when the data changed, using LiveData isnt necessarily necessary
     var lichessGameOfTheDayPuzzle: Array<String>? = null
     var lichessGameOfTheDaySolution: Array<String>? = null
+    var lichessisWhitesOnTop: Boolean? = null
     val isGameReady: LiveData<Boolean> = state.getLiveData(IS_GAME_READY_LIVEDATA_KEY)
     val context = getApplication<Application>()
     var currentScreenOrientation: MutableLiveData<Int> = MutableLiveData(context.resources.configuration.orientation)
     var updateDisplayed: MutableLiveData<Boolean> = MutableLiveData(false)
 
-    fun getTodaysGame() : Boolean { //request to tget the json from the lichess API
+    fun getTodaysGame() { //request to tget the json from the lichess API
         log("Getting the json...")
         val queue = Volley.newRequestQueue(context) //https://developer.android.com/training/volley/simple
-        var ret = true
         val responseListener = Response.Listener<String> { response -> //https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/basic-serialization.md
             //log(response.toString())
 
@@ -181,24 +187,23 @@ class MainActivityViewModel(application: Application, private val state: SavedSt
 
             lichessGameOfTheDayPuzzle = lichessGameOfTheDay?.game?.pgn?.split(" ")?.toTypedArray()
             lichessGameOfTheDaySolution = lichessGameOfTheDay?.puzzle?.solution
+            lichessisWhitesOnTop = lichessGameOfTheDay?.game.players[0].color == "white"
             if(isDataNullOrEmpty()){
                 state.set(IS_GAME_READY_LIVEDATA_KEY, false)
-                ret = false
             } else state.set(IS_GAME_READY_LIVEDATA_KEY, true) //when this code executes, the code in "thisActivityViewModel.isGameReady.observe(this)" is also executed
             writeDateOfTheLatestPuzzlePulled(getTodaysDate())
         }
         val errorListener = Response.ErrorListener {
             log("Connection error, cant perform getTodaysGame()")
-            ret = false
+            state.set(IS_GAME_READY_LIVEDATA_KEY, false)
         }
 
         val stringRequest = StringRequest(Request.Method.GET, LICHESSDAILYPUZZLEURL, responseListener, errorListener)
         queue.add(stringRequest)
-        log("Request finished with return value $ret")
-        return ret
+        log("Request finished")
     }
 
-    fun isDataNullOrEmpty() = lichessGameOfTheDayPuzzle==null || lichessGameOfTheDaySolution==null || lichessGameOfTheDayPuzzle?.size==0 || lichessGameOfTheDaySolution?.size==0
+    fun isDataNullOrEmpty() = lichessGameOfTheDayPuzzle==null || lichessGameOfTheDaySolution==null || lichessGameOfTheDayPuzzle?.size==0 || lichessGameOfTheDaySolution?.size==0 || lichessisWhitesOnTop==null
 
     //Current date methods
 
