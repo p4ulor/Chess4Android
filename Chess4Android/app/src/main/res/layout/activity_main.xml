@@ -7,13 +7,10 @@
     android:theme="@style/ThemeOverlay.AppCompat.Dark"
     tools:context=".MainActivity">
 
-
-
-
     <!--
     Added by me:
-    android:singleLine="false"
-    android:theme="@style/Theme.AppCompat.Light.DarkActionBar"  -> sets button to dark
+    android:singleLine="false" -> in the getGameButton
+    android:theme="@style/ThemeOverlay.AppCompat.Dark" -> sets button to dark
      -->
     <Button
         android:id="@+id/getGameButton"

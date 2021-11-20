@@ -46,7 +46,16 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.3.1'
     implementation 'com.google.android.material:material:1.4.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.1'
-    implementation 'com.android.volley:volley:1.2.0'
+
+    implementation 'com.android.volley:volley:1.2.0' //added by me, Volley to get the json
+
+    // added by me View model and lifecycle
+    def lifecycle_version = "2.3.1"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
+    // added by me Activity extensions, also must be added in order for "by viewModels()" to work
+    implementation "androidx.activity:activity-ktx:1.3.1"
+
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'

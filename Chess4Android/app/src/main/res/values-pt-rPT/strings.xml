@@ -4,7 +4,7 @@
     <string name="getGameButton">Carregar o jogo para hoje</string>
     <string name="continueButton">Continuar</string>
     <string name="retry">Retentar</string>
-    <string name="jsonError">Erro, está ligado ao wifi?</string>
+    <string name="connectionError">Erro, está ligado ao wifi?</string>
     <string name="puzzleUpdated">Puzzle atualizado e na memória</string>
     <string name="alreadyUpdated">Você já tem o puzzle para hoje</string>
     <string name="WTFerror">QFT, sem puzzle ou solução válida</string>
@@ -16,4 +16,5 @@
     <string name="authors">Realizado por:\nPaulo Rosa 44873\nGonçalo Garcia 44787\nTiago Pilaro 46147</string>
     <string name="attempt">Tente acabar o jogo</string>
     <string name="welcome">Bem vindo</string>
+    <string name="iSurvived">Não te preocupes, eu sobrevivi à rotação do ecrã!</string>
 </resources>

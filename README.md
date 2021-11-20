@@ -1,5 +1,10 @@
 # PDM-2122i-LI5X-G19
-ChessRoyale like app for Mobile Device Programming discipline
+Chess Puzzle solving app for Mobile Device Programming discipline.
+Using: lichess API
+
+## Shortcuts for main source code
+- [src](Chess4Android/app/src/main/java/pt/isel/pdm/chess4android)
+- [layout (activities)](Chess4Android/app/src/main/res/layout)
 
 ## Authors
 - Paulo Rosa 44873
@@ -9,13 +14,15 @@ ChessRoyale like app for Mobile Device Programming discipline
 ### Tag **chess_royale_1**
 This app gets today's chess puzzle and allows the user to solve it.
 
+#### Activity 1
 
-## Shortcuts for main source code
-- [src](Chess4Android/app/src/main/java/pt/isel/pdm/chess4android)
-- [layout (activities)](Chess4Android/app/src/main/res/layout)
+#### Activity 2
+
+#### Activity 3
 
 ## Consult today's game here
 - https://lichess.org/training/daily
+- https://lichess.org/api/puzzle/daily (json)
 
 ## Places to learn coordinates and moves
 - https://lichess.org/analysis
