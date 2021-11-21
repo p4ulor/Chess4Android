@@ -7,13 +7,13 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
-import pt.isel.pdm.chess4android.model.BOARDLENGHT
-import pt.isel.pdm.chess4android.model.Board
-import pt.isel.pdm.chess4android.model.PIECETYPE
+import com.google.android.material.snackbar.Snackbar
+import pt.isel.pdm.chess4android.databinding.ActivityMainBinding
+import pt.isel.pdm.chess4android.model.*
 import pt.isel.pdm.chess4android.views.BoardView
+import pt.isel.pdm.chess4android.views.Tile
 import pt.isel.pdm.chess4android.views.tileMatrix
 
 private const val TAG = "MY_LOG_PuzzleSolvingActivity"
@@ -22,11 +22,14 @@ class PuzzleSolvingActivity : AppCompatActivity() {
 
     private var lichessGameOfTheDayPuzzle: Array<String>? = null
     private var lichessGameOfTheDaySolution: Array<String>? = null
-    private var lichessIsWhitesOnTop: Boolean = false
 
     private lateinit var myView: BoardView
 
     private var currentlySelectedPieceIndex: Int = -1
+
+    private val binding by lazy {
+        ActivityMainBinding.inflate(layoutInflater)
+    }
 
     private val thisViewModel: PuzzleSolvingAcitivityViewModel by viewModels()
 
@@ -39,62 +42,94 @@ class PuzzleSolvingActivity : AppCompatActivity() {
 
         lichessGameOfTheDayPuzzle = intent.getStringArrayExtra(PUZZLE)
         lichessGameOfTheDaySolution = intent.getStringArrayExtra(SOLUTION)
-        lichessIsWhitesOnTop = intent.getBooleanExtra(ISWHITES, false)
 
         myView = findViewById(R.id.boardView)
 
         tileMatrix.forEach { tile ->
-            tile?.setOnClickListener{
-                if(currentlySelectedPieceIndex==-1) {
-                    if(thisViewModel.board.getPieceAtIndex(tile.index).pieceType!=PIECETYPE.EMPTY){
-                        currentlySelectedPieceIndex = tile.index
-                        val pieceColor = thisViewModel.board.getPieceAtIndex(currentlySelectedPieceIndex).isWhite
-                        if(thisViewModel.isWhitesPlaying==pieceColor){
-                            val piecetype = thisViewModel.board.getPieceAtIndex(currentlySelectedPieceIndex).pieceType
-                            log("picked a $piecetype")
-                        } else if(pieceColor){
-                            log("hey! the black pieces are playing")
-                            currentlySelectedPieceIndex = -1
-                        } else {
-                            log("hey! the white pieces are playing")
-                            currentlySelectedPieceIndex = -1
-                        }
-                    } else {
-                        log("you picked a empty spot...")
-                        currentlySelectedPieceIndex = -1
-                    }
-                }
-                else {
-                    log("analysing movement validity:")
-                    val pieceToMove = thisViewModel.board.getPieceAtIndex(currentlySelectedPieceIndex)
-                    val pieceThatWillBeOverwrittenIndex = tile.index
-                    val theNewPosition = thisViewModel.board.getPieceAtIndex(pieceThatWillBeOverwrittenIndex)?.position
-                    log("destination has index = $pieceThatWillBeOverwrittenIndex and position = $theNewPosition ")
-                    if(theNewPosition!=null && pieceToMove!=null && pieceThatWillBeOverwrittenIndex!=currentlySelectedPieceIndex) {
-                        if(thisViewModel.board.getPieceAtIndex(pieceThatWillBeOverwrittenIndex).pieceType==PIECETYPE.EMPTY || pieceToMove.isWhite!=thisViewModel.board.getPieceAtIndex(pieceThatWillBeOverwrittenIndex).isWhite){
-                            if(pieceToMove.canMoveTo(theNewPosition)){
-                                thisViewModel.board.movePieceToAndLeaveEmptyBehind(pieceThatWillBeOverwrittenIndex, pieceToMove)
-                                myView.invalidate(pieceThatWillBeOverwrittenIndex, thisViewModel.board.getPieceAtIndex(pieceThatWillBeOverwrittenIndex)!!) //new pos
-                                myView.invalidate(currentlySelectedPieceIndex, thisViewModel.board.getPieceAtIndex(currentlySelectedPieceIndex)!!  ) //old pos
-                                log("moved")
-                                thisViewModel.isWhitesPlaying=!thisViewModel.isWhitesPlaying
-                            } else log("the piece cant move to selected position")
-                        } else log("the pieces are of the same color!")
-                    } else log("the indexes of the pieces to move are the same or some values are null")
-                    currentlySelectedPieceIndex = -1
-                }
+            tile?.setOnClickListener {
+                tileBehaviour(tile)
             }
-        }
-
-        if(lichessIsWhitesOnTop) {
-            thisViewModel.board.reverseBoard()
-            //invalidateEverything()
         }
 
         if(thisViewModel.isGameLoaded.value==true){
             invalidateEverything()
         } else if(loadGame()) invalidateEverything() //it's easier for us to invalidate everything when loading
     }
+
+    private fun tileBehaviour(tile: Tile) {
+        if(currentlySelectedPieceIndex==-1) {
+            if(thisViewModel.board.getPieceAtIndex(tile.index).pieceType!=PIECETYPE.EMPTY){
+                currentlySelectedPieceIndex = tile.index
+                val pieceColor = thisViewModel.board.getPieceAtIndex(currentlySelectedPieceIndex).isWhite
+                when {
+                    thisViewModel.isWhitesPlaying==pieceColor -> {
+                        val piecetype = thisViewModel.board.getPieceAtIndex(currentlySelectedPieceIndex).pieceType
+                        log("picked a $piecetype")
+                    }
+                    pieceColor -> {
+                        log("hey! the black pieces are playing")
+                        currentlySelectedPieceIndex = -1
+                    }
+                    else -> {
+                        log("hey! the white pieces are playing")
+                        currentlySelectedPieceIndex = -1
+                    }
+                }
+            } else {
+                log("you picked a empty spot...")
+                currentlySelectedPieceIndex = -1
+            }
+        }
+        else {
+            log("analysing movement validity:")
+            val pieceToMove = thisViewModel.board.getPieceAtIndex(currentlySelectedPieceIndex)
+            val pieceThatWillBeEatenIndex = tile.index
+            val thePieceToBeEaten = thisViewModel.board.getPieceAtIndex(pieceThatWillBeEatenIndex)
+            val theNewPosition = thePieceToBeEaten?.position
+            val movement = pieceToMove.position.letterAndNumber()+theNewPosition.letterAndNumber()
+            if(movement == lichessGameOfTheDaySolution?.get(thisViewModel.movementNumber)) {
+                thisViewModel.movementNumber++
+                toast(R.string.correctMove)
+            }
+            log("destination has index = $pieceThatWillBeEatenIndex and position = $theNewPosition ")
+            if(theNewPosition!=null && pieceToMove!=null && pieceThatWillBeEatenIndex!=currentlySelectedPieceIndex) {
+                if(thisViewModel.board.getPieceAtIndex(pieceThatWillBeEatenIndex).pieceType==PIECETYPE.EMPTY || pieceToMove.isWhite!=thisViewModel.board.getPieceAtIndex(pieceThatWillBeEatenIndex).isWhite){
+                    if(pieceToMove.canMoveTo(theNewPosition)){
+                        if(pieceToMove.pieceType==PIECETYPE.PAWN) {
+                            val thePawn = pieceToMove as ChessPieces.Pawn
+                            if(thePawn.movesDiagonally(theNewPosition) && thePieceToBeEaten.pieceType==PIECETYPE.EMPTY){
+                                log("the pawn can only move diagonally when it will eat a piece")
+                            } else moveIt(pieceThatWillBeEatenIndex, pieceToMove)
+                        } else {
+                            moveIt(pieceThatWillBeEatenIndex, pieceToMove)
+                        }
+                    } else log("the piece cant move to selected position")
+                } else log("the pieces are of the same color!")
+            } else log("the indexes of the pieces to move are the same or some values are null")
+            currentlySelectedPieceIndex = -1
+        }
+    }
+
+    private fun moveIt(pieceThatWillBeEatenIndex: Int, pieceToMove: Piece) {
+        thisViewModel.board.movePieceToAndLeaveEmptyBehind(pieceThatWillBeEatenIndex, pieceToMove)
+        myView.invalidate(pieceThatWillBeEatenIndex, thisViewModel.board.getPieceAtIndex(pieceThatWillBeEatenIndex)!!) //new pos
+        myView.invalidate(currentlySelectedPieceIndex, thisViewModel.board.getPieceAtIndex(currentlySelectedPieceIndex)!!  ) //old pos
+        log("moved")
+        thisViewModel.isWhitesPlaying=!thisViewModel.isWhitesPlaying
+        if(thisViewModel.movementNumber==lichessGameOfTheDaySolution?.size) {
+            snackBar(R.string.won)
+        }
+    }
+
+    private fun snackBar(stringID: Int){ //https://material.io/components/snackbars/android#using-snackbars //or function: () -> (Unit) https://stackoverflow.com/a/44132689
+        Snackbar.make(findViewById(R.id.boardView),getString(stringID), Snackbar.LENGTH_INDEFINITE)
+            .setAction(R.string.ok) {
+                super.onBackPressed()
+            }
+            .show()
+    }
+
+
 
     override fun onStart() {
         log("Started")
@@ -149,7 +184,6 @@ class PuzzleSolvingActivity : AppCompatActivity() {
 
     private fun toast(id: Int) = toast(getString(id))
 
-    private fun log(s: String) = Log.i(TAG, s)
 }
 
 private fun log(s: String) = Log.i(TAG, s) //since both of the classes on this file use log, I put it here
@@ -160,5 +194,6 @@ class PuzzleSolvingAcitivityViewModel(application: Application, private val stat
     }
     var isGameLoaded: MutableLiveData<Boolean> = MutableLiveData(false)
     var board: Board = Board()
+    var movementNumber: Int = 0
     var isWhitesPlaying: Boolean = true
 }

@@ -20,5 +20,12 @@ class AboutActivity : AppCompatActivity() {
             }
             startActivity(intent)
         }
+
+        findViewById<TextView>(R.id.lichessTextView).setOnClickListener{
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(LICHESSDAILYPUZZLEURL)).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            }
+            startActivity(intent)
+        }
     }
 }

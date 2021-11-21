@@ -29,14 +29,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 
 private const val TAG = "MY_LOG_MainActivity"
-private const val LICHESSDAILYPUZZLEURL: String = "https://lichess.org/api/puzzle/daily"
+const val LICHESSDAILYPUZZLEURL: String = "https://lichess.org/api/puzzle/daily"
 private const val DATEFILE = "latest_data_fetch_date.txt"
 //LiveData and Intent data keys
 const val PUZZLE = "puzzle"
 const val SOLUTION = "solution"
-const val ISWHITES = "white"
-//Bundle data keys
-const val SCREEN_ORIENTATION = "screen"
+
 class MainActivity : AppCompatActivity() {
 
     private var getGameButton: Button? = null
@@ -87,10 +85,9 @@ class MainActivity : AppCompatActivity() {
                     toast(R.string.puzzleUpdated)
                     log(thisViewModel.lichessGameOfTheDayPuzzle)
                     log(thisViewModel.lichessGameOfTheDaySolution)
-                    log(thisViewModel.lichessisWhitesOnTop.toString())
                     thisViewModel.updateDisplayed.value=true
                 }
-            } else snackBar(R.string.connectionError, MainActivityViewModel::getTodaysGame)
+            } else snackBar(R.string.connectionError)
         }
 
         continueButton?.setOnClickListener { launchGame() }
@@ -124,10 +121,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun snackBar(stringID: Int, kFunction1: (MainActivityViewModel) -> Unit){ //https://material.io/components/snackbars/android#using-snackbars //or function: () -> (Unit) https://stackoverflow.com/a/44132689
+    private fun snackBar(stringID: Int){ //https://material.io/components/snackbars/android#using-snackbars //or function: () -> (Unit) https://stackoverflow.com/a/44132689
         Snackbar.make(findViewById(R.id.getGameButton),getString(stringID), Snackbar.LENGTH_INDEFINITE)
             .setAction(R.string.retry) {
-                kFunction1
+                thisViewModel.getTodaysGame()
             }
             .show()
     }
@@ -141,7 +138,6 @@ class MainActivity : AppCompatActivity() {
         val intent = Intent(this, PuzzleSolvingActivity::class.java).apply {
             putExtra(PUZZLE, thisViewModel.lichessGameOfTheDayPuzzle)
             putExtra(SOLUTION, thisViewModel.lichessGameOfTheDaySolution)
-            putExtra(ISWHITES, thisViewModel.lichessisWhitesOnTop)
         }
         startActivity(intent)
     }
@@ -171,7 +167,6 @@ class MainActivityViewModel(application: Application, private val state: SavedSt
     //since we didnt absolutely need to notify the Activity when the data changed, using LiveData isnt necessarily necessary
     var lichessGameOfTheDayPuzzle: Array<String>? = null
     var lichessGameOfTheDaySolution: Array<String>? = null
-    var lichessisWhitesOnTop: Boolean? = null
     val isGameReady: LiveData<Boolean> = state.getLiveData(IS_GAME_READY_LIVEDATA_KEY)
     val context = getApplication<Application>()
     var currentScreenOrientation: MutableLiveData<Int> = MutableLiveData(context.resources.configuration.orientation)
@@ -187,7 +182,6 @@ class MainActivityViewModel(application: Application, private val state: SavedSt
 
             lichessGameOfTheDayPuzzle = lichessGameOfTheDay?.game?.pgn?.split(" ")?.toTypedArray()
             lichessGameOfTheDaySolution = lichessGameOfTheDay?.puzzle?.solution
-            lichessisWhitesOnTop = lichessGameOfTheDay?.game.players[0].color == "white"
             if(isDataNullOrEmpty()){
                 state.set(IS_GAME_READY_LIVEDATA_KEY, false)
             } else state.set(IS_GAME_READY_LIVEDATA_KEY, true) //when this code executes, the code in "thisActivityViewModel.isGameReady.observe(this)" is also executed
@@ -203,7 +197,7 @@ class MainActivityViewModel(application: Application, private val state: SavedSt
         log("Request finished")
     }
 
-    fun isDataNullOrEmpty() = lichessGameOfTheDayPuzzle==null || lichessGameOfTheDaySolution==null || lichessGameOfTheDayPuzzle?.size==0 || lichessGameOfTheDaySolution?.size==0 || lichessisWhitesOnTop==null
+    fun isDataNullOrEmpty() = lichessGameOfTheDayPuzzle==null || lichessGameOfTheDaySolution==null || lichessGameOfTheDayPuzzle?.size==0 || lichessGameOfTheDaySolution?.size==0
 
     //Current date methods
 

@@ -40,4 +40,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/gitHubButtonAndImage"
         app:srcCompat="@mipmap/ic_github_icon" />
+
+    <TextView
+        android:id="@+id/lichessTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/lichess"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/gitHubIconImage" />
 </androidx.constraintlayout.widget.ConstraintLayout>

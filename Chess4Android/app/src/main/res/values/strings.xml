@@ -16,4 +16,8 @@
     <string name="welcome">Welcome</string>
     <string name="attempt">Try to finish the game</string>
     <string name="iSurvived">Don\'t worry, I survived the screen rotation!</string>
+    <string name="lichess">The lichess daily puzzle API</string>
+    <string name="correctMove">Correct move!</string>
+    <string name="won">You won!</string>
+    <string name="ok">Ok</string>
 </resources>

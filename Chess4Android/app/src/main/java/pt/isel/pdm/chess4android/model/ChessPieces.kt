@@ -30,11 +30,13 @@ data class Position(var letter: Char, var number: Byte) {
     }
 
     override fun toString(): String = "Letter: $letter, Number: $number"
+    fun letterAndNumber(): String ="$letter$number"
     fun isEqual(position: Position) : Boolean = this.letter==position.letter && this.number==position.number
 
     //these 2 methods bellow are useful for pieces that have specific and strict movement patterns, like pawns, rooks and bishops. Per example, kings and queens dont need these methods because they can move freely to any direction, but are only restricted by the movement distance. Thus, for these 2 examples, only isValidMovement is used.
     fun getXDiference(destination: Position) : Int = abs(this.letter-destination.letter) //int to make it (down casting to byte) easy 4 us
     fun getYDiference(destination: Position) : Int = abs(this.number-destination.number) //int to make it (down casting to byte) easy 4 us
+    fun getYDiferenceNoAbs(destination: Position) : Int = (this.number-destination.number)
 
     fun isValidMovement(destination: Position, maxX: Byte, maxY: Byte) : Boolean {
         if(maxX<0 || maxY<0 || maxX >= BOARD_SIDE_SIZE || maxY >= BOARD_SIDE_SIZE) throw IllegalArgumentException()
@@ -80,14 +82,23 @@ sealed class ChessPieces { //https://antonioleiva.com/sealed-classes-kotlin/ //m
 
          override fun canMoveTo(destination: Position) : Boolean {
             if(position.isValidMovement(destination, maxTravelDistanceX, maxTravelDistanceY)){ //part checks logical board bounds and piece maxTravelDistance bounds
-                if(!firstMoveUsed && position.getYDiference(destination)<=2) {                //part that checks piece movement *logic*, and its this format for every moveTo method
+                if(!firstMoveUsed && isWhite && position.getYDiferenceNoAbs(destination)==-1 || position.getYDiferenceNoAbs(destination)==-2){ //kotlin ranges doesnt work with negative values... https://kotlinlang.org/docs/ranges.html
+                    firstMoveUsed = true
                     return true
-                } else if(position.getYDiference(destination) == 1){
+                } else if (!firstMoveUsed && !isWhite && (position.getYDiferenceNoAbs(destination) in 1..2)){
+                    firstMoveUsed = true
+                    return true
+                } else if(isWhite && position.getYDiferenceNoAbs(destination) == -1){
+                    return true
+                } else if(!isWhite && position.getYDiferenceNoAbs(destination) == 1){ //the !isWhite && is actually necessary!
                     return true
                 }
             }
             return false
         }
+
+        fun movesDiagonally(destination: Position) : Boolean = position.getXDiference(destination)==1
+
 
         override fun toString(): String = "Pawn"
     }

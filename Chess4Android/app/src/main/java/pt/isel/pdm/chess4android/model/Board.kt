@@ -301,25 +301,34 @@ class Board {
 
     private fun getPieceThatCanMoveTo(position: Position, array: IntArray) : Piece? {
         var piece: Piece?
+        /*
+         * due to the fact that in the game of 21/11/2021 (id=KU4e1TVf)
+         * The leftmost horse in c3 and the rightmost horse in g1 could both go to e2, but in the
+         * json, the indication of the column was missing, I decided to choose the rightmost
+         * piece (which is what happens during the process of the movements in https://lichess.org/training/daily)
+         * this was due to the fact that errors would occur, per example, in the kings move, because the
+         * knight that was intended to move didnt move, and thus, a kings move would fail
+         */
+        var secondaryPiece: Piece? = null
         for(i in array){
             if(i==-1) break
             piece = getPieceAtIndex(i)
-            if(piece.canMoveTo(position)) return piece //if the piece can perform the move, return it
+            //if the piece can perform the move, return it
+            if(piece.canMoveTo(position)) {
+                if(secondaryPiece==null){
+                    secondaryPiece=piece
+                } else {
+                    if(secondaryPiece.position.letter < piece.position.letter) return piece
+                    return secondaryPiece
+                }
+            }
         }
-        return null
+        return secondaryPiece
     }
 
     fun reverseBoard(){ //only the visual representation is reversed
         chessPiecesTablePositions.reversedArray()
     }
-
-    /*fun switchPiecesColor() {
-        chessPiecesTablePositions.forEachIndexed { index, piece ->
-            do {
-                switchPiecesAtIndexes(index, positionToIndex(piece.position.horizontalyInvertPosition()))
-            } while(piece.pieceType!=PIECETYPE.EMPTY)
-        }
-    }*/
 
     fun reset() {
         repeat(BOARDLENGHT) {

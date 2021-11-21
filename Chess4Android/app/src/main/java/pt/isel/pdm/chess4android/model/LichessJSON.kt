@@ -38,8 +38,3 @@ data class Perf(
     val icon: String,
     val name: String
 )
-
-
-
-
-
