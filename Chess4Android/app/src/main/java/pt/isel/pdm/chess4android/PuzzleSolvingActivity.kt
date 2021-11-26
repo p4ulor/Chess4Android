@@ -1,7 +1,6 @@
 package pt.isel.pdm.chess4android
 
 import android.app.Application
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -9,6 +8,7 @@ import androidx.activity.viewModels
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
+import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
 import pt.isel.pdm.chess4android.databinding.ActivityMainBinding
 import pt.isel.pdm.chess4android.model.*
@@ -87,8 +87,8 @@ class PuzzleSolvingActivity : AppCompatActivity() {
             val thePieceToBeEaten = thisViewModel.board.getPieceAtIndex(pieceThatWillBeEatenIndex)
             val theNewPosition = thePieceToBeEaten?.position
             val movement = pieceToMove.position.letterAndNumber()+theNewPosition.letterAndNumber()
-            if(movement == lichessGameOfTheDaySolution?.get(thisViewModel.movementNumber)) {
-                thisViewModel.movementNumber++
+            if(movement == lichessGameOfTheDaySolution?.get(thisViewModel.correctMovementsPerformed)) {
+                thisViewModel.correctMovementsPerformed++
                 toast(R.string.correctMove)
             }
             log("destination has index = $pieceThatWillBeEatenIndex and position = $theNewPosition ")
@@ -116,7 +116,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
         myView.invalidate(currentlySelectedPieceIndex, thisViewModel.board.getPieceAtIndex(currentlySelectedPieceIndex)!!  ) //old pos
         log("moved")
         thisViewModel.isWhitesPlaying=!thisViewModel.isWhitesPlaying
-        if(thisViewModel.movementNumber==lichessGameOfTheDaySolution?.size) {
+        if(thisViewModel.correctMovementsPerformed==lichessGameOfTheDaySolution?.size) {
             snackBar(R.string.won)
         }
     }
@@ -128,8 +128,6 @@ class PuzzleSolvingActivity : AppCompatActivity() {
             }
             .show()
     }
-
-
 
     override fun onStart() {
         log("Started")
@@ -194,6 +192,6 @@ class PuzzleSolvingAcitivityViewModel(application: Application, private val stat
     }
     var isGameLoaded: MutableLiveData<Boolean> = MutableLiveData(false)
     var board: Board = Board()
-    var movementNumber: Int = 0
+    var correctMovementsPerformed: Int = 0
     var isWhitesPlaying: Boolean = true
 }

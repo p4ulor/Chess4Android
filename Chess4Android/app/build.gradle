@@ -2,6 +2,8 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id "org.jetbrains.kotlin.plugin.serialization" version "1.6.0-RC"
+    id 'kotlin-parcelize'
+    id 'kotlin-kapt'
     //id 'org.jetbrains.kotlin.multiplatform' version '1.5.31'
     //id 'org.jetbrains.kotlin.plugin.serialization' version '1.5.31'
 }
@@ -55,6 +57,12 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
     // added by me Activity extensions, also must be added in order for "by viewModels()" to work
     implementation "androidx.activity:activity-ktx:1.3.1"
+
+    // Room
+    def roomVersion = "2.3.0"
+    implementation "androidx.room:room-runtime:$roomVersion"
+    // To use Kotlin annotation processing tool (kapt)
+    kapt "androidx.room:room-compiler:$roomVersion"
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

@@ -3,30 +3,30 @@ package pt.isel.pdm.chess4android
 import android.app.Application
 import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.Toast
-import com.android.volley.Request
-import com.android.volley.Response
-import com.android.volley.toolbox.StringRequest
-import com.android.volley.toolbox.Volley
-import pt.isel.pdm.chess4android.databinding.ActivityMainBinding
-import com.google.android.material.snackbar.Snackbar
-import kotlinx.serialization.json.Json
-import pt.isel.pdm.chess4android.model.LichessJSON
-import java.io.*
-import java.text.SimpleDateFormat
-import java.util.*
-import kotlin.text.StringBuilder
 import android.view.Menu
 import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.viewModels
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
+import com.android.volley.Request
+import com.android.volley.Response
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
+import com.google.android.material.snackbar.Snackbar
+import java.io.*
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.text.StringBuilder
+import kotlinx.serialization.json.Json
+import pt.isel.pdm.chess4android.databinding.ActivityMainBinding
+import pt.isel.pdm.chess4android.model.LichessJSON
 
 private const val TAG = "MY_LOG_MainActivity"
 const val LICHESSDAILYPUZZLEURL: String = "https://lichess.org/api/puzzle/daily"
@@ -45,6 +45,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val thisViewModel: MainActivityViewModel by viewModels()
+    // alternative:
+    //private val thisViewModel by viewModels<MainActivityViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         log("created")
@@ -52,7 +54,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root) //mandatory before referencing view's using findViewById
         //setContentView(R.layout.activity_main); //alternative to what's above
 
-        supportActionBar?.title = getString(R.string.welcome)
+        supportActionBar?.title = getString(R.string.welcome) //alternative: resources.getText(R.string.welcome)
 
         //SET VIEWS (text, buttons, etc)
         //getGameButton = binding.getGameButton //alternative
@@ -115,6 +117,11 @@ class MainActivity : AppCompatActivity() {
         return when(item.itemId) {
             R.id.about -> {
                 startActivity(Intent(this, AboutActivity::class.java))
+                true
+            }
+
+            R.id.history -> {
+                startActivity(Intent(this, GameHistoryActivity::class.java))
                 true
             }
             else -> super.onOptionsItemSelected(item)
