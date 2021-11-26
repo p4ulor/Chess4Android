@@ -1,6 +1,10 @@
 package pt.isel.pdm.chess4android.model
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.room.*
+import java.util.concurrent.Executor
+import java.util.concurrent.Executors
 
 @Entity(tableName = "GAME") //represents tables in your app's database.
 data class GameTuple (
@@ -27,3 +31,13 @@ interface GameTupleDAO {
 abstract class GamesDataBase : RoomDatabase(){
     abstract fun getHistory() : GameTupleDAO
 }
+
+private val dataAcessExecutor = Executors.newSingleThreadExecutor()
+
+fun <T> doAsyncWithResult(action: () -> T) : LiveData<T> {
+    val result = MutableLiveData<T>()
+    dataAcessExecutor.submit { result.postValue(action())}
+    return result
+}
+
+fun doAsync(action: () -> Unit) = dataAcessExecutor.submit(action)

@@ -7,7 +7,7 @@
     tools:context=".GameHistoryActivity">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/gameList"
+        android:id="@+id/gameListRecyclerView"
         android:layout_width="409dp"
         android:layout_height="601dp"
         android:layout_marginStart="8dp"
