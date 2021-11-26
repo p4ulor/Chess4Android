@@ -6,43 +6,31 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.room.Room
 import pt.isel.pdm.chess4android.databinding.ActivityGameHistoryBinding
-import pt.isel.pdm.chess4android.model.GameDTO
-import pt.isel.pdm.chess4android.model.GameTuple
-import pt.isel.pdm.chess4android.model.GamesDataBase
-import pt.isel.pdm.chess4android.model.doAsyncWithResult
+import pt.isel.pdm.chess4android.model.*
 import pt.isel.pdm.chess4android.views.GameHistoryViewAdapter
-private const val DB = "game-history"
+
 class GameHistoryActivity : AppCompatActivity() {
 
     private val binding by lazy { ActivityGameHistoryBinding.inflate(layoutInflater) }
     private val thisViewModel by viewModels<GameHistoryViewModel>()
-    val historyDB: GamesDataBase by lazy {
-        Room.databaseBuilder(this, GamesDataBase::class.java, DB).build()
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-
         supportActionBar?.title = getString(R.string.history)
 
         binding.gameListRecyclerView.layoutManager = LinearLayoutManager(this)
 
-        val gamesList: List<GameTuple> = historyDB.getHistory().getAll()
-        binding.gameListRecyclerView.adapter = GameHistoryViewAdapter(gamesList.map{ it.toGameDTO() })
-
-        // load of history is not null
-        thisViewModel.history ?: thisViewModel.loadHistory().observe(this){
+        // load of history of games fs not null
+        (thisViewModel.history ?: thisViewModel.loadHistory()).observe(this){
             binding.gameListRecyclerView.adapter = GameHistoryViewAdapter(it)
         }
     }
 }
 
-fun GameTuple.toGameDTO() = GameDTO( //extension function
+fun GameTable.toGameDTO() = GameDTO( //extension function
     lichessGameOfTheDayPuzzle = null,
     lichessGameOfTheDaySolution = null,
     puzzleID = this.id,
@@ -53,9 +41,21 @@ class GameHistoryViewModel(application: Application) : AndroidViewModel(applicat
     var history: LiveData<List<GameDTO>>? = null
         private set
 
+    private val historyDB : GameTableDAO by lazy {
+        getApplication<Chess4AndroidApp>().historyDB.getHistory()
+    }
+
     fun loadHistory() : LiveData<List<GameDTO>> {
-        val dao = getApplication<Application>().historyDB //??????????
-        val result = doAsyncWithResult { dao.getAll() }
+        val result = doAsyncWithResult {
+            historyDB.getAll().map {
+                GameDTO(
+                    lichessGameOfTheDayPuzzle = null,
+                    lichessGameOfTheDaySolution = null,
+                    puzzleID = it.id,
+                    date = it.date,
+                )
+            }
+        }
         history = result
         return result
     }
