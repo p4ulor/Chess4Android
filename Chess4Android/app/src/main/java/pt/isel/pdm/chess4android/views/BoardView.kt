@@ -80,6 +80,6 @@ class BoardView(private val ctx: Context, attrs: AttributeSet?) : GridLayout(ctx
         canvas.drawLine(0f, 0f, 0f, height.toFloat(), brush)
         canvas.drawLine(width.toFloat(), 0f, width.toFloat(), height.toFloat(), brush)
     }
-
-    private fun log(s: String) = Log.i("MY_LOG_BoardView", s)
 }
+
+fun log(s: String) = Log.i("MY_LOG_BoardView", s)

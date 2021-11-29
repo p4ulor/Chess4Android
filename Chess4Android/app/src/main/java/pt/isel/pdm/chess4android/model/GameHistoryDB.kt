@@ -31,7 +31,7 @@ abstract class GamesDataBase : RoomDatabase(){
     abstract fun getHistory() : GameTableDAO
 }
 
-private val dataAcessExecutor = Executors.newSingleThreadExecutor() // AKA I/O thread pool
+private val dataAcessExecutor = Executors.newSingleThreadExecutor() // allocates a task to execute on a new thread
 
 fun <T> doAsyncWithResult(action: () -> T) : LiveData<T> {
     val result = MutableLiveData<T>()

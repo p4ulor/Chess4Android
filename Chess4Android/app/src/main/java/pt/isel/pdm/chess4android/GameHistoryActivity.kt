@@ -1,6 +1,7 @@
 package pt.isel.pdm.chess4android
 
 import android.app.Application
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.viewModels
@@ -23,10 +24,22 @@ class GameHistoryActivity : AppCompatActivity() {
 
         binding.gameListRecyclerView.layoutManager = LinearLayoutManager(this)
 
-        // load of history of games fs not null
+        binding.gameListRecyclerView.setOnClickListener {
+
+        }
+
+        // load of history of games if not null
         (thisViewModel.history ?: thisViewModel.loadHistory()).observe(this){
             binding.gameListRecyclerView.adapter = GameHistoryViewAdapter(it)
         }
+    }
+
+    private fun launchGame(lichessGameOfTheDayPuzzle: Array<String>,lichessGameOfTheDaySolution: Array<String>) {
+        val intent = Intent(this, PuzzleSolvingActivity::class.java).apply {
+            putExtra(PUZZLE, lichessGameOfTheDayPuzzle)
+            putExtra(SOLUTION, lichessGameOfTheDaySolution)
+        }
+        startActivity(intent)
     }
 }
 
