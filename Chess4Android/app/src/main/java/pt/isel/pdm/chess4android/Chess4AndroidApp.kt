@@ -16,7 +16,7 @@ class Chess4AndroidApp : Application() { //AppViewModel, SuperViewModel, SuperAc
     }
 
     val historyDB: GamesDataBase by lazy {
-        Room.databaseBuilder(this, GamesDataBase::class.java, DB).build()
+        Room.inMemoryDatabaseBuilder(this, GamesDataBase::class.java).build()
     }
 
     override fun onCreate() {
@@ -42,6 +42,20 @@ class Chess4AndroidApp : Application() { //AppViewModel, SuperViewModel, SuperAc
                 GameTable(
                     id = "ay",
                     date = "27/11/2021"
+                )
+            )
+
+            historyDB.getHistory().insert(
+                GameTable(
+                    id = "ayyyy",
+                    date = "27/11/2021"
+                )
+            )
+
+            historyDB.getHistory().insert(
+                GameTable(
+                    id = "whaaaaaaaaat",
+                    date = "20/11/2021"
                 )
             )
         }

@@ -22,4 +22,5 @@
     <string name="won">Você ganhou!</string>
     <string name="ok">Ok</string>
     <string name="history">Histórico de jogos</string>
+    <string name="solvingStatus">Estado de resolução</string>
 </resources>

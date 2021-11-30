@@ -24,10 +24,6 @@ class GameHistoryActivity : AppCompatActivity() {
 
         binding.gameListRecyclerView.layoutManager = LinearLayoutManager(this)
 
-        binding.gameListRecyclerView.setOnClickListener {
-
-        }
-
         // load of history of games if not null
         (thisViewModel.history ?: thisViewModel.loadHistory()).observe(this){
             binding.gameListRecyclerView.adapter = GameHistoryViewAdapter(it)
