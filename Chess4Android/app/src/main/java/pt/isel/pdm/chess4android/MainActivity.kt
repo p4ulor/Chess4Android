@@ -26,14 +26,14 @@ import java.util.*
 import kotlin.text.StringBuilder
 import kotlinx.serialization.json.Json
 import pt.isel.pdm.chess4android.databinding.ActivityMainBinding
+import pt.isel.pdm.chess4android.model.GameDTO
 import pt.isel.pdm.chess4android.model.LichessJSON
 
 private const val TAG = "MY_LOG_MainActivity"
 const val LICHESSDAILYPUZZLEURL: String = "https://lichess.org/api/puzzle/daily"
 private const val DATEFILE = "latest_data_fetch_date.txt"
 //LiveData and Intent data keys
-const val PUZZLE = "puzzle"
-const val SOLUTION = "solution"
+const val GAME_DTO_KEY = "game"
 
 class MainActivity : AppCompatActivity() {
 
@@ -85,8 +85,8 @@ class MainActivity : AppCompatActivity() {
                     binding.root.postDelayed ({toast(R.string.iSurvived)}, 1000)
                 } else {
                     toast(R.string.puzzleUpdated)
-                    log(thisViewModel.lichessGameOfTheDayPuzzle)
-                    log(thisViewModel.lichessGameOfTheDaySolution)
+                    log(thisViewModel.puzzle.toString())
+                    log(thisViewModel.solution.toString())
                     thisViewModel.updateDisplayed.value=true
                 }
             } else snackBar(R.string.connectionError)
@@ -143,13 +143,19 @@ class MainActivity : AppCompatActivity() {
             return
         }
         val intent = Intent(this, PuzzleSolvingActivity::class.java).apply {
-            putExtra(PUZZLE, thisViewModel.lichessGameOfTheDayPuzzle)
-            putExtra(SOLUTION, thisViewModel.lichessGameOfTheDaySolution)
+            putExtra(GAME_DTO_KEY, getGameDTO())
         }
         startActivity(intent)
     }
 
     //UTILITY METHODS
+
+    private fun getGameDTO() : GameDTO = GameDTO(
+        id = thisViewModel.id,
+        puzzle = thisViewModel.puzzle,
+        solution = thisViewModel.solution,
+        date = thisViewModel.date,
+    )
 
     private fun isDataStateNotValid() : Boolean = thisViewModel.wasTodaysPuzzleNotPulled() || thisViewModel.isDataNullOrEmpty()
 
@@ -172,8 +178,10 @@ class MainActivityViewModel(application: Application, private val state: SavedSt
         log("MainActivityViewModel.init()")
     }
     //since we didnt absolutely need to notify the Activity when the data changed, using LiveData isnt necessarily necessary
-    var lichessGameOfTheDayPuzzle: Array<String>? = null
-    var lichessGameOfTheDaySolution: Array<String>? = null
+    var id: String? = null
+    var puzzle: String? = null
+    var solution: String? = null
+    var date: String? = null
     val isGameReady: LiveData<Boolean> = state.getLiveData(IS_GAME_READY_LIVEDATA_KEY)
     val context = getApplication<Application>()
     var currentScreenOrientation: MutableLiveData<Int> = MutableLiveData(context.resources.configuration.orientation)
@@ -186,13 +194,21 @@ class MainActivityViewModel(application: Application, private val state: SavedSt
             //log(response.toString())
 
             val lichessGameOfTheDay: LichessJSON = Json { ignoreUnknownKeys = true }.decodeFromString(LichessJSON.serializer(),response)
-
-            lichessGameOfTheDayPuzzle = lichessGameOfTheDay?.game?.pgn?.split(" ")?.toTypedArray()
-            lichessGameOfTheDaySolution = lichessGameOfTheDay?.puzzle?.solution
+            id = lichessGameOfTheDay.game.id
+            puzzle = lichessGameOfTheDay.game.pgn
+            val sb: StringBuilder = StringBuilder()
+            for(i in lichessGameOfTheDay.puzzle.solution){
+                sb.append(i)
+            }
+            solution = sb.toString()
             if(isDataNullOrEmpty()){
                 state.set(IS_GAME_READY_LIVEDATA_KEY, false)
-            } else state.set(IS_GAME_READY_LIVEDATA_KEY, true) //when this code executes, the code in "thisActivityViewModel.isGameReady.observe(this)" is also executed
-            writeDateOfTheLatestPuzzlePulled(getTodaysDate())
+            } else { //when this code executes, the code in "thisActivityViewModel.isGameReady.observe(this)" is also executed
+                state.set(IS_GAME_READY_LIVEDATA_KEY, true)
+                val d = getTodaysDate()
+                writeDateOfTheLatestPuzzlePulled(d)
+                date = d
+            }
         }
         val errorListener = Response.ErrorListener {
             log("Connection error, cant perform getTodaysGame()")
@@ -204,7 +220,7 @@ class MainActivityViewModel(application: Application, private val state: SavedSt
         log("Request finished")
     }
 
-    fun isDataNullOrEmpty() = lichessGameOfTheDayPuzzle==null || lichessGameOfTheDaySolution==null || lichessGameOfTheDayPuzzle?.size==0 || lichessGameOfTheDaySolution?.size==0
+    fun isDataNullOrEmpty() = id==null || puzzle==null || solution==null || id.isNullOrEmpty()  || puzzle.isNullOrEmpty() || solution.isNullOrEmpty()
 
     //Current date methods
 

@@ -40,8 +40,12 @@ class PuzzleSolvingActivity : AppCompatActivity() {
 
         supportActionBar?.title=getString(R.string.attempt)
 
-        lichessGameOfTheDayPuzzle = intent.getStringArrayExtra(PUZZLE)
-        lichessGameOfTheDaySolution = intent.getStringArrayExtra(SOLUTION)
+        val gameDTO: GameDTO? = intent.getParcelableExtra(GAME_DTO_KEY)
+        if(gameDTO!=null) {
+            lichessGameOfTheDayPuzzle = gameDTO.puzzle?.split(" ")?.toTypedArray()
+            lichessGameOfTheDaySolution = gameDTO.solution?.split(" ")?.toTypedArray()
+        } else toast(R.string.WTFerror)
+
 
         myView = findViewById(R.id.boardView)
 
@@ -50,10 +54,11 @@ class PuzzleSolvingActivity : AppCompatActivity() {
                 tileBehaviour(tile)
             }
         }
-
-        if(thisViewModel.isGameLoaded.value==true){
-            invalidateEverything()
-        } else if(loadGame()) invalidateEverything() //it's easier for us to invalidate everything when loading
+        if(gameDTO!=null){
+            if(thisViewModel.isGameLoaded.value==true){
+                invalidateEverything()
+            } else if(loadGame()) invalidateEverything() //it's easier for us to invalidate everything when loading
+        }
     }
 
     private fun tileBehaviour(tile: Tile) {

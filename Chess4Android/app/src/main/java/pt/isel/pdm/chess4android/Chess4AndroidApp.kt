@@ -24,53 +24,67 @@ class Chess4AndroidApp : Application() { //AppViewModel, SuperViewModel, SuperAc
         super.onCreate()
         doAsync {
             Log.v(TAG, "Initializing DB")
-
-            historyDB.getHistory().insert( //DISPLAYS IN REVERSED ORDER
+            // NOTE THAT WHEN YOU CHANGE THE TABLES COLUMNS YOU HAVE TO DELETE THE BD IN THE APPS FILES OR IT WONT APPEAR ANYTHING
+            historyDB.getHistory().insert( //kinda of displays in reverse order, except the 1st insert or something like that
                 GameTable(
-                    id = "2456",
-                    date = "25/11/2021"
+                    id = "h34HkdjA",
+                    puzzle = "e4 e5 Nf3 Nc6 Bb5 a6 Ba4 b5 Bb3 Nf6 O-O Be7 Re1 O-O c3 d6 h3 Na5 Bc2 c5 d4 Qc7 Nbd2 h6 dxe5 dxe5 a4 Rd8 Qe2 b4 Bd3 Qd6 Nc4 Qxd3 Qxd3 Rxd3 Nxa5 bxc3 bxc3 Rxc3 Nc6 Bf8 Nfxe5 Bb7 f3 Re8 Rb1 Ba8 Bb2 Rc2 Kf1 Bd6 Nc4 Rxc4 e5 Bxc6 exf6 Rxe1+ Rxe1 Bg3 Rd1 Rc2",
+                    solution = "d1d8 g8h7 f6g7 c2c1 b2c1",
+                    date = "30/11/2021"
                 )
             )
 
             historyDB.getHistory().insert(
                 GameTable(
-                    id = "1111",
-                    date = "26/11/2021"
+                    id = "AAAAA",
+                    puzzle = "e4 e5 Nf3 Nc6 Bb5 a6 Ba4 b5 Bb3 Nf6 O-O Be7 Re1 O-O c3 d6 h3 Na5 Bc2 c5 d4 Qc7 Nbd2 h6 dxe5 dxe5 a4 Rd8 Qe2 b4 Bd3 Qd6 Nc4 Qxd3 Qxd3 Rxd3 Nxa5 bxc3 bxc3 Rxc3 Nc6 Bf8 Nfxe5 Bb7 f3 Re8 Rb1 Ba8 Bb2 Rc2 Kf1 Bd6 Nc4 Rxc4 e5 Bxc6 exf6 Rxe1+ Rxe1 Bg3 Rd1 Rc2",
+                    solution = "d1d8 g8h7 f6g7 c2c1 b2c1",
+                    date = "30/11/2021"
                 )
             )
 
             historyDB.getHistory().insert(
                 GameTable(
-                    id = "ay",
-                    date = "27/11/2021"
+                    id = "BBBBB",
+                    puzzle = "e4 e5 Nf3 Nc6 Bb5 a6 Ba4 b5 Bb3 Nf6 O-O Be7 Re1 O-O c3 d6 h3 Na5 Bc2 c5 d4 Qc7 Nbd2 h6 dxe5 dxe5 a4 Rd8 Qe2 b4 Bd3 Qd6 Nc4 Qxd3 Qxd3 Rxd3 Nxa5 bxc3 bxc3 Rxc3 Nc6 Bf8 Nfxe5 Bb7 f3 Re8 Rb1 Ba8 Bb2 Rc2 Kf1 Bd6 Nc4 Rxc4 e5 Bxc6 exf6 Rxe1+ Rxe1 Bg3 Rd1 Rc2",
+                    solution = "d1d8 g8h7 f6g7 c2c1 b2c1",
+                    date = "30/11/2021"
                 )
             )
 
             historyDB.getHistory().insert(
                 GameTable(
-                    id = "ayyyy",
-                    date = "27/11/2021"
+                    id = "CCCCCC",
+                    puzzle = "e4 e5 Nf3 Nc6 Bb5 a6 Ba4 b5 Bb3 Nf6 O-O Be7 Re1 O-O c3 d6 h3 Na5 Bc2 c5 d4 Qc7 Nbd2 h6 dxe5 dxe5 a4 Rd8 Qe2 b4 Bd3 Qd6 Nc4 Qxd3 Qxd3 Rxd3 Nxa5 bxc3 bxc3 Rxc3 Nc6 Bf8 Nfxe5 Bb7 f3 Re8 Rb1 Ba8 Bb2 Rc2 Kf1 Bd6 Nc4 Rxc4 e5 Bxc6 exf6 Rxe1+ Rxe1 Bg3 Rd1 Rc2",
+                    solution = "d1d8 g8h7 f6g7 c2c1 b2c1",
+                    date = "30/11/2021"
                 )
             )
 
             historyDB.getHistory().insert(
                 GameTable(
-                    id = "whaaaaaaaaat",
-                    date = "20/11/2021"
+                    id = "DDDDDDDD",
+                    puzzle = "e4 e5 Nf3 Nc6 Bb5 a6 Ba4 b5 Bb3 Nf6 O-O Be7 Re1 O-O c3 d6 h3 Na5 Bc2 c5 d4 Qc7 Nbd2 h6 dxe5 dxe5 a4 Rd8 Qe2 b4 Bd3 Qd6 Nc4 Qxd3 Qxd3 Rxd3 Nxa5 bxc3 bxc3 Rxc3 Nc6 Bf8 Nfxe5 Bb7 f3 Re8 Rb1 Ba8 Bb2 Rc2 Kf1 Bd6 Nc4 Rxc4 e5 Bxc6 exf6 Rxe1+ Rxe1 Bg3 Rd1 Rc2",
+                    solution = "d1d8 g8h7 f6g7 c2c1 b2c1",
+                    date = "30/11/2021"
                 )
             )
 
             historyDB.getHistory().insert(
                 GameTable(
-                    id = "IIIIIIIIII",
-                    date = "20/11/2021"
+                    id = "EEEEEEEE",
+                    puzzle = "e4 e5 Nf3 Nc6 Bb5 a6 Ba4 b5 Bb3 Nf6 O-O Be7 Re1 O-O c3 d6 h3 Na5 Bc2 c5 d4 Qc7 Nbd2 h6 dxe5 dxe5 a4 Rd8 Qe2 b4 Bd3 Qd6 Nc4 Qxd3 Qxd3 Rxd3 Nxa5 bxc3 bxc3 Rxc3 Nc6 Bf8 Nfxe5 Bb7 f3 Re8 Rb1 Ba8 Bb2 Rc2 Kf1 Bd6 Nc4 Rxc4 e5 Bxc6 exf6 Rxe1+ Rxe1 Bg3 Rd1 Rc2",
+                    solution = "d1d8 g8h7 f6g7 c2c1 b2c1",
+                    date = "30/11/2021"
                 )
             )
 
             historyDB.getHistory().insert(
                 GameTable(
-                    id = "ALELUIAALELUIA",
-                    date = "20/11/2021"
+                    id = "FFFF",
+                    puzzle = "e4 e5 Nf3 Nc6 Bb5 a6 Ba4 b5 Bb3 Nf6 O-O Be7 Re1 O-O c3 d6 h3 Na5 Bc2 c5 d4 Qc7 Nbd2 h6 dxe5 dxe5 a4 Rd8 Qe2 b4 Bd3 Qd6 Nc4 Qxd3 Qxd3 Rxd3 Nxa5 bxc3 bxc3 Rxc3 Nc6 Bf8 Nfxe5 Bb7 f3 Re8 Rb1 Ba8 Bb2 Rc2 Kf1 Bd6 Nc4 Rxc4 e5 Bxc6 exf6 Rxe1+ Rxe1 Bg3 Rd1 Rc2",
+                    solution = "d1d8 g8h7 f6g7 c2c1 b2c1",
+                    date = "30/11/2021"
                 )
             )
         }

@@ -8,12 +8,14 @@ import java.util.concurrent.Executors
 @Entity(tableName = "GAME") //represents tables in your app's database.
 data class GameTable (
     @PrimaryKey val id: String,
+    val puzzle: String,
+    val solution: String,
     val date: String
 )
 
 @Dao // Data Access Object, provides methods that your app can use to query, update, insert, and delete data in the database
 interface GameTableDAO {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE) //https://stackoverflow.com/a/54260385/9375488
     fun insert(gameEntity: GameTable)
 
     @Delete

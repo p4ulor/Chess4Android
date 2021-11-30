@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.lifecycle.AndroidViewModel
@@ -34,12 +33,12 @@ class GameHistoryActivity : AppCompatActivity(), OnItemClickListener {
 
     override fun onItemClicked(gameDTO: GameDTO) {
         toast(gameDTO.toString())
+        launchGame(gameDTO)
     }
 
-    private fun launchGame(lichessGameOfTheDayPuzzle: Array<String>,lichessGameOfTheDaySolution: Array<String>) {
+    private fun launchGame(gameDTO: GameDTO) {
         val intent = Intent(this, PuzzleSolvingActivity::class.java).apply {
-            putExtra(PUZZLE, lichessGameOfTheDayPuzzle)
-            putExtra(SOLUTION, lichessGameOfTheDaySolution)
+            putExtra(GAME_DTO_KEY, gameDTO)
         }
         startActivity(intent)
     }
@@ -52,9 +51,9 @@ class GameHistoryActivity : AppCompatActivity(), OnItemClickListener {
 }
 
 fun GameTable.toGameDTO() = GameDTO( //extension function
-    lichessGameOfTheDayPuzzle = null,
-    lichessGameOfTheDaySolution = null,
-    puzzleID = this.id,
+    id = this.id,
+    puzzle = this.puzzle,
+    solution = this.solution,
     date = this.date
 )
 
@@ -70,9 +69,9 @@ class GameHistoryViewModel(application: Application) : AndroidViewModel(applicat
         val result = doAsyncWithResult {
             historyDB.getAll().map {
                 GameDTO(
-                    lichessGameOfTheDayPuzzle = null,
-                    lichessGameOfTheDaySolution = null,
-                    puzzleID = it.id,
+                    id = it.id,
+                    puzzle = it.puzzle,
+                    solution = it.solution,
                     date = it.date,
                 )
             }

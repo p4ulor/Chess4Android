@@ -66,7 +66,7 @@ abstract class Piece (var position: Position, open var isWhite: Boolean) {
     abstract val pieceType: PIECETYPE //lowercase
     abstract val maxTravelDistanceX: Byte //positive value
     abstract val maxTravelDistanceY: Byte //positive value
-    abstract fun canMoveTo(destination: Position): Boolean
+    abstract fun canMoveTo(destination: Position): Boolean //todo: change this so it receives model to setup validation if the piece steps over others
 
     constructor(letter: Char, number: Byte, isWhite: Boolean) : this(Position(letter, number), isWhite)
 }
@@ -215,7 +215,7 @@ enum class PIECETYPE {
 
 // UTILITY METHODS
 
-fun letterToPieceType(char: Char) : PIECETYPE { //must be in uppercase just like in the json. fixme: is this method call reliable?
+fun letterToPieceType(char: Char) : PIECETYPE { //must be in uppercase just like in the json.
     return when(char) {
         'B' -> PIECETYPE.BISHOP
         'N' -> PIECETYPE.KNIGHT
