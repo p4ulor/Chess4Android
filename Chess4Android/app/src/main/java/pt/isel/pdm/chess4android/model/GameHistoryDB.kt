@@ -13,7 +13,7 @@ data class GameTable (
 
 @Dao // Data Access Object, provides methods that your app can use to query, update, insert, and delete data in the database
 interface GameTableDAO {
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(gameEntity: GameTable)
 
     @Delete

@@ -117,6 +117,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
         log("moved")
         thisViewModel.isWhitesPlaying=!thisViewModel.isWhitesPlaying
         if(thisViewModel.correctMovementsPerformed==lichessGameOfTheDaySolution?.size) {
+            thisViewModel.isDone = true
             snackBar(R.string.won)
         }
     }
@@ -194,4 +195,5 @@ class PuzzleSolvingAcitivityViewModel(application: Application, private val stat
     var board: Board = Board()
     var correctMovementsPerformed: Int = 0
     var isWhitesPlaying: Boolean = true
+    var isDone: Boolean = false
 }

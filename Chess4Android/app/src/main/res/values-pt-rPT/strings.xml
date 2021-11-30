@@ -23,4 +23,5 @@
     <string name="ok">Ok</string>
     <string name="history">Histórico de jogos</string>
     <string name="solvingStatus">Estado de resolução</string>
+    <string name="clickedBox">Hey! Nada de aldrabices, tens de me resolver primeiro</string>
 </resources>

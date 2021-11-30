@@ -16,7 +16,8 @@ class Chess4AndroidApp : Application() { //AppViewModel, SuperViewModel, SuperAc
     }
 
     val historyDB: GamesDataBase by lazy {
-        Room.inMemoryDatabaseBuilder(this, GamesDataBase::class.java).build()
+        //Room.inMemoryDatabaseBuilder(this, GamesDataBase::class.java).build() works, but not what we want
+        Room.databaseBuilder(this, GamesDataBase::class.java, DB).build()
     }
 
     override fun onCreate() {
@@ -58,6 +59,22 @@ class Chess4AndroidApp : Application() { //AppViewModel, SuperViewModel, SuperAc
                     date = "20/11/2021"
                 )
             )
+
+            historyDB.getHistory().insert(
+                GameTable(
+                    id = "IIIIIIIIII",
+                    date = "20/11/2021"
+                )
+            )
+
+            historyDB.getHistory().insert(
+                GameTable(
+                    id = "ALELUIAALELUIA",
+                    date = "20/11/2021"
+                )
+            )
         }
     }
+
+
 }

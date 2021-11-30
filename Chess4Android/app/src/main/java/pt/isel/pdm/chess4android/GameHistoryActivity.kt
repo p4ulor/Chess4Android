@@ -4,6 +4,8 @@ import android.app.Application
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -12,7 +14,7 @@ import pt.isel.pdm.chess4android.databinding.ActivityGameHistoryBinding
 import pt.isel.pdm.chess4android.model.*
 import pt.isel.pdm.chess4android.views.GameHistoryViewAdapter
 
-class GameHistoryActivity : AppCompatActivity() {
+class GameHistoryActivity : AppCompatActivity(), OnItemClickListener {
 
     private val binding by lazy { ActivityGameHistoryBinding.inflate(layoutInflater) }
     private val thisViewModel by viewModels<GameHistoryViewModel>()
@@ -26,8 +28,12 @@ class GameHistoryActivity : AppCompatActivity() {
 
         // load of history of games if not null
         (thisViewModel.history ?: thisViewModel.loadHistory()).observe(this){
-            binding.gameListRecyclerView.adapter = GameHistoryViewAdapter(it)
+            binding.gameListRecyclerView.adapter = GameHistoryViewAdapter(it, this)
         }
+    }
+
+    override fun onItemClicked(gameDTO: GameDTO) {
+        toast(gameDTO.toString())
     }
 
     private fun launchGame(lichessGameOfTheDayPuzzle: Array<String>,lichessGameOfTheDaySolution: Array<String>) {
@@ -37,6 +43,12 @@ class GameHistoryActivity : AppCompatActivity() {
         }
         startActivity(intent)
     }
+
+    override fun onCheckBoxClicked() = toast(R.string.clickedBox)
+
+    private fun toast(text: String) = Toast.makeText(this, text, Toast.LENGTH_LONG).show()
+
+    private fun toast(id: Int) = toast(getString(id))
 }
 
 fun GameTable.toGameDTO() = GameDTO( //extension function
@@ -68,5 +80,9 @@ class GameHistoryViewModel(application: Application) : AndroidViewModel(applicat
         history = result
         return result
     }
+}
 
+interface OnItemClickListener{
+    fun onItemClicked(gameDTO: GameDTO)
+    fun onCheckBoxClicked()
 }
