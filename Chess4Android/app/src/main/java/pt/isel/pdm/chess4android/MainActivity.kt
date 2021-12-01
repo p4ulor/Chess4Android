@@ -4,9 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
-import android.widget.Toast
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
@@ -28,7 +26,7 @@ import kotlinx.serialization.json.Json
 import pt.isel.pdm.chess4android.databinding.ActivityMainBinding
 import pt.isel.pdm.chess4android.model.*
 
-private const val TAG = "MY_LOG_MainActivity"
+private const val TAG = "MainActivity"
 const val LICHESSDAILYPUZZLEURL: String = "https://lichess.org/api/puzzle/daily"
 private const val DATEFILE = "latest_data_fetch_date.txt"
 //LiveData and Intent data keys
@@ -53,7 +51,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root) //mandatory before referencing view's using findViewById
         //setContentView(R.layout.activity_main); //alternative to what's above
 
-        supportActionBar?.title = getString(R.string.welcome) //alternative: resources.getText(R.string.welcome)
+        supportActionBar?.title = getString(R.string.welcome) //alternative: resources.getText(R.string.welcome) //only activity where I have to do this or the app name will be "Welcome" if I set it in the xml..., for all the other activities, their action bar name is set in the xml
 
         //SET VIEWS (text, buttons, etc)
         //getGameButton = binding.getGameButton //alternative
@@ -65,7 +63,7 @@ class MainActivity : AppCompatActivity() {
                 thisViewModel.getTodaysGame()
             }
             else {
-                toast(R.string.alreadyUpdated)
+                toast(R.string.alreadyUpdated, this)
             }
         }
 
@@ -81,12 +79,15 @@ class MainActivity : AppCompatActivity() {
                 //if(applicationContext.resources.configuration.orientation==Configuration.ORIENTATION_LANDSCAPE) toast(R.string.iSurvived)
                 continueButton?.isEnabled=true
                 if(didScreenRotate && thisViewModel.updateDisplayed.value == true) { //could be elvis operator, but intellij optimized
-                    binding.root.postDelayed ({toast(R.string.iSurvived)}, 1000)
+                    binding.root.postDelayed ({toast(R.string.iSurvived, this)}, 1000)
                 } else {
-                    toast(R.string.puzzleUpdated)
-                    log(thisViewModel.puzzle.toString())
-                    log(thisViewModel.solution.toString())
+                    toast(R.string.puzzleUpdated, this)
+                    log(thisViewModel.gameDTO?.puzzle.toString())
+                    log(thisViewModel.gameDTO?.solution.toString())
                     thisViewModel.updateDisplayed.value=true
+                    doAsyncWithResult {
+                        thisViewModel.updateDB()
+                    }
                 }
             } else snackBar(R.string.connectionError)
         }
@@ -138,31 +139,19 @@ class MainActivity : AppCompatActivity() {
     //Launch next activity
     private fun launchGame() {
         if(thisViewModel.isGameReady.value == false) {
-            toast(R.string.WTFerror)
+            toast(R.string.WTFerror, this)
             return
         }
         val intent = Intent(this, PuzzleSolvingActivity::class.java).apply {
-            putExtra(GAME_DTO_KEY, thisViewModel.getGameDTO())
+            putExtra(GAME_DTO_KEY, thisViewModel.gameDTO)
         }
         startActivity(intent)
     }
 
     //UTILITY METHODS
-
-    private fun isDataStateNotValid() : Boolean = thisViewModel.wasTodaysPuzzleNotPulled() || thisViewModel.isDataNullOrEmpty()
-
-    private fun toast(text: String) = Toast.makeText(this, text, Toast.LENGTH_LONG).show()
-
-    private fun toast(id: Int) = toast(getString(id))
-
-    private fun log(arrayOfStrings: Array<String>?){
-        val sb = StringBuilder()
-        arrayOfStrings?.forEach { sb.append("$it ") }
-        log(sb.toString())
-    }
+    private fun isDataStateNotValid() : Boolean = thisViewModel.todaysPuzzleWasNotPulled() || thisViewModel.isDataNullOrEmpty()
 }
 
-private fun log(s: String) = Log.i(TAG, s) //since both of the classes on this file use log, I put it here
 private const val IS_GAME_READY_LIVEDATA_KEY = "ready"
 
 class MainActivityViewModel(application: Application, private val state: SavedStateHandle) : AndroidViewModel(application) { //using AndroidViewModel and not ViewModel since AndroidViewModel can receive application: Application which extends from Context. And we need it for the file I/O, including the volley request
@@ -170,10 +159,7 @@ class MainActivityViewModel(application: Application, private val state: SavedSt
         log("MainActivityViewModel.init()")
     }
     //since we didnt absolutely need to notify the Activity when the data changed, using LiveData isnt necessarily necessary
-    var id: String? = null
-    var puzzle: String? = null
-    var solution: String? = null
-    var date: String? = null
+    var gameDTO: GameDTO = GameDTO(null, null, null, null, false)
     val isGameReady: LiveData<Boolean> = state.getLiveData(IS_GAME_READY_LIVEDATA_KEY)
     val context = getApplication<Application>()
     var currentScreenOrientation: MutableLiveData<Int> = MutableLiveData(context.resources.configuration.orientation)
@@ -187,27 +173,21 @@ class MainActivityViewModel(application: Application, private val state: SavedSt
         log("Getting the json...")
         val queue = Volley.newRequestQueue(context) //https://developer.android.com/training/volley/simple
         val responseListener = Response.Listener<String> { response -> //https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/basic-serialization.md
-            //log(response.toString())
+            log(response.toString())
 
             val lichessGameOfTheDay: LichessJSON = Json { ignoreUnknownKeys = true }.decodeFromString(LichessJSON.serializer(),response)
-            id = lichessGameOfTheDay.game.id
-            puzzle = lichessGameOfTheDay.game.pgn
+            val id = lichessGameOfTheDay.game.id
+            val puzzle = lichessGameOfTheDay.game.pgn
             val sb: StringBuilder = StringBuilder()
             for(i in lichessGameOfTheDay.puzzle.solution){
                 sb.append("$i ")
             }
-            solution = sb.toString()
-            if(isDataNullOrEmpty()){
-                state.set(IS_GAME_READY_LIVEDATA_KEY, false)
-            } else { //when this code executes, the code in "thisActivityViewModel.isGameReady.observe(this)" is also executed
-                state.set(IS_GAME_READY_LIVEDATA_KEY, true)
-                val d = getTodaysDate()
-                writeDateOfTheLatestPuzzlePulled(d)
-                date = d
-                doAsyncWithResult {
-                    historyDB.insert(getDTOToGameTable())
-                }
-            }
+            sb.deleteCharAt(sb.lastIndex)
+            setGameDTO(id, puzzle, sb.toString(), getTodaysDate(), false)
+            if(!isDataNullOrEmpty()) {
+                writeDateOfTheLatestPuzzlePulled(getTodaysDate())
+                state.set(IS_GAME_READY_LIVEDATA_KEY, true) //when this code executes, the code in "thisActivityViewModel.isGameReady.observe(this)" is also executed
+            } else state.set(IS_GAME_READY_LIVEDATA_KEY, false)
         }
         val errorListener = Response.ErrorListener {
             log("Connection error, cant perform getTodaysGame()")
@@ -219,13 +199,13 @@ class MainActivityViewModel(application: Application, private val state: SavedSt
         log("Request finished")
     }
 
-    fun isDataNullOrEmpty() = id==null || puzzle==null || solution==null || id.isNullOrEmpty()  || puzzle.isNullOrEmpty() || solution.isNullOrEmpty()
+    fun isDataNullOrEmpty() = gameDTO?.id.isNullOrEmpty() || gameDTO?.puzzle.isNullOrEmpty() || gameDTO?.solution.isNullOrEmpty() || gameDTO?.date.isNullOrEmpty()
 
     //Current date methods
 
-    fun wasTodaysPuzzleNotPulled() : Boolean = !getTodaysDate().equals(readDateOfTheLatestPuzzlePull())
+    fun todaysPuzzleWasNotPulled() : Boolean = !getTodaysDate().equals(readDateOfTheLatestPuzzlePull())
 
-    private fun getTodaysDate() =  SimpleDateFormat("dd/M/yyyy").format(Date()) //The 'M' must be uppercase or it will read the minutes
+    private fun getTodaysDate() = SimpleDateFormat(DATEPATTERN).format(Date()) //The 'M' must be uppercase or it will read the minutes
 
     private fun readDateOfTheLatestPuzzlePull() : String { //https://developer.android.com/training/data-storage/app-specific
         var sb = StringBuilder()
@@ -260,19 +240,23 @@ class MainActivityViewModel(application: Application, private val state: SavedSt
         return result
     }
 
-    fun getGameDTO() : GameDTO = GameDTO(
-        id = id,
-        puzzle = puzzle,
-        solution = solution,
-        date = date,
-        isDone = false
-    )
+    fun updateDB() {
+        historyDB.insert(getDTOToGameTable())
+    }
+
+    fun setGameDTO(id: String, puzzle: String, solution: String, date: String, b: Boolean) {
+        gameDTO.id = id
+        gameDTO.puzzle = puzzle
+        gameDTO.solution = solution
+        gameDTO.date = date
+        gameDTO.isDone = b
+    }
 
     fun getDTOToGameTable() = GameTable( //extension function
-        id = this.id ?: "",
-        puzzle = this.puzzle?: "",
-        solution = this.solution?: "",
-        date = this.date?: "",
+        id = this.gameDTO.id ?: "",
+        puzzle = this.gameDTO.puzzle ?: "",
+        solution = this.gameDTO.solution ?: "",
+        date = this.gameDTO.date ?: "",
         isDone = false
     )
 }

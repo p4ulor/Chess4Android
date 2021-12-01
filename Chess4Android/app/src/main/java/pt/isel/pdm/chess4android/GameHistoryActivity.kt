@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -12,10 +11,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import pt.isel.pdm.chess4android.databinding.ActivityGameHistoryBinding
 import pt.isel.pdm.chess4android.model.*
 import pt.isel.pdm.chess4android.views.GameHistoryViewAdapter
-import android.view.Gravity
 
-
-
+private const val TAG = "GameHistory"
 
 class GameHistoryActivity : AppCompatActivity(), OnItemClickListener {
 
@@ -25,19 +22,32 @@ class GameHistoryActivity : AppCompatActivity(), OnItemClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        supportActionBar?.title = getString(R.string.history)
 
         binding.gameListRecyclerView.layoutManager = LinearLayoutManager(this)
 
         // load of history of games if not null
-        (thisViewModel.history ?: thisViewModel.loadHistory()).observe(this){
-            binding.gameListRecyclerView.adapter = GameHistoryViewAdapter(it, this)
-        }
+
+        log(TAG, "onCreate")
     }
 
-    override fun onItemClicked(gameDTO: GameDTO) {
-        shortToast(getString(R.string.youSelected)+gameDTO.id)
-        //binding.root.postDelayed ({}, 8000)
+    override fun onResume() { //I wasn't able to do or find any better solutions in order to update the recycler view in order for it to update the checkBox after successfully completing the puzzle and going back to this activity
+        log(TAG,"onResume")
+        thisViewModel.loadHistory()
+        thisViewModel.history?.observe(this){
+            binding.gameListRecyclerView.adapter = GameHistoryViewAdapter(it, this)
+        }
+        /*
+        if(thisViewModel.position!=-1) { //doesnt work because I need to access and change the List<GameDTO>! in GameHistoryViewAdapter, and I wasn't able to figure out how to do it
+            thisViewModel.loadHistory()
+            binding.gameListRecyclerView.adapter?.notifyItemChanged(thisViewModel.position)
+        } else thisViewModel.position = -1
+         */
+        super.onResume()
+    }
+
+    override fun onItemClicked(gameDTO: GameDTO, holderPosition: Int) {
+        topToast(getString(R.string.youSelected)+gameDTO.id, this)
+        thisViewModel.gameSelected = holderPosition
         launchGame(gameDTO)
     }
 
@@ -48,16 +58,7 @@ class GameHistoryActivity : AppCompatActivity(), OnItemClickListener {
         startActivity(intent)
     }
 
-    override fun onCheckBoxClicked() = toast(R.string.clickedBox)
-
-    private fun toast(text: String) = Toast.makeText(this, text, Toast.LENGTH_LONG).show()
-    private fun shortToast(text: String) {
-        val toast = Toast.makeText(this, text, Toast.LENGTH_SHORT)
-        toast.setGravity(Gravity.TOP + Gravity.CENTER_HORIZONTAL, 0, 0)
-        toast.show()
-    }
-
-    private fun toast(id: Int) = toast(getString(id))
+    override fun onCheckBoxClicked() = toast(R.string.clickedBox, this)
 }
 
 fun GameTable.toGameDTO() = GameDTO( //extension function
@@ -71,6 +72,8 @@ fun GameTable.toGameDTO() = GameDTO( //extension function
 class GameHistoryViewModel(application: Application) : AndroidViewModel(application){
     var history: LiveData<List<GameDTO>>? = null
         private set
+
+    var gameSelected: Int = -1
 
     private val historyDB : GameTableDAO by lazy {
         getApplication<Chess4AndroidApp>().historyDB.getHistory()
@@ -88,6 +91,6 @@ class GameHistoryViewModel(application: Application) : AndroidViewModel(applicat
 }
 
 interface OnItemClickListener{
-    fun onItemClicked(gameDTO: GameDTO)
+    fun onItemClicked(gameDTO: GameDTO, holderPosition: Int)
     fun onCheckBoxClicked()
 }

@@ -36,6 +36,7 @@ class GameHistoryViewAdapter(
     fun getGameDTO(position: Int) : GameDTO? {
         return if (position > -1 && position < gamesHistoryData.size) gamesHistoryData[position] else null
     }
+
 }
 
 /*
@@ -47,6 +48,8 @@ class HistoryItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) 
     private val idView = itemView.findViewById<TextView>(R.id.puzzleID)
     private val checkBox = itemView.findViewById<CheckBox>(R.id.checkBox)
 
+
+
     fun bindTo(gameDTO: GameDTO, itemClickedListener: OnItemClickListener) { //Binds this view holder to the given quote item
         dateView.text = gameDTO.date
         idView.text = gameDTO.id
@@ -56,7 +59,7 @@ class HistoryItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) 
             checkBox.isChecked=false //setting a setOnClickListener actually turns on isClickable, so we do this
         }
         itemView.setOnClickListener {
-            itemClickedListener.onItemClicked(gameDTO)
+            itemClickedListener.onItemClicked(gameDTO, adapterPosition)
         }
     }
 }

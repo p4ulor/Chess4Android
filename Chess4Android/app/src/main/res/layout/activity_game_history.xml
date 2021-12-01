@@ -8,6 +8,7 @@ https://stackoverflow.com/a/38995399/9375488 (recyclerview-inside-scrollview-is-
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:label="AAAAAAA"
     tools:context=".GameHistoryActivity">
 
     <androidx.recyclerview.widget.RecyclerView

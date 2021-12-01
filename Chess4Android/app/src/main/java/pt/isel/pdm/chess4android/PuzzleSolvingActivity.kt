@@ -2,11 +2,8 @@ package pt.isel.pdm.chess4android
 
 import android.app.Application
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
@@ -16,12 +13,12 @@ import pt.isel.pdm.chess4android.views.BoardView
 import pt.isel.pdm.chess4android.views.Tile
 import pt.isel.pdm.chess4android.views.tileMatrix
 
-private const val TAG = "MY_LOG_PuzzleSolvingActivity"
+private const val TAG = "PuzzleSolving"
 
 class PuzzleSolvingActivity : AppCompatActivity() {
 
-    private var lichessGameOfTheDayPuzzle: Array<String>? = null
-    private var lichessGameOfTheDaySolution: Array<String>? = null
+    private var puzzle: Array<String>? = null
+    private var solution: Array<String>? = null
 
     private lateinit var myView: BoardView
 
@@ -38,14 +35,12 @@ class PuzzleSolvingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_puzzle_solving)
 
-        supportActionBar?.title=getString(R.string.attempt)
-
         val gameDTO: GameDTO? = intent.getParcelableExtra(GAME_DTO_KEY)
         if(gameDTO!=null) {
             thisViewModel.gameDTO = gameDTO
-            lichessGameOfTheDayPuzzle = gameDTO.puzzle?.split(" ")?.toTypedArray()
-            lichessGameOfTheDaySolution = gameDTO.solution?.split(" ")?.toTypedArray()
-        } else toast(R.string.WTFerror)
+            puzzle = gameDTO.puzzle?.split(" ")?.toTypedArray()
+            solution = gameDTO.solution?.split(" ")?.toTypedArray()
+        } else toast(R.string.WTFerror, this)
 
 
         myView = findViewById(R.id.boardView)
@@ -93,9 +88,9 @@ class PuzzleSolvingActivity : AppCompatActivity() {
             val thePieceToBeEaten = thisViewModel.board.getPieceAtIndex(pieceThatWillBeEatenIndex)
             val theNewPosition = thePieceToBeEaten?.position
             val movement = pieceToMove.position.letterAndNumber()+theNewPosition.letterAndNumber()
-            if(movement == lichessGameOfTheDaySolution?.get(thisViewModel.correctMovementsPerformed)) {
+            if(movement == solution?.get(thisViewModel.correctMovementsPerformed)) {
                 thisViewModel.correctMovementsPerformed++
-                toast(R.string.correctMove)
+                toast(R.string.correctMove, this)
             }
             log("destination has index = $pieceThatWillBeEatenIndex and position = $theNewPosition ")
             if(theNewPosition!=null && pieceToMove!=null && pieceThatWillBeEatenIndex!=currentlySelectedPieceIndex) {
@@ -122,8 +117,9 @@ class PuzzleSolvingActivity : AppCompatActivity() {
         myView.invalidate(currentlySelectedPieceIndex, thisViewModel.board.getPieceAtIndex(currentlySelectedPieceIndex)!!  ) //old pos
         log("moved")
         thisViewModel.isWhitesPlaying=!thisViewModel.isWhitesPlaying
-        if(thisViewModel.correctMovementsPerformed==lichessGameOfTheDaySolution?.size) {
+        if(thisViewModel.correctMovementsPerformed==solution?.size) {
             thisViewModel.gameDTO?.isDone = true
+            thisViewModel.setGameAsDoneInDB()
             snackBar(R.string.won)
         }
     }
@@ -152,29 +148,28 @@ class PuzzleSolvingActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        //board.reset()
-        toast(R.string.progressLost)
-        log("progress lost")
+        //board.reset() // because we destroy the activity with the onBackPressed, no need to reset
+        if(thisViewModel.gameDTO?.isDone==false) toast(R.string.progressLost, this)
         super.onBackPressed()
     }
 
     private fun loadGame() : Boolean {
-        if(lichessGameOfTheDayPuzzle!=null){
+        if(puzzle!=null){
             var isWhitesPlaying: Boolean
-            lichessGameOfTheDayPuzzle!!.forEachIndexed { index, s ->
+            puzzle?.forEachIndexed { index, s ->
                 isWhitesPlaying = index % 2 == 0
                 if(!thisViewModel.board.interpretMove(s,isWhitesPlaying)) {
-                    toast(R.string.interpretError)
+                    toast(R.string.interpretError, this)
                     log(getString(R.string.interpretError)+" at index $index")
                     return false
                 }
                 //if(index==14) return true //useful for testing index by index, movement by movement
             }
-            toast(R.string.loadSuccess)
+            toast(R.string.loadSuccess, this)
             thisViewModel.isGameLoaded = true
             return true
         }
-        toast(R.string.WTFerror)
+        toast(R.string.WTFerror, this)
         return false
     }
 
@@ -183,23 +178,26 @@ class PuzzleSolvingActivity : AppCompatActivity() {
             myView.invalidate(it, thisViewModel.board.getPieceAtIndex(it))
         }
     }
-
-    // UTILITY METHODS
-    private fun toast(text: String) = Toast.makeText(this, text, Toast.LENGTH_LONG).show()
-
-    private fun toast(id: Int) = toast(getString(id))
-
 }
-
-private fun log(s: String) = Log.i(TAG, s) //since both of the classes on this file use log, I put it here
 
 class PuzzleSolvingAcitivityViewModel(application: Application, private val state: SavedStateHandle) : AndroidViewModel(application) {
     init {
         log("MainActivityViewModel.init()")
     }
+
+    private val historyDB : GameTableDAO by lazy {
+        getApplication<Chess4AndroidApp>().historyDB.getHistory()
+    }
+
     var isGameLoaded: Boolean = false
     var board: Board = Board()
     var correctMovementsPerformed: Int = 0
     var isWhitesPlaying: Boolean = true
     var gameDTO: GameDTO? = null
+
+    fun setGameAsDoneInDB(){
+        doAsyncWithResult {
+            historyDB.setIsDone(gameDTO?.id.toString(), gameDTO?.isDone ?: false)
+        }
+    }
 }

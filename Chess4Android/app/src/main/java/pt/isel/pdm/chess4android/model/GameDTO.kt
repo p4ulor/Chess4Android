@@ -5,10 +5,10 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class GameDTO(
-    val id: String?,
-    val puzzle: String?,
-    val solution: String?,
-    val date: String?,
+    var id: String?,
+    var puzzle: String?,
+    var solution: String?,
+    var date: String?,
     var isDone: Boolean
 ) : Parcelable
 
