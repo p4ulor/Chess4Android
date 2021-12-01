@@ -10,16 +10,20 @@ data class GameTable (
     @PrimaryKey val id: String,
     val puzzle: String,
     val solution: String,
-    val date: String
+    val date: String,
+    val isDone: Boolean
 )
 
 @Dao // Data Access Object, provides methods that your app can use to query, update, insert, and delete data in the database
 interface GameTableDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE) //https://stackoverflow.com/a/54260385/9375488
-    fun insert(gameEntity: GameTable)
+    fun insert(gameTable: GameTable)
 
     @Delete
-    fun delete(gameEntity: GameTable)
+    fun delete(gameTable: GameTable)
+
+    @Update
+    fun update(gameTable: GameTable)
 
     @Query("SELECT * FROM GAME ORDER BY id DESC LIMIT 100") //Color scheme -> General -> Injected language fragment
     fun getAll() : List<GameTable>

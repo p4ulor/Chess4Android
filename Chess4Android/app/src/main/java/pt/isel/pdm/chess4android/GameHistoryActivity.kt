@@ -12,6 +12,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import pt.isel.pdm.chess4android.databinding.ActivityGameHistoryBinding
 import pt.isel.pdm.chess4android.model.*
 import pt.isel.pdm.chess4android.views.GameHistoryViewAdapter
+import android.view.Gravity
+
+
+
 
 class GameHistoryActivity : AppCompatActivity(), OnItemClickListener {
 
@@ -32,7 +36,8 @@ class GameHistoryActivity : AppCompatActivity(), OnItemClickListener {
     }
 
     override fun onItemClicked(gameDTO: GameDTO) {
-        toast(gameDTO.toString())
+        shortToast(getString(R.string.youSelected)+gameDTO.id)
+        //binding.root.postDelayed ({}, 8000)
         launchGame(gameDTO)
     }
 
@@ -46,6 +51,11 @@ class GameHistoryActivity : AppCompatActivity(), OnItemClickListener {
     override fun onCheckBoxClicked() = toast(R.string.clickedBox)
 
     private fun toast(text: String) = Toast.makeText(this, text, Toast.LENGTH_LONG).show()
+    private fun shortToast(text: String) {
+        val toast = Toast.makeText(this, text, Toast.LENGTH_SHORT)
+        toast.setGravity(Gravity.TOP + Gravity.CENTER_HORIZONTAL, 0, 0)
+        toast.show()
+    }
 
     private fun toast(id: Int) = toast(getString(id))
 }
@@ -54,7 +64,8 @@ fun GameTable.toGameDTO() = GameDTO( //extension function
     id = this.id,
     puzzle = this.puzzle,
     solution = this.solution,
-    date = this.date
+    date = this.date,
+    isDone = this.isDone
 )
 
 class GameHistoryViewModel(application: Application) : AndroidViewModel(application){
@@ -68,12 +79,7 @@ class GameHistoryViewModel(application: Application) : AndroidViewModel(applicat
     fun loadHistory() : LiveData<List<GameDTO>> {
         val result = doAsyncWithResult {
             historyDB.getAll().map {
-                GameDTO(
-                    id = it.id,
-                    puzzle = it.puzzle,
-                    solution = it.solution,
-                    date = it.date,
-                )
+                it.toGameDTO()
             }
         }
         history = result

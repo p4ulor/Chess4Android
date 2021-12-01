@@ -8,7 +8,8 @@ data class GameDTO(
     val id: String?,
     val puzzle: String?,
     val solution: String?,
-    val date: String?
+    val date: String?,
+    var isDone: Boolean
 ) : Parcelable
 
 

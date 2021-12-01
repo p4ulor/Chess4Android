@@ -42,6 +42,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
 
         val gameDTO: GameDTO? = intent.getParcelableExtra(GAME_DTO_KEY)
         if(gameDTO!=null) {
+            thisViewModel.gameDTO = gameDTO
             lichessGameOfTheDayPuzzle = gameDTO.puzzle?.split(" ")?.toTypedArray()
             lichessGameOfTheDaySolution = gameDTO.solution?.split(" ")?.toTypedArray()
         } else toast(R.string.WTFerror)
@@ -55,7 +56,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
             }
         }
         if(gameDTO!=null){
-            if(thisViewModel.isGameLoaded.value==true){
+            if(thisViewModel.isGameLoaded){
                 invalidateEverything()
             } else if(loadGame()) invalidateEverything() //it's easier for us to invalidate everything when loading
         }
@@ -122,7 +123,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
         log("moved")
         thisViewModel.isWhitesPlaying=!thisViewModel.isWhitesPlaying
         if(thisViewModel.correctMovementsPerformed==lichessGameOfTheDaySolution?.size) {
-            thisViewModel.isDone = true
+            thisViewModel.gameDTO?.isDone = true
             snackBar(R.string.won)
         }
     }
@@ -170,7 +171,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
                 //if(index==14) return true //useful for testing index by index, movement by movement
             }
             toast(R.string.loadSuccess)
-            thisViewModel.isGameLoaded.value = true
+            thisViewModel.isGameLoaded = true
             return true
         }
         toast(R.string.WTFerror)
@@ -196,9 +197,9 @@ class PuzzleSolvingAcitivityViewModel(application: Application, private val stat
     init {
         log("MainActivityViewModel.init()")
     }
-    var isGameLoaded: MutableLiveData<Boolean> = MutableLiveData(false)
+    var isGameLoaded: Boolean = false
     var board: Board = Board()
     var correctMovementsPerformed: Int = 0
     var isWhitesPlaying: Boolean = true
-    var isDone: Boolean = false
+    var gameDTO: GameDTO? = null
 }

@@ -23,4 +23,5 @@
     <string name="history">Game history</string>
     <string name="solvingStatus">Solving status</string>
     <string name="clickedBox">Hey! Don\'t cheat, you must solve me first</string>
+    <string name="youSelected">"You selected puzzle "</string>
 </resources>

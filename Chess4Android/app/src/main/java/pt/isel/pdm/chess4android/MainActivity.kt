@@ -26,8 +26,7 @@ import java.util.*
 import kotlin.text.StringBuilder
 import kotlinx.serialization.json.Json
 import pt.isel.pdm.chess4android.databinding.ActivityMainBinding
-import pt.isel.pdm.chess4android.model.GameDTO
-import pt.isel.pdm.chess4android.model.LichessJSON
+import pt.isel.pdm.chess4android.model.*
 
 private const val TAG = "MY_LOG_MainActivity"
 const val LICHESSDAILYPUZZLEURL: String = "https://lichess.org/api/puzzle/daily"
@@ -143,19 +142,12 @@ class MainActivity : AppCompatActivity() {
             return
         }
         val intent = Intent(this, PuzzleSolvingActivity::class.java).apply {
-            putExtra(GAME_DTO_KEY, getGameDTO())
+            putExtra(GAME_DTO_KEY, thisViewModel.getGameDTO())
         }
         startActivity(intent)
     }
 
     //UTILITY METHODS
-
-    private fun getGameDTO() : GameDTO = GameDTO(
-        id = thisViewModel.id,
-        puzzle = thisViewModel.puzzle,
-        solution = thisViewModel.solution,
-        date = thisViewModel.date,
-    )
 
     private fun isDataStateNotValid() : Boolean = thisViewModel.wasTodaysPuzzleNotPulled() || thisViewModel.isDataNullOrEmpty()
 
@@ -187,6 +179,10 @@ class MainActivityViewModel(application: Application, private val state: SavedSt
     var currentScreenOrientation: MutableLiveData<Int> = MutableLiveData(context.resources.configuration.orientation)
     var updateDisplayed: MutableLiveData<Boolean> = MutableLiveData(false)
 
+    private val historyDB : GameTableDAO by lazy {
+        getApplication<Chess4AndroidApp>().historyDB.getHistory()
+    }
+
     fun getTodaysGame() { //request to tget the json from the lichess API
         log("Getting the json...")
         val queue = Volley.newRequestQueue(context) //https://developer.android.com/training/volley/simple
@@ -198,7 +194,7 @@ class MainActivityViewModel(application: Application, private val state: SavedSt
             puzzle = lichessGameOfTheDay.game.pgn
             val sb: StringBuilder = StringBuilder()
             for(i in lichessGameOfTheDay.puzzle.solution){
-                sb.append(i)
+                sb.append("$i ")
             }
             solution = sb.toString()
             if(isDataNullOrEmpty()){
@@ -208,6 +204,9 @@ class MainActivityViewModel(application: Application, private val state: SavedSt
                 val d = getTodaysDate()
                 writeDateOfTheLatestPuzzlePulled(d)
                 date = d
+                doAsyncWithResult {
+                    historyDB.insert(getDTOToGameTable())
+                }
             }
         }
         val errorListener = Response.ErrorListener {
@@ -260,4 +259,20 @@ class MainActivityViewModel(application: Application, private val state: SavedSt
         log(result)
         return result
     }
+
+    fun getGameDTO() : GameDTO = GameDTO(
+        id = id,
+        puzzle = puzzle,
+        solution = solution,
+        date = date,
+        isDone = false
+    )
+
+    fun getDTOToGameTable() = GameTable( //extension function
+        id = this.id ?: "",
+        puzzle = this.puzzle?: "",
+        solution = this.solution?: "",
+        date = this.date?: "",
+        isDone = false
+    )
 }

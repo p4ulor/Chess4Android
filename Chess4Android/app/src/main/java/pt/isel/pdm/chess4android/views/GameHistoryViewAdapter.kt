@@ -50,6 +50,7 @@ class HistoryItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) 
     fun bindTo(gameDTO: GameDTO, itemClickedListener: OnItemClickListener) { //Binds this view holder to the given quote item
         dateView.text = gameDTO.date
         idView.text = gameDTO.id
+        checkBox.isChecked = gameDTO.isDone
         checkBox.setOnClickListener {
             itemClickedListener.onCheckBoxClicked()
             checkBox.isChecked=false //setting a setOnClickListener actually turns on isClickable, so we do this
