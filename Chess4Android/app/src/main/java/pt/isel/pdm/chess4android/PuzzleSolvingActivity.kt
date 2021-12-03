@@ -60,7 +60,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
     }
 
     private fun tileBehaviour(tile: Tile) {
-        if(thisViewModel.gameDTO?.isDone == true) return
+        if(thisViewModel.isDone) return
         if(currentlySelectedPieceIndex==-1) {
             if(thisViewModel.board.getPieceAtIndex(tile.index).pieceType!=PIECETYPE.EMPTY){
                 currentlySelectedPieceIndex = tile.index
@@ -125,6 +125,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
         thisViewModel.isWhitesPlaying=!thisViewModel.isWhitesPlaying
         if(thisViewModel.correctMovementsPerformed==solution?.size) {
             thisViewModel.gameDTO?.isDone = true
+            thisViewModel.isDone = true
             thisViewModel.setGameAsDoneInDB()
             snackBar(R.string.won)
             play(R.raw.kill_bill_siren, this)
@@ -194,14 +195,16 @@ class PuzzleSolvingAcitivityViewModel(application: Application, private val stat
         log("MainActivityViewModel.init()")
     }
 
+
     private val historyDB : GameTableDAO by lazy {
         getApplication<Chess4AndroidApp>().historyDB.getHistory()
     }
 
+    var isDone: Boolean = false
     var isGameLoaded: Boolean = false
+    var isWhitesPlaying: Boolean = true
     var board: Board = Board()
     var correctMovementsPerformed: Int = 0
-    var isWhitesPlaying: Boolean = true
     var gameDTO: GameDTO? = null
 
     fun setGameAsDoneInDB(){
