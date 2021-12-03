@@ -2,6 +2,7 @@ package pt.isel.pdm.chess4android
 
 import android.app.Application
 import android.content.Context
+import android.media.MediaPlayer
 import android.util.Log
 import android.view.Gravity
 import android.widget.Toast
@@ -14,6 +15,8 @@ const val DATEPATTERN = "dd/M/yyyy"
 
 private const val TAG = "MYLOG_"
 private const val DB = "game-history"
+
+var player: MediaPlayer = MediaPlayer()
 
 class Chess4AndroidApp : Application() { //AppViewModel, SuperViewModel, SuperActivity, RootActivity,  omnipresent object throughout the app's lifecycle and in all activities, will be used as the means to access our local DB
 
@@ -85,6 +88,13 @@ class Chess4AndroidApp : Application() { //AppViewModel, SuperViewModel, SuperAc
 }
 
 // UTILITY AND GLOBAL METHODS
+
+fun play(id: Int, ctx: Context) {
+    player = MediaPlayer.create(ctx, id)
+    player.setOnCompletionListener { player.release() }
+    player.start()
+}
+
 fun convertToDate(date: String?): java.sql.Date {
     val df: DateFormat = SimpleDateFormat(DATEPATTERN)
     return java.sql.Date(df.parse(date).time)

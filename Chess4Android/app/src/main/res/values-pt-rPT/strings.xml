@@ -25,4 +25,5 @@
     <string name="solvingStatus">Estado de resolução</string>
     <string name="clickedBox">Hey! Nada de aldrabices, tens de me resolver primeiro</string>
     <string name="youSelected">"Você selecionou o puzzle "</string>
+    <string name="youCantAlter">Não pode alterar isto</string>
 </resources>

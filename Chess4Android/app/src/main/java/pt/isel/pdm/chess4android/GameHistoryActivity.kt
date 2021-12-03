@@ -58,7 +58,13 @@ class GameHistoryActivity : AppCompatActivity(), OnItemClickListener {
         startActivity(intent)
     }
 
-    override fun onCheckBoxClicked() = toast(R.string.clickedBox, this)
+    override fun onCheckBoxClicked(isChecked: Boolean) {
+        if(isChecked) toast(R.string.youCantAlter, this)
+        else {
+            play(R.raw.se_isto_volta_a_acontecer, this)
+            toast(R.string.clickedBox, this)
+        }
+    }
 }
 
 fun GameTable.toGameDTO() = GameDTO( //extension function
@@ -92,5 +98,5 @@ class GameHistoryViewModel(application: Application) : AndroidViewModel(applicat
 
 interface OnItemClickListener{
     fun onItemClicked(gameDTO: GameDTO, holderPosition: Int)
-    fun onCheckBoxClicked()
+    fun onCheckBoxClicked(isChecked: Boolean)
 }

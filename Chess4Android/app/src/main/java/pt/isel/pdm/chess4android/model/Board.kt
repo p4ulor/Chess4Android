@@ -1,7 +1,9 @@
 package pt.isel.pdm.chess4android.model
 
 import android.util.Log
-
+import pt.isel.pdm.chess4android.log
+import kotlin.math.abs
+private const val TAG = "Board"
 const val BOARD_SIDE_SIZE: Int = 8
 const val BOARDLENGHT: Int = BOARD_SIDE_SIZE * BOARD_SIDE_SIZE
 
@@ -295,11 +297,11 @@ class Board {
                 }
             }
         }
-        log("Some interpretation failed with $move")
+        log(TAG, "Some interpretation failed with $move")
         return false
     }
 
-    private fun getPieceThatCanMoveTo(position: Position, array: IntArray) : Piece? {
+    private fun getPieceThatCanMoveTo(destination: Position, array: IntArray) : Piece? {
         var piece: Piece?
         /*
          * due to the fact that in the game of 21/11/2021 (id=KU4e1TVf)
@@ -314,12 +316,15 @@ class Board {
             if(i==-1) break
             piece = getPieceAtIndex(i)
             //if the piece can perform the move, return it
-            if(piece.canMoveTo(position)) {
-                if(secondaryPiece==null){
-                    secondaryPiece=piece
-                } else {
-                    if(secondaryPiece.position.letter < piece.position.letter) return piece
-                    return secondaryPiece
+            val pieceToLandTo = getPieceAtIndex(positionToIndex(destination))
+            if(piece.canMoveTo(destination) && (pieceToLandTo.pieceType==PIECETYPE.EMPTY || piece.isWhite!=pieceToLandTo.isWhite)) { //straight true if its empty (empty pieces prop isWhite is false by default
+                if(piece.pieceType==PIECETYPE.KNIGHT || isPathClear(piece.position, destination)){ //straight true, if its a knight
+                    if(secondaryPiece==null){
+                        secondaryPiece=piece
+                    } else {
+                        if(secondaryPiece.position.letter < piece.position.letter) return piece
+                        return secondaryPiece
+                    }
                 }
             }
         }
@@ -337,6 +342,27 @@ class Board {
     }
 
     // UTILITY METHODS
+
+    private fun isPathClear(origin: Position, destination: Position) : Boolean {
+        if(origin==destination) return true
+        val xDif = destination.letter-origin.letter
+        val yDif = destination.number-origin.number
+        var i: Byte = 1 //this clears out cases where the dif is 1
+        var currentPos: Position = origin.copy()
+        while(i<abs(xDif) || i<abs(yDif)){
+            if(xDif!=0){
+                if(xDif>0) currentPos.letter +=1
+                else currentPos.letter -=1
+            }
+            if(yDif!=0){
+                if(yDif>0) currentPos.number = (currentPos.number+1).toByte()
+                else currentPos.number = (currentPos.number-1).toByte()
+            }
+            if(getPieceAtIndex(positionToIndex(currentPos)).pieceType!=PIECETYPE.EMPTY) return false
+            i++
+        }
+        return true
+    }
 
     private fun positionToIndex(position: Position) : Int {
         //log("position->$position")
@@ -366,5 +392,3 @@ class Board {
         return false
     }
 }
-
-private fun log(s: String) = Log.i("MY_LOG_Board", s)

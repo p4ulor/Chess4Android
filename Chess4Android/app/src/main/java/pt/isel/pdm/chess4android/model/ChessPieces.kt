@@ -1,9 +1,10 @@
 package pt.isel.pdm.chess4android.model
 
 import android.util.Log
+import pt.isel.pdm.chess4android.log
 import java.lang.IllegalArgumentException
 import kotlin.math.abs
-
+private const val TAG = "ChessPieces"
 val validXPositions = charArrayOf('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h')
 val validYPositions = byteArrayOf(1, 2, 3, 4, 5, 6, 7, 8)
 //                      column,           line
@@ -54,7 +55,7 @@ data class Position(var letter: Char, var number: Byte) {
                     val position = Position(string[0], string[1].digitToInt().toByte())
                     return position
                 } catch (e: Exception){
-                    log(e.toString())
+                    log(TAG, e.toString())
                 }
             }
             return null
@@ -66,7 +67,7 @@ abstract class Piece (var position: Position, open var isWhite: Boolean) {
     abstract val pieceType: PIECETYPE //lowercase
     abstract val maxTravelDistanceX: Byte //positive value
     abstract val maxTravelDistanceY: Byte //positive value
-    abstract fun canMoveTo(destination: Position): Boolean //todo: change this so it receives model to setup validation if the piece steps over others
+    abstract fun canMoveTo(destination: Position): Boolean
 
     constructor(letter: Char, number: Byte, isWhite: Boolean) : this(Position(letter, number), isWhite)
 }
@@ -83,10 +84,10 @@ sealed class ChessPieces { //https://antonioleiva.com/sealed-classes-kotlin/ //m
          override fun canMoveTo(destination: Position) : Boolean {
             if(position.isValidMovement(destination, maxTravelDistanceX, maxTravelDistanceY)){ //part checks logical board bounds and piece maxTravelDistance bounds
                 if(!firstMoveUsed && isWhite && position.getYDiferenceNoAbs(destination)==-1 || position.getYDiferenceNoAbs(destination)==-2){ //kotlin ranges doesnt work with negative values... https://kotlinlang.org/docs/ranges.html
-                    firstMoveUsed = true
+                    //firstMoveUsed = true
                     return true
                 } else if (!firstMoveUsed && !isWhite && (position.getYDiferenceNoAbs(destination) in 1..2)){
-                    firstMoveUsed = true
+                    //firstMoveUsed = true
                     return true
                 } else if(isWhite && position.getYDiferenceNoAbs(destination) == -1){
                     return true
@@ -132,7 +133,6 @@ sealed class ChessPieces { //https://antonioleiva.com/sealed-classes-kotlin/ //m
                x==-1 && y==-2 || x==-2 && y==-1 || x==-2 && y==1 || x==-1 && y==2) { //honestly, a decent and simple approach, this replaces our "isValidMovement" method
                 return true
             }
-
             return false
         }
 
@@ -227,6 +227,7 @@ fun letterToPieceType(char: Char) : PIECETYPE { //must be in uppercase just like
 }
 
 fun pieceToChessPieceCorrespondingToItsType(piece: Piece?, pieceType: PIECETYPE) : Piece? {
+    if(piece==null) return null
     return when(pieceType){
         PIECETYPE.PAWN -> piece as ChessPieces.Pawn
         PIECETYPE.BISHOP -> piece as ChessPieces.Bishop
@@ -237,5 +238,3 @@ fun pieceToChessPieceCorrespondingToItsType(piece: Piece?, pieceType: PIECETYPE)
         else -> null
     }
 }
-
-private fun log(s: String) = Log.i("MY_LOG_ChessPieces", s)

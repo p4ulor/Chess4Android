@@ -55,8 +55,8 @@ class HistoryItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) 
         idView.text = gameDTO.id
         checkBox.isChecked = gameDTO.isDone
         checkBox.setOnClickListener {
-            itemClickedListener.onCheckBoxClicked()
-            checkBox.isChecked=false //setting a setOnClickListener actually turns on isClickable, so we do this
+            checkBox.isChecked=!checkBox.isChecked //setting a setOnClickListener actually turns on isClickable, so we do this, also when the user clicks, the value is switched, so we need to switch it again
+            itemClickedListener.onCheckBoxClicked(checkBox.isChecked)
         }
         itemView.setOnClickListener {
             itemClickedListener.onItemClicked(gameDTO, adapterPosition)

@@ -1,6 +1,8 @@
 package pt.isel.pdm.chess4android
 
 import android.app.Application
+import android.media.MediaPlayer
+import android.media.MediaPlayer.OnCompletionListener
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.lifecycle.AndroidViewModel
@@ -16,19 +18,16 @@ import pt.isel.pdm.chess4android.views.tileMatrix
 private const val TAG = "PuzzleSolving"
 
 class PuzzleSolvingActivity : AppCompatActivity() {
-
-    private var puzzle: Array<String>? = null
-    private var solution: Array<String>? = null
-
-    private lateinit var myView: BoardView
-
-    private var currentlySelectedPieceIndex: Int = -1
-
     private val binding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
     }
 
+    private var puzzle: Array<String>? = null
+    private var solution: Array<String>? = null
+
     private val thisViewModel: PuzzleSolvingAcitivityViewModel by viewModels()
+    private lateinit var myView: BoardView
+    private var currentlySelectedPieceIndex: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         log("Created")
@@ -53,11 +52,15 @@ class PuzzleSolvingActivity : AppCompatActivity() {
         if(gameDTO!=null){
             if(thisViewModel.isGameLoaded){
                 invalidateEverything()
-            } else if(loadGame()) invalidateEverything() //it's easier for us to invalidate everything when loading
+            } else if(loadGame()) {
+                invalidateEverything() //it's easier for us to invalidate everything when loading
+                play(R.raw.pictures_snare, this)
+            }
         }
     }
 
     private fun tileBehaviour(tile: Tile) {
+        if(thisViewModel.gameDTO?.isDone == true) return
         if(currentlySelectedPieceIndex==-1) {
             if(thisViewModel.board.getPieceAtIndex(tile.index).pieceType!=PIECETYPE.EMPTY){
                 currentlySelectedPieceIndex = tile.index
@@ -91,6 +94,9 @@ class PuzzleSolvingActivity : AppCompatActivity() {
             if(movement == solution?.get(thisViewModel.correctMovementsPerformed)) {
                 thisViewModel.correctMovementsPerformed++
                 toast(R.string.correctMove, this)
+                play(R.raw.rareee, this)
+            } else {
+                play(R.raw.my_wrong_button_sound, this)
             }
             log("destination has index = $pieceThatWillBeEatenIndex and position = $theNewPosition ")
             if(theNewPosition!=null && pieceToMove!=null && pieceThatWillBeEatenIndex!=currentlySelectedPieceIndex) {
@@ -121,6 +127,8 @@ class PuzzleSolvingActivity : AppCompatActivity() {
             thisViewModel.gameDTO?.isDone = true
             thisViewModel.setGameAsDoneInDB()
             snackBar(R.string.won)
+            play(R.raw.kill_bill_siren, this)
+            play(R.raw.gawdamn, this)
         }
     }
 
@@ -155,7 +163,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
 
     private fun loadGame() : Boolean {
         if(puzzle!=null){
-            var isWhitesPlaying: Boolean
+            var isWhitesPlaying = true
             puzzle?.forEachIndexed { index, s ->
                 isWhitesPlaying = index % 2 == 0
                 if(!thisViewModel.board.interpretMove(s,isWhitesPlaying)) {
@@ -165,6 +173,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
                 }
                 //if(index==14) return true //useful for testing index by index, movement by movement
             }
+            thisViewModel.isWhitesPlaying = !isWhitesPlaying
             toast(R.string.loadSuccess, this)
             thisViewModel.isGameLoaded = true
             return true
