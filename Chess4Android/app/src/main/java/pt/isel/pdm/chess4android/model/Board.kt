@@ -281,6 +281,7 @@ class Board {
                 } else { // other piece movement other than pawn
                     //global encoding. Note that String.subSequence is like [2,4[
                     var column: Char? = null
+                    var line: Char? = null
                     var position: Position?
                     if(move[2].isLetter()) { //check for cases Nxg5, Nfg5 and Nfxg5
                         if(move[1]=='x'){
@@ -288,16 +289,16 @@ class Board {
                         } else if(move[2]=='x'){
                             column = move[1]
                             position = Position.convertToPosition(move.subSequence(3,5).toString()) //Nfxg5
-                        }
-                        else {
-                            column = move[1]
-                            position = Position.convertToPosition(move.subSequence(2,4).toString()) //Nfg5
+                        } else {
+                            position = Position.convertToPosition(move.subSequence(2,4).toString())
+                           if(move[1].isLetter()) column = move[1] //Nfg5
+                           else line = move[1] //B6h5
                         }
                     } else {
                         position = Position.convertToPosition(move.subSequence(1,3).toString()) //remove the initials N, B, Q, K, R, I didnt use replaceFirstChar to remove +, # or other post position symbols
                     }
                     if(position != null) {
-                        val thePiece = pieceToChessPieceCorrespondingToItsType(getPieceThatCanMoveTo(position, getIndexOfPieceWithConditions2(column, null, pieceTypeToMove, isWhite)), pieceTypeToMove)
+                        val thePiece = pieceToChessPieceCorrespondingToItsType(getPieceThatCanMoveTo(position, getIndexOfPieceWithConditions2(column, line, pieceTypeToMove, isWhite)), pieceTypeToMove)
                         if(thePiece!=null) {
                             movePieceToAndLeaveEmptyBehind(position, thePiece)
                             return true
