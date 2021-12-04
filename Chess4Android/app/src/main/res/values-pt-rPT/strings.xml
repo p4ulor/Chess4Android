@@ -26,4 +26,7 @@
     <string name="clickedBox">Hey! Nada de aldrabices, tens de me resolver primeiro</string>
     <string name="youSelected">"Você selecionou o puzzle "</string>
     <string name="youCantAlter">Não pode alterar isto</string>
+    <string name="whites">Brancas</string>
+    <string name="blacks">Pretas</string>
+    <string name="solution">Solução</string>
 </resources>

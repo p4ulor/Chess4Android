@@ -199,6 +199,15 @@ class Board {
         }
     }
 
+    fun movePieceToAndLeaveEmptyBehind(origin: Position, destination: Position){
+        movePieceToAndLeaveEmptyBehind(positionToIndex(origin), positionToIndex(destination))
+    }
+
+    private fun movePieceToAndLeaveEmptyBehind(indexOrigin: Int, indexDestination: Int){
+        if(isOutOfBounds(indexOrigin) || isOutOfBounds(indexDestination)) return
+        movePieceToAndLeaveEmptyBehind(indexDestination, getPieceAtIndex(indexOrigin))
+    }
+
     fun movePieceToAndLeaveEmptyBehind(indexDestination: Int, pieceOrigin: Piece){
         if(isOutOfBounds(indexDestination)) return
         val auxPosition = pieceOrigin.position
@@ -339,6 +348,10 @@ class Board {
         repeat(BOARDLENGHT) {
             setPieceAtIndex(it, startingChessPiecesTablePositions[it] )
         }
+    }
+
+    fun literalReset(){
+        chessPiecesTablePositions = startingChessPiecesTablePositions.copyOf()
     }
 
     // UTILITY METHODS

@@ -25,4 +25,7 @@
     <string name="clickedBox">Hey! Don\'t cheat, you must solve me first</string>
     <string name="youSelected">"You selected puzzle "</string>
     <string name="youCantAlter">You can\'t alter this</string>
+    <string name="whites">Whites</string>
+    <string name="blacks">Blacks</string>
+    <string name="solution">Solution</string>
 </resources>

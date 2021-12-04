@@ -1,9 +1,9 @@
 package pt.isel.pdm.chess4android
 
 import android.app.Application
-import android.media.MediaPlayer
-import android.media.MediaPlayer.OnCompletionListener
 import android.os.Bundle
+import android.view.View
+import android.widget.Switch
 import androidx.activity.viewModels
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
@@ -25,8 +25,9 @@ class PuzzleSolvingActivity : AppCompatActivity() {
     private var puzzle: Array<String>? = null
     private var solution: Array<String>? = null
 
-    private val thisViewModel: PuzzleSolvingAcitivityViewModel by viewModels()
+    private val thisViewModel: PuzzleSolvingActivityViewModel by viewModels()
     private lateinit var myView: BoardView
+    private lateinit var solutionSwitch: Switch
     private var currentlySelectedPieceIndex: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,21 +35,34 @@ class PuzzleSolvingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_puzzle_solving)
 
+        myView = findViewById(R.id.boardView)
+        solutionSwitch =  findViewById(R.id.solutionSwitch)
+
         val gameDTO: GameDTO? = intent.getParcelableExtra(GAME_DTO_KEY)
         if(gameDTO!=null) {
             thisViewModel.gameDTO = gameDTO
             puzzle = gameDTO.puzzle?.split(" ")?.toTypedArray()
             solution = gameDTO.solution?.split(" ")?.toTypedArray()
+            if(gameDTO.isDone) solutionSwitch.visibility = View.VISIBLE
         } else toast(R.string.WTFerror, this)
 
 
-        myView = findViewById(R.id.boardView)
-
+        solutionSwitch.setOnClickListener {
+            thisViewModel.board = Board() //board.reset() and board.literalReset() weren't working, the pieces still containing the old Position values
+            loadGame()
+            if(!thisViewModel.isDone) {
+                performSolution()
+            }
+            invalidateEverything()
+            thisViewModel.isDone = !thisViewModel.isDone
+        }
+        
         tileMatrix.forEach { tile ->
             tile?.setOnClickListener {
                 tileBehaviour(tile)
             }
         }
+
         if(gameDTO!=null){
             if(thisViewModel.isGameLoaded){
                 invalidateEverything()
@@ -67,8 +81,8 @@ class PuzzleSolvingActivity : AppCompatActivity() {
                 val pieceColor = thisViewModel.board.getPieceAtIndex(currentlySelectedPieceIndex).isWhite
                 when {
                     thisViewModel.isWhitesPlaying==pieceColor -> {
-                        val piecetype = thisViewModel.board.getPieceAtIndex(currentlySelectedPieceIndex).pieceType
-                        log("picked a $piecetype")
+                        val pieceType = thisViewModel.board.getPieceAtIndex(currentlySelectedPieceIndex).pieceType
+                        log("picked a $pieceType")
                     }
                     pieceColor -> {
                         log("hey! the black pieces are playing")
@@ -89,7 +103,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
             val pieceToMove = thisViewModel.board.getPieceAtIndex(currentlySelectedPieceIndex)
             val pieceThatWillBeEatenIndex = tile.index
             val thePieceToBeEaten = thisViewModel.board.getPieceAtIndex(pieceThatWillBeEatenIndex)
-            val theNewPosition = thePieceToBeEaten?.position
+            val theNewPosition = thePieceToBeEaten.position
             val movement = pieceToMove.position.letterAndNumber()+theNewPosition.letterAndNumber()
             if(movement == solution?.get(thisViewModel.correctMovementsPerformed)) {
                 thisViewModel.correctMovementsPerformed++
@@ -99,7 +113,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
                 play(R.raw.my_wrong_button_sound, this)
             }
             log("destination has index = $pieceThatWillBeEatenIndex and position = $theNewPosition ")
-            if(theNewPosition!=null && pieceToMove!=null && pieceThatWillBeEatenIndex!=currentlySelectedPieceIndex) {
+            if(pieceThatWillBeEatenIndex!=currentlySelectedPieceIndex) {
                 if(thisViewModel.board.getPieceAtIndex(pieceThatWillBeEatenIndex).pieceType==PIECETYPE.EMPTY || pieceToMove.isWhite!=thisViewModel.board.getPieceAtIndex(pieceThatWillBeEatenIndex).isWhite){
                     if(pieceToMove.canMoveTo(theNewPosition)){
                         if(pieceToMove.pieceType==PIECETYPE.PAWN) {
@@ -119,8 +133,8 @@ class PuzzleSolvingActivity : AppCompatActivity() {
 
     private fun moveIt(pieceThatWillBeEatenIndex: Int, pieceToMove: Piece) {
         thisViewModel.board.movePieceToAndLeaveEmptyBehind(pieceThatWillBeEatenIndex, pieceToMove)
-        myView.invalidate(pieceThatWillBeEatenIndex, thisViewModel.board.getPieceAtIndex(pieceThatWillBeEatenIndex)!!) //new pos
-        myView.invalidate(currentlySelectedPieceIndex, thisViewModel.board.getPieceAtIndex(currentlySelectedPieceIndex)!!  ) //old pos
+        myView.invalidate(pieceThatWillBeEatenIndex, thisViewModel.board.getPieceAtIndex(pieceThatWillBeEatenIndex)) //new pos
+        myView.invalidate(currentlySelectedPieceIndex, thisViewModel.board.getPieceAtIndex(currentlySelectedPieceIndex)  ) //old pos
         log("moved")
         thisViewModel.isWhitesPlaying=!thisViewModel.isWhitesPlaying
         if(thisViewModel.correctMovementsPerformed==solution?.size) {
@@ -183,6 +197,16 @@ class PuzzleSolvingActivity : AppCompatActivity() {
         return false
     }
 
+    private fun performSolution() {
+        solution?.forEach { s ->
+            val origin = Position.convertToPosition(s.subSequence(0,2).toString())
+            val destination = Position.convertToPosition(s.subSequence(2,4).toString())
+            if (origin != null && destination != null) {
+                thisViewModel.board.movePieceToAndLeaveEmptyBehind(origin, destination)
+            }
+        }
+    }
+
     private fun invalidateEverything() {
         repeat(BOARDLENGHT) {
             myView.invalidate(it, thisViewModel.board.getPieceAtIndex(it))
@@ -190,11 +214,10 @@ class PuzzleSolvingActivity : AppCompatActivity() {
     }
 }
 
-class PuzzleSolvingAcitivityViewModel(application: Application, private val state: SavedStateHandle) : AndroidViewModel(application) {
+class PuzzleSolvingActivityViewModel(application: Application, private val state: SavedStateHandle) : AndroidViewModel(application) {
     init {
         log("MainActivityViewModel.init()")
     }
-
 
     private val historyDB : GameTableDAO by lazy {
         getApplication<Chess4AndroidApp>().historyDB.getHistory()
