@@ -4,10 +4,12 @@ import android.app.Application
 import android.os.Bundle
 import android.view.View
 import android.widget.Switch
+import android.widget.ToggleButton
 import androidx.activity.viewModels
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.MutableLiveData
 import com.google.android.material.snackbar.Snackbar
 import pt.isel.pdm.chess4android.databinding.ActivityMainBinding
 import pt.isel.pdm.chess4android.model.*
@@ -28,6 +30,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
     private val thisViewModel: PuzzleSolvingActivityViewModel by viewModels()
     private lateinit var myView: BoardView
     private lateinit var solutionSwitch: Switch
+    private lateinit var toggleButton: ToggleButton
     private var currentlySelectedPieceIndex: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,6 +40,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
 
         myView = findViewById(R.id.boardView)
         solutionSwitch =  findViewById(R.id.solutionSwitch)
+        toggleButton = findViewById(R.id.toggleButton)
 
         val gameDTO: GameDTO? = intent.getParcelableExtra(GAME_DTO_KEY)
         if(gameDTO!=null) {
@@ -56,7 +60,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
             invalidateEverything()
             thisViewModel.isDone = !thisViewModel.isDone
         }
-        
+
         tileMatrix.forEach { tile ->
             tile?.setOnClickListener {
                 tileBehaviour(tile)
@@ -80,7 +84,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
                 currentlySelectedPieceIndex = tile.index
                 val pieceColor = thisViewModel.board.getPieceAtIndex(currentlySelectedPieceIndex).isWhite
                 when {
-                    thisViewModel.isWhitesPlaying==pieceColor -> {
+                    thisViewModel.isWhitesPlaying.value==pieceColor -> {
                         val pieceType = thisViewModel.board.getPieceAtIndex(currentlySelectedPieceIndex).pieceType
                         log("picked a $pieceType")
                     }
@@ -136,7 +140,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
         myView.invalidate(pieceThatWillBeEatenIndex, thisViewModel.board.getPieceAtIndex(pieceThatWillBeEatenIndex)) //new pos
         myView.invalidate(currentlySelectedPieceIndex, thisViewModel.board.getPieceAtIndex(currentlySelectedPieceIndex)  ) //old pos
         log("moved")
-        thisViewModel.isWhitesPlaying=!thisViewModel.isWhitesPlaying
+        thisViewModel.isWhitesPlaying.value = !(thisViewModel.isWhitesPlaying.value)!!
         if(thisViewModel.correctMovementsPerformed==solution?.size) {
             thisViewModel.gameDTO?.isDone = true
             thisViewModel.isDone = true
@@ -157,6 +161,10 @@ class PuzzleSolvingActivity : AppCompatActivity() {
 
     override fun onStart() {
         log("Started")
+        thisViewModel.isWhitesPlaying.observe(this){
+            if(it) toggleButton.text = toggleButton.textOn
+            else toggleButton.text = toggleButton.textOff
+        }
         super.onStart()
     }
 
@@ -188,7 +196,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
                 }
                 //if(index==14) return true //useful for testing index by index, movement by movement
             }
-            thisViewModel.isWhitesPlaying = !isWhitesPlaying
+            thisViewModel.isWhitesPlaying.value = !isWhitesPlaying
             toast(R.string.loadSuccess, this)
             thisViewModel.isGameLoaded = true
             return true
@@ -225,7 +233,7 @@ class PuzzleSolvingActivityViewModel(application: Application, private val state
 
     var isDone: Boolean = false
     var isGameLoaded: Boolean = false
-    var isWhitesPlaying: Boolean = true
+    var isWhitesPlaying: MutableLiveData<Boolean> = MutableLiveData(false)
     var board: Board = Board()
     var correctMovementsPerformed: Int = 0
     var gameDTO: GameDTO? = null

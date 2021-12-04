@@ -29,6 +29,7 @@ data class Position(var letter: Char, var number: Byte) {
         number = (BOARD_SIDE_SIZE+1 - number).toByte() //https://stackoverflow.com/questions/16242259/reverse-number-in-a-range
         return this
     }
+    override fun toString(): String = "Letter: $letter, Number: $number"
     fun letterAndNumber(): String ="$letter$number"
     fun isEqual(position: Position) : Boolean = this.letter==position.letter && this.number==position.number
 
