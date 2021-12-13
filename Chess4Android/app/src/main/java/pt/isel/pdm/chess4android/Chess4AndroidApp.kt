@@ -104,6 +104,12 @@ fun log(s: String) = Log.i(TAG, s)
 
 fun log(t: String, s: String) =  Log.i(TAG+t, s)
 
+fun log(arrayOfStrings: Array<String>?){
+    val sb = StringBuilder()
+    arrayOfStrings?.forEach { sb.append("$it ") }
+    log(sb.toString())
+}
+
 fun toast(s: String, ctx: Context) = Toast.makeText(ctx, s, Toast.LENGTH_LONG).show()
 
 fun toast(id: Int, ctx: Context) = toast(ctx.getString(id), ctx)
@@ -112,10 +118,4 @@ fun topToast(text: String, ctx: Context) {
     val toast = Toast.makeText(ctx, text, Toast.LENGTH_LONG)
     toast.setGravity(Gravity.TOP + Gravity.CENTER_HORIZONTAL, 0, 0)
     toast.show()
-}
-
-fun log(arrayOfStrings: Array<String>?){
-    val sb = StringBuilder()
-    arrayOfStrings?.forEach { sb.append("$it ") }
-    log(sb.toString())
 }

@@ -30,7 +30,7 @@ interface GameTableDAO {
     @Query("SELECT * FROM GAME ORDER BY SUBSTR(date, 7, 10) DESC, SUBSTR(date, 5, 5) DESC, SUBSTR(date, 1, 2) DESC")//to change color: Color scheme -> General -> Injected language fragment
     fun getAll() : List<GameTable>
 
-    @Query("SELECT * FROM GAME ORDER BY SUBSTR(date, 1, 2) DESC, SUBSTR(date, 5, 5) DESC, SUBSTR(date, 7, 10) DESC LIMIT :count") //https://stackoverflow.com/questions/31016070/how-to-use-substring-in-rawquery-android
+    @Query("SELECT * FROM GAME ORDER BY SUBSTR(date, 7, 10) DESC, SUBSTR(date, 5, 5) DESC, SUBSTR(date, 1, 2) DESC LIMIT :count") //https://stackoverflow.com/questions/31016070/how-to-use-substring-in-rawquery-android
     fun getLast(count: Int) : List<GameTable>
 
     @Query("SELECT * FROM GAME WHERE id=:id")

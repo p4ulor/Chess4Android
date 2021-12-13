@@ -131,7 +131,7 @@ class MainActivity : AppCompatActivity() {
     private fun snackBar(stringID: Int){ //https://material.io/components/snackbars/android#using-snackbars //or function: () -> (Unit) https://stackoverflow.com/a/44132689
         Snackbar.make(findViewById(R.id.getGameButton),getString(stringID), Snackbar.LENGTH_INDEFINITE)
             .setAction(R.string.retry) {
-                thisViewModel.getTodaysGame()
+                if(thisViewModel.isGameReady.value == false) thisViewModel.getTodaysGame() //if the snackbar appears, and user pressed continue and the game is ready, the snackbar remains on the screen, so when the user clicks "retry" it wont make the volley request again.
             }
             .show()
     }
