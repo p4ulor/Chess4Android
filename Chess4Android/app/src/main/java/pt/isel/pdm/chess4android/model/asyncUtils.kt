@@ -43,3 +43,15 @@ fun <T> publishInLiveDataAfterAsync(asyncAction: () -> T): LiveData<Result<T>> {
     }
     return toPublish
 }
+
+// ALTERNATIVES
+
+private val dataAccessExecutor = Executors.newSingleThreadExecutor() // allocates a task to execute on a new thread
+
+fun <T> doAsyncWithResult(action: () -> T) : MutableLiveData<T> {
+    val result = MutableLiveData<T>()
+    dataAccessExecutor.submit { result.postValue(action())}
+    return result
+}
+
+fun doAsync(action: () -> Unit) = dataAccessExecutor.submit(action)!!

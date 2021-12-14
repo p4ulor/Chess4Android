@@ -241,22 +241,14 @@ class MainActivityViewModel(application: Application, private val state: SavedSt
     }
 
     fun updateDB() {
-        historyDB.insert(getDTOToGameTable())
+        historyDB.insert(gameDTO.toGameTable())
     }
 
-    fun setGameDTO(id: String, puzzle: String, solution: String, date: String, b: Boolean) {
+    private fun setGameDTO(id: String, puzzle: String, solution: String, date: String, isDone: Boolean) {
         gameDTO.id = id
         gameDTO.puzzle = puzzle
         gameDTO.solution = solution
         gameDTO.date = date
-        gameDTO.isDone = b
+        gameDTO.isDone = isDone
     }
-
-    fun getDTOToGameTable() = GameTable( //extension function
-        id = this.gameDTO.id ?: "",
-        puzzle = this.gameDTO.puzzle ?: "",
-        solution = this.gameDTO.solution ?: "",
-        date = this.gameDTO.date ?: "",
-        isDone = false
-    )
 }

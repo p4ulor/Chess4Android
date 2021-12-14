@@ -67,14 +67,6 @@ class GameHistoryActivity : AppCompatActivity(), OnItemClickListener {
     }
 }
 
-fun GameTable.toGameDTO() = GameDTO( //extension function
-    id = this.id,
-    puzzle = this.puzzle,
-    solution = this.solution,
-    date = this.date,
-    isDone = this.isDone
-)
-
 class GameHistoryViewModel(application: Application) : AndroidViewModel(application){
     var history: LiveData<List<GameDTO>>? = null
         private set

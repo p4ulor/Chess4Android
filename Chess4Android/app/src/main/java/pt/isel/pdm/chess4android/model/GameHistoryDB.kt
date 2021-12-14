@@ -13,7 +13,15 @@ data class GameTable (
     val solution: String,
     val date: String,
     val isDone: Boolean
-)
+) {
+    fun toGameDTO() = GameDTO(
+        id = this.id,
+        puzzle = this.puzzle,
+        solution = this.solution,
+        date = this.date,
+        isDone = this.isDone
+    )
+}
 
 @Dao // Data Access Object, provides methods that your app can use to query, update, insert, and delete data in the database
 interface GameTableDAO {
@@ -45,13 +53,3 @@ interface GameTableDAO {
 abstract class GamesDataBase : RoomDatabase(){
     abstract fun getHistory() : GameTableDAO
 }
-
-private val dataAccessExecutor = Executors.newSingleThreadExecutor() // allocates a task to execute on a new thread
-
-fun <T> doAsyncWithResult(action: () -> T) : MutableLiveData<T> {
-    val result = MutableLiveData<T>()
-    dataAccessExecutor.submit { result.postValue(action())}
-    return result
-}
-
-fun doAsync(action: () -> Unit) = dataAccessExecutor.submit(action)

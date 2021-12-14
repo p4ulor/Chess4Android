@@ -29,4 +29,5 @@
     <string name="whites">Brancas</string>
     <string name="blacks">Pretas</string>
     <string name="solution">Solução</string>
+    <string name="soloPlay">Jogar sozinho</string>
 </resources>

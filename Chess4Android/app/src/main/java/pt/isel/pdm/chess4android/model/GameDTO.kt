@@ -10,6 +10,14 @@ data class GameDTO(
     var solution: String?,
     var date: String?,
     var isDone: Boolean
-) : Parcelable
+) : Parcelable {
+    fun toGameTable() = GameTable(
+        id = this.id ?: "",
+        puzzle = this.puzzle ?: "",
+        solution = this.solution ?: "",
+        date = this.date ?: "",
+        isDone = this.isDone
+    )
+}
 
 

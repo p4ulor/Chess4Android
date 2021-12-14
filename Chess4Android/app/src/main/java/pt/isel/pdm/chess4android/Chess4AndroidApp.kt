@@ -14,7 +14,7 @@ import java.text.SimpleDateFormat
 const val DATEPATTERN = "dd/M/yyyy"
 
 private const val TAG = "MYLOG_"
-private const val DB = "game-history"
+private const val DB = "game-history" //DataBase key
 
 var player: MediaPlayer = MediaPlayer()
 
@@ -43,46 +43,6 @@ class Chess4AndroidApp : Application() { //AppViewModel, SuperViewModel, SuperAc
                     isDone = false
                 )
             )
-
-            historyDB.getHistory().insert(
-                GameTable(
-                    id = "AAAAA",
-                    puzzle = "e4 e5 Nf3 Nc6 Bb5 a6 Ba4 b5 Bb3 Nf6 O-O Be7 Re1 O-O c3 d6 h3 Na5 Bc2 c5 d4 Qc7 Nbd2 h6 dxe5 dxe5 a4 Rd8 Qe2 b4 Bd3 Qd6 Nc4 Qxd3 Qxd3 Rxd3 Nxa5 bxc3 bxc3 Rxc3 Nc6 Bf8 Nfxe5 Bb7 f3 Re8 Rb1 Ba8 Bb2 Rc2 Kf1 Bd6 Nc4 Rxc4 e5 Bxc6 exf6 Rxe1+ Rxe1 Bg3 Rd1 Rc2",
-                    solution = "d1d8 g8h7 f6g7 c2c1 b2c1",
-                    date = "29/11/2021",
-                    isDone = false
-                )
-            )
-
-            historyDB.getHistory().insert(
-                GameTable(
-                    id = "BBBBB",
-                    puzzle = "e4 e5 Nf3 Nc6 Bb5 a6 Ba4 b5 Bb3 Nf6 O-O Be7 Re1 O-O c3 d6 h3 Na5 Bc2 c5 d4 Qc7 Nbd2 h6 dxe5 dxe5 a4 Rd8 Qe2 b4 Bd3 Qd6 Nc4 Qxd3 Qxd3 Rxd3 Nxa5 bxc3 bxc3 Rxc3 Nc6 Bf8 Nfxe5 Bb7 f3 Re8 Rb1 Ba8 Bb2 Rc2 Kf1 Bd6 Nc4 Rxc4 e5 Bxc6 exf6 Rxe1+ Rxe1 Bg3 Rd1 Rc2",
-                    solution = "d1d8 g8h7 f6g7 c2c1 b2c1",
-                    date = "28/11/2021",
-                    isDone = false
-                )
-            )
-
-            historyDB.getHistory().insert(
-                GameTable(
-                    id = "CCCCCC",
-                    puzzle = "e4 e5 Nf3 Nc6 Bb5 a6 Ba4 b5 Bb3 Nf6 O-O Be7 Re1 O-O c3 d6 h3 Na5 Bc2 c5 d4 Qc7 Nbd2 h6 dxe5 dxe5 a4 Rd8 Qe2 b4 Bd3 Qd6 Nc4 Qxd3 Qxd3 Rxd3 Nxa5 bxc3 bxc3 Rxc3 Nc6 Bf8 Nfxe5 Bb7 f3 Re8 Rb1 Ba8 Bb2 Rc2 Kf1 Bd6 Nc4 Rxc4 e5 Bxc6 exf6 Rxe1+ Rxe1 Bg3 Rd1 Rc2",
-                    solution = "d1d8 g8h7 f6g7 c2c1 b2c1",
-                    date = "27/11/2021",
-                    isDone = false
-                )
-            )
-
-           /* historyDB.getHistory().insert(
-                GameTable(
-                    id = "X1vz1Mlf",
-                    puzzle = "e4 c5 Be2 g6 d3 Bg7 c3 e6 Be3 b6 Qd2 Bb7 Na3 Ne7 Nc4 d5 Na3 Nbc6 Bh6 O-O h4 dxe4 h5 exd3 Bxd3 Ne5 hxg6 Qxd3 gxh7+ Kh8",
-                    solution = "h6g7 h8g7 d2h6 g7h8 h6f6",
-                    date = "1/12/2021",
-                    isDone = false
-                )
-            )*/
         }
     }
 }

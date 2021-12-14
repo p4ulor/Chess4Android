@@ -9,6 +9,7 @@ import androidx.activity.viewModels
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SwitchCompat
 import androidx.lifecycle.MutableLiveData
 import com.google.android.material.snackbar.Snackbar
 import pt.isel.pdm.chess4android.databinding.ActivityMainBinding
@@ -29,7 +30,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
 
     private val thisViewModel: PuzzleSolvingActivityViewModel by viewModels()
     private lateinit var myView: BoardView
-    private lateinit var solutionSwitch: Switch
+    private lateinit var solutionSwitch: SwitchCompat
     private lateinit var toggleButton: ToggleButton
     private var currentlySelectedPieceIndex: Int = -1
 
