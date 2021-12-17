@@ -88,6 +88,27 @@ class Board {
             return Position(numberToLetter(index % BOARD_SIDE_SIZE), (BOARD_SIDE_SIZE / 8).toByte())
         }
 
+        fun positionToIndex(position: Position) : Int {
+            //log("position->$position")
+            val res : String = ((BOARD_SIDE_SIZE-position.number) * BOARD_SIDE_SIZE + letterToColumn(position.letter)).toString()
+            //log("to index -> $res")
+            return (BOARD_SIDE_SIZE-position.number) * BOARD_SIDE_SIZE + letterToColumn(position.letter)
+        }
+
+        private fun letterToColumn(char: Char) : Int {
+            return when(char){
+                'a' -> 0
+                'b' -> 1
+                'c' -> 2
+                'd' -> 3
+                'e' -> 4
+                'f' -> 5
+                'g' -> 6
+                'h' -> 7
+                else -> -1
+            }
+        }
+
         private fun numberToLetter(n : Int) : Char {
             return when(n){
                  0 -> 'a'
@@ -203,7 +224,7 @@ class Board {
         movePieceToAndLeaveEmptyBehind(positionToIndex(origin), positionToIndex(destination))
     }
 
-    private fun movePieceToAndLeaveEmptyBehind(indexOrigin: Int, indexDestination: Int){
+    fun movePieceToAndLeaveEmptyBehind(indexOrigin: Int, indexDestination: Int){
         if(isOutOfBounds(indexOrigin) || isOutOfBounds(indexDestination)) return
         movePieceToAndLeaveEmptyBehind(indexDestination, getPieceAtIndex(indexOrigin))
     }
@@ -376,26 +397,6 @@ class Board {
             i++
         }
         return true
-    }
-
-    private fun positionToIndex(position: Position) : Int {
-        //log("position->$position")
-        val res : String = ((BOARD_SIDE_SIZE-position.number) * BOARD_SIDE_SIZE + letterToColumn(position.letter)).toString()
-        //log("to index -> $res")
-        return (BOARD_SIDE_SIZE-position.number) * BOARD_SIDE_SIZE + letterToColumn(position.letter)
-    }
-    private fun letterToColumn(char: Char) : Int {
-        return when(char){
-            'a' -> 0
-            'b' -> 1
-            'c' -> 2
-            'd' -> 3
-            'e' -> 4
-            'f' -> 5
-            'g' -> 6
-            'h' -> 7
-            else -> -1
-        }
     }
 
     private fun isOutOfBounds (index: Int) : Boolean {

@@ -7,34 +7,40 @@ import android.util.Log
 import android.view.Gravity
 import android.widget.Toast
 import androidx.room.Room
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import pt.isel.pdm.chess4android.model.*
 import java.text.DateFormat
 import java.text.SimpleDateFormat
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 const val DATEPATTERN = "dd/M/yyyy"
 
 private const val TAG = "MYLOG_"
 private const val DB = "game-history" //DataBase key
 
-var player: MediaPlayer = MediaPlayer()
-
-class Chess4AndroidApp : Application() { //AppViewModel, SuperViewModel, SuperActivity, RootActivity,  omnipresent object throughout the app's lifecycle and in all activities, will be used as the means to access our local DB
+class Chess4AndroidApp : Application() { // synonyms to apply to this class to understand what it represents: AppViewModel, SuperViewModel, SuperActivity, AppRootActivity,  omnipresent object that lives throughout the app's lifecycle and in all activities, will be used as the means to access our local DB and has global methods
 
     init {
         Log.i(TAG, "Chess4AndroidApp executed")
     }
 
     val historyDB: GamesDataBase by lazy {
-        //Room.inMemoryDatabaseBuilder(this, GamesDataBase::class.java).build() works, but not what we want
         Room.databaseBuilder(this, GamesDataBase::class.java, DB).build()
+    }
+
+    val repo: Chess4AndroidRepo by lazy {
+        Chess4AndroidRepo(historyDB.getDAO())
     }
 
     override fun onCreate() {
         super.onCreate()
         doAsync {
             Log.v(TAG, "Initializing DB")
-            // NOTE THAT WHEN YOU CHANGE THE TABLES COLUMNS YOU HAVE TO DELETE THE BD IN THE APPS FILES OR IT WONT APPEAR ANYTHING
-            historyDB.getHistory().insert(
+            historyDB.getDAO().insert( //For demonstration purposes. It's default puzzle that already comes with the app :)
                 GameTable(
                     id = "h34HkdjA",
                     puzzle = "e4 e5 Nf3 Nc6 Bb5 a6 Ba4 b5 Bb3 Nf6 O-O Be7 Re1 O-O c3 d6 h3 Na5 Bc2 c5 d4 Qc7 Nbd2 h6 dxe5 dxe5 a4 Rd8 Qe2 b4 Bd3 Qd6 Nc4 Qxd3 Qxd3 Rxd3 Nxa5 bxc3 bxc3 Rxc3 Nc6 Bf8 Nfxe5 Bb7 f3 Re8 Rb1 Ba8 Bb2 Rc2 Kf1 Bd6 Nc4 Rxc4 e5 Bxc6 exf6 Rxe1+ Rxe1 Bg3 Rd1 Rc2",
@@ -44,16 +50,30 @@ class Chess4AndroidApp : Application() { //AppViewModel, SuperViewModel, SuperAc
                 )
             )
         }
+
+        val workRequest = PeriodicWorkRequestBuilder<AutoGetPuzzleWorker>(1, TimeUnit.DAYS)
+                        .setConstraints(Constraints.Builder()
+                                                            .setRequiresBatteryNotLow(true)
+                                                            .setRequiresStorageNotLow(true).build()
+                        ).build()
+
+        WorkManager.getInstance(this)
+                   .enqueueUniquePeriodicWork("DownloadDailyQuote",
+                                              ExistingPeriodicWorkPolicy.KEEP,
+                                              workRequest
+                   )
     }
 }
 
 // UTILITY AND GLOBAL METHODS
 
 fun play(id: Int, ctx: Context) {
-    player = MediaPlayer.create(ctx, id)
+    val player = MediaPlayer.create(ctx, id)
     player.setOnCompletionListener { player.release() }
     player.start()
 }
+
+fun getTodaysDate(): String = SimpleDateFormat(DATEPATTERN).format(Date()) //The 'M' must be uppercase or it will read the minutes
 
 fun convertToDate(date: String?): java.sql.Date {
     val df: DateFormat = SimpleDateFormat(DATEPATTERN)

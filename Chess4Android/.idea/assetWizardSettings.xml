@@ -123,9 +123,9 @@
                                           <PersistentState>
                                             <option name="values">
                                               <map>
-                                                <entry key="color" value="000000" />
+                                                <entry key="color" value="ffe600" />
                                                 <entry key="scalingPercent" value="133" />
-                                                <entry key="text" value="GitHub" />
+                                                <entry key="text" value="h" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -136,9 +136,9 @@
                                           <PersistentState>
                                             <option name="values">
                                               <map>
-                                                <entry key="color" value="000000" />
+                                                <entry key="color" value="ffe600" />
                                                 <entry key="scalingPercent" value="133" />
-                                                <entry key="text" value="GitHub" />
+                                                <entry key="text" value="h" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -148,8 +148,12 @@
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="foregroundLayerName" value="ic_launcher_icon_" />
-                                      <entry key="outputName" value="launcher_icon" />
+                                      <entry key="backgroundAssetType" value="COLOR" />
+                                      <entry key="backgroundColor" value="ffffff" />
+                                      <entry key="foregroundAssetType" value="TEXT" />
+                                      <entry key="generatePlayStoreIcon" value="false" />
+                                      <entry key="generateRoundIcon" value="false" />
+                                      <entry key="outputName" value="letter_h" />
                                     </map>
                                   </option>
                                 </PersistentState>

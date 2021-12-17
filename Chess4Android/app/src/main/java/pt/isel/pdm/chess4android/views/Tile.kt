@@ -21,7 +21,7 @@ import java.lang.IllegalArgumentException
  * @property tilesPerSide   The number of tiles in each side of the chess board
  */
 @SuppressLint("ViewConstructor")
-class Tile (private val ctx: Context, private val isWhite: Boolean, private val tilesPerSide: Int, private var icon: VectorDrawableCompat, val index: Int) : View(ctx) {
+class Tile (private val ctx: Context, private val isWhite: Boolean?, private val tilesPerSide: Int, private var icon: VectorDrawableCompat, private var letter: VectorDrawableCompat?, val index: Int) : View(ctx) {
 
     init {
         if(index<0) throw IllegalArgumentException()
@@ -29,7 +29,8 @@ class Tile (private val ctx: Context, private val isWhite: Boolean, private val 
     private val padding = 6 //the bigger this value, the smaller the chess-piece icon inside each Tile (square)
 
     private val brush = Paint().apply {
-        color = ctx.resources.getColor(if (isWhite) R.color.chess_board_white else R.color.chess_board_black, null)
+        if(isWhite==null) ctx.resources.getColor(R.color.white, null)
+        else color = ctx.resources.getColor(if (isWhite) R.color.chess_board_white else R.color.chess_board_black, null)
         style = Paint.Style.FILL_AND_STROKE
     }
 
@@ -43,8 +44,10 @@ class Tile (private val ctx: Context, private val isWhite: Boolean, private val 
 
     override fun onDraw(canvas: Canvas){
         canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), brush)
-        icon?.setBounds(padding, padding, width-padding, height-padding)
-        icon?.draw(canvas)
+        icon.setBounds(0, padding, width-padding, height-padding)
+        icon.draw(canvas)
+        letter?.setBounds(padding, padding, width-padding, height-padding)
+        letter?.draw(canvas)
     }
 
     fun setIcon (icon: VectorDrawableCompat) : Tile {

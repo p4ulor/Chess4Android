@@ -64,6 +64,11 @@ dependencies {
     // To use Kotlin annotation processing tool (kapt)
     kapt "androidx.room:room-compiler:$roomVersion"
 
+    // Work Manager API
+    def work_version = "2.6.0" //aleluia https://stackoverflow.com/questions/69037481/android-app-wont-build-the-mincompilesdk-31-specified-in-a-dependencys-an
+    implementation "androidx.work:work-runtime-ktx:$work_version"
+    implementation "androidx.concurrent:concurrent-futures-ktx:1.1.0"
+
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'

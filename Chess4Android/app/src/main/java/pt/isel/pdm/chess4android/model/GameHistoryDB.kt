@@ -51,5 +51,5 @@ interface GameTableDAO {
 
 @Database(entities = [GameTable::class], version = 1) //creates DB schema
 abstract class GamesDataBase : RoomDatabase(){
-    abstract fun getHistory() : GameTableDAO
+    abstract fun getDAO() : GameTableDAO
 }

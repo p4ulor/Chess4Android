@@ -13,16 +13,11 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
-import com.android.volley.Request
-import com.android.volley.Response
-import com.android.volley.toolbox.StringRequest
-import com.android.volley.toolbox.Volley
 import com.google.android.material.snackbar.Snackbar
 import java.io.*
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.text.StringBuilder
-import kotlinx.serialization.json.Json
 import pt.isel.pdm.chess4android.databinding.ActivityMainBinding
 import pt.isel.pdm.chess4android.model.*
 
@@ -138,6 +133,7 @@ class MainActivity : AppCompatActivity() {
 
     //Launch next activity
     private fun launchGame() {
+
         if(thisViewModel.isGameReady.value == false) {
             toast(R.string.WTFerror, this)
             return
@@ -155,48 +151,41 @@ class MainActivity : AppCompatActivity() {
 private const val IS_GAME_READY_LIVEDATA_KEY = "ready"
 
 class MainActivityViewModel(application: Application, private val state: SavedStateHandle) : AndroidViewModel(application) { //using AndroidViewModel and not ViewModel since AndroidViewModel can receive application: Application which extends from Context. And we need it for the file I/O, including the volley request
-    init {
-        log("MainActivityViewModel.init()")
-    }
-    //since we didnt absolutely need to notify the Activity when the data changed, using LiveData isnt necessarily necessary
+
+    //since we don't absolutely need to notify the Activity when the data changed, using LiveData isn't necessarily necessary
     var gameDTO: GameDTO = GameDTO(null, null, null, null, false)
     val isGameReady: LiveData<Boolean> = state.getLiveData(IS_GAME_READY_LIVEDATA_KEY)
     val context = getApplication<Application>()
     var currentScreenOrientation: MutableLiveData<Int> = MutableLiveData(context.resources.configuration.orientation)
     var updateDisplayed: MutableLiveData<Boolean> = MutableLiveData(false)
 
-    private val historyDB : GameTableDAO by lazy {
-        getApplication<Chess4AndroidApp>().historyDB.getHistory()
+    init {
+        log("MainActivityViewModel.init()")
     }
 
-    fun getTodaysGame() { //request to tget the json from the lichess API
+
+    private val historyDB : GameTableDAO by lazy {
+        getApplication<Chess4AndroidApp>().historyDB.getDAO()
+    }
+
+    private val repo: Chess4AndroidRepo by lazy{
+        getApplication<Chess4AndroidApp>().repo
+    }
+
+    fun getTodaysGame() { //request to get the json from the lichess API, //https://developer.android.com/training/volley/simple    |    //https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/basic-serialization.md
         log("Getting the json...")
-        val queue = Volley.newRequestQueue(context) //https://developer.android.com/training/volley/simple
-        val responseListener = Response.Listener<String> { response -> //https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/basic-serialization.md
-            log(response.toString())
-
-            val lichessGameOfTheDay: LichessJSON = Json { ignoreUnknownKeys = true }.decodeFromString(LichessJSON.serializer(),response)
-            val id = lichessGameOfTheDay.game.id
-            val puzzle = lichessGameOfTheDay.game.pgn
-            val sb: StringBuilder = StringBuilder()
-            for(i in lichessGameOfTheDay.puzzle.solution){
-                sb.append("$i ")
+        repo.getTodaysPuzzleFromAPI(context) { result ->
+            result.onSuccess { lichessGameOfTheDay ->
+                if(lichessGameOfTheDay!=null){
+                    gameDTO = lichessGameOfTheDay
+                    if(!isDataNullOrEmpty()) {
+                        writeDateOfTheLatestPuzzlePulled(getTodaysDate())
+                        state.set(IS_GAME_READY_LIVEDATA_KEY, true) //when this code executes, the code in "thisActivityViewModel.isGameReady.observe(this)" is also executed
+                    } else state.set(IS_GAME_READY_LIVEDATA_KEY, false)
+                }
             }
-            sb.deleteCharAt(sb.lastIndex)
-            setGameDTO(id, puzzle, sb.toString(), getTodaysDate(), false)
-            if(!isDataNullOrEmpty()) {
-                writeDateOfTheLatestPuzzlePulled(getTodaysDate())
-                state.set(IS_GAME_READY_LIVEDATA_KEY, true) //when this code executes, the code in "thisActivityViewModel.isGameReady.observe(this)" is also executed
-            } else state.set(IS_GAME_READY_LIVEDATA_KEY, false)
-        }
-        val errorListener = Response.ErrorListener {
-            log("Connection error, cant perform getTodaysGame()")
-            state.set(IS_GAME_READY_LIVEDATA_KEY, false)
         }
 
-        val stringRequest = StringRequest(Request.Method.GET, LICHESSDAILYPUZZLEURL, responseListener, errorListener)
-        queue.add(stringRequest)
-        log("Request finished")
     }
 
     fun isDataNullOrEmpty() = gameDTO?.id.isNullOrEmpty() || gameDTO?.puzzle.isNullOrEmpty() || gameDTO?.solution.isNullOrEmpty() || gameDTO?.date.isNullOrEmpty()
@@ -204,8 +193,6 @@ class MainActivityViewModel(application: Application, private val state: SavedSt
     //Current date methods
 
     fun todaysPuzzleWasNotPulled() : Boolean = !getTodaysDate().equals(readDateOfTheLatestPuzzlePull())
-
-    private fun getTodaysDate() = SimpleDateFormat(DATEPATTERN).format(Date()) //The 'M' must be uppercase or it will read the minutes
 
     private fun readDateOfTheLatestPuzzlePull() : String { //https://developer.android.com/training/data-storage/app-specific
         var sb = StringBuilder()
@@ -242,13 +229,5 @@ class MainActivityViewModel(application: Application, private val state: SavedSt
 
     fun updateDB() {
         historyDB.insert(gameDTO.toGameTable())
-    }
-
-    private fun setGameDTO(id: String, puzzle: String, solution: String, date: String, isDone: Boolean) {
-        gameDTO.id = id
-        gameDTO.puzzle = puzzle
-        gameDTO.solution = solution
-        gameDTO.date = date
-        gameDTO.isDone = isDone
     }
 }

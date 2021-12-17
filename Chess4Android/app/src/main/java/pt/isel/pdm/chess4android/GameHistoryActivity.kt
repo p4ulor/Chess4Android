@@ -74,7 +74,7 @@ class GameHistoryViewModel(application: Application) : AndroidViewModel(applicat
     var gameSelected: Int = -1
 
     private val historyDB : GameTableDAO by lazy {
-        getApplication<Chess4AndroidApp>().historyDB.getHistory()
+        getApplication<Chess4AndroidApp>().historyDB.getDAO()
     }
 
     fun loadHistory() : LiveData<List<GameDTO>> {

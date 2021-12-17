@@ -3,7 +3,6 @@ package pt.isel.pdm.chess4android
 import android.app.Application
 import android.os.Bundle
 import android.view.View
-import android.widget.Switch
 import android.widget.ToggleButton
 import androidx.activity.viewModels
 import androidx.lifecycle.AndroidViewModel
@@ -30,8 +29,10 @@ class PuzzleSolvingActivity : AppCompatActivity() {
 
     private val thisViewModel: PuzzleSolvingActivityViewModel by viewModels()
     private lateinit var myView: BoardView
+    private lateinit var soloPlaySwitch: SwitchCompat
     private lateinit var solutionSwitch: SwitchCompat
-    private lateinit var toggleButton: ToggleButton
+    private lateinit var currentColorPlaying: ToggleButton
+
     private var currentlySelectedPieceIndex: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,8 +41,9 @@ class PuzzleSolvingActivity : AppCompatActivity() {
         setContentView(R.layout.activity_puzzle_solving)
 
         myView = findViewById(R.id.boardView)
+        soloPlaySwitch = findViewById(R.id.soloSwitch)
         solutionSwitch =  findViewById(R.id.solutionSwitch)
-        toggleButton = findViewById(R.id.toggleButton)
+        currentColorPlaying = findViewById(R.id.toggleButton)
 
         val gameDTO: GameDTO? = intent.getParcelableExtra(GAME_DTO_KEY)
         if(gameDTO!=null) {
@@ -51,6 +53,10 @@ class PuzzleSolvingActivity : AppCompatActivity() {
             if(gameDTO.isDone) solutionSwitch.visibility = View.VISIBLE
         } else toast(R.string.WTFerror, this)
 
+        soloPlaySwitch.setOnClickListener {
+            thisViewModel.soloPlay = !thisViewModel.soloPlay
+        }
+
 
         solutionSwitch.setOnClickListener {
             thisViewModel.board = Board() //board.reset() and board.literalReset() weren't working, the pieces still containing the old Position values
@@ -59,7 +65,8 @@ class PuzzleSolvingActivity : AppCompatActivity() {
                 performSolution()
             }
             invalidateEverything()
-            thisViewModel.isDone = !thisViewModel.isDone
+            thisViewModel.isDone = !thisViewModel.isDone //makes so the user cant move pieces when viewing the solution as it's done in the first 'if' tileBehaviour
+            thisViewModel.correctMovementsPerformed = 0
         }
 
         tileMatrix.forEach { tile ->
@@ -140,6 +147,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
         thisViewModel.board.movePieceToAndLeaveEmptyBehind(pieceThatWillBeEatenIndex, pieceToMove)
         myView.invalidate(pieceThatWillBeEatenIndex, thisViewModel.board.getPieceAtIndex(pieceThatWillBeEatenIndex)) //new pos
         myView.invalidate(currentlySelectedPieceIndex, thisViewModel.board.getPieceAtIndex(currentlySelectedPieceIndex)  ) //old pos
+        invalidateEverything()
         log("moved")
         thisViewModel.isWhitesPlaying.value = !(thisViewModel.isWhitesPlaying.value)!!
         if(thisViewModel.correctMovementsPerformed==solution?.size) {
@@ -149,6 +157,18 @@ class PuzzleSolvingActivity : AppCompatActivity() {
             snackBar(R.string.won)
             play(R.raw.kill_bill_siren, this)
             play(R.raw.gawdamn, this)
+        } else if(thisViewModel.soloPlay){
+            val x = solution?.get(thisViewModel.correctMovementsPerformed)
+            if (x != null) {
+                val initialIndex= Board.positionToIndex(Position(x.substring(0,2)))
+                val destinationIndex = Board.positionToIndex(Position(x.substring(2,4)))
+                thisViewModel.board.movePieceToAndLeaveEmptyBehind(initialIndex, destinationIndex)
+                thisViewModel.isWhitesPlaying.value = !(thisViewModel.isWhitesPlaying.value)!!
+                thisViewModel.correctMovementsPerformed++
+
+                myView.invalidate(initialIndex, thisViewModel.board.getPieceAtIndex(initialIndex)) //new pos
+                myView.invalidate(destinationIndex, thisViewModel.board.getPieceAtIndex(destinationIndex)  ) //old pos
+            }
         }
     }
 
@@ -163,8 +183,8 @@ class PuzzleSolvingActivity : AppCompatActivity() {
     override fun onStart() {
         log("Started")
         thisViewModel.isWhitesPlaying.observe(this){
-            if(it) toggleButton.text = toggleButton.textOn
-            else toggleButton.text = toggleButton.textOff
+            if(it) currentColorPlaying.text = currentColorPlaying.textOn
+            else currentColorPlaying.text = currentColorPlaying.textOff
         }
         super.onStart()
     }
@@ -228,10 +248,12 @@ class PuzzleSolvingActivityViewModel(application: Application, private val state
         log("MainActivityViewModel.init()")
     }
 
+
     private val historyDB : GameTableDAO by lazy {
-        getApplication<Chess4AndroidApp>().historyDB.getHistory()
+        getApplication<Chess4AndroidApp>().historyDB.getDAO()
     }
 
+    var soloPlay: Boolean = false
     var isDone: Boolean = false
     var isGameLoaded: Boolean = false
     var isWhitesPlaying: MutableLiveData<Boolean> = MutableLiveData(false)
