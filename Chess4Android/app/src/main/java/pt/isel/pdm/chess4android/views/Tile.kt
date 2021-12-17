@@ -26,7 +26,7 @@ class Tile (private val ctx: Context, private val isWhite: Boolean?, private val
     init {
         if(index<0) throw IllegalArgumentException()
     }
-    private val padding = 6 //the bigger this value, the smaller the chess-piece icon inside each Tile (square)
+    private val padding = 7 //the bigger this value, the smaller the chess-piece icon inside each Tile (square)
 
     private val brush = Paint().apply {
         if(isWhite==null) ctx.resources.getColor(R.color.white, null)
@@ -44,9 +44,10 @@ class Tile (private val ctx: Context, private val isWhite: Boolean?, private val
 
     override fun onDraw(canvas: Canvas){
         canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), brush)
-        icon.setBounds(0, padding, width-padding, height-padding)
+
+        icon.setBounds(2, padding, width-padding, height-padding)
         icon.draw(canvas)
-        letter?.setBounds(padding, padding, width-padding, height-padding)
+        letter?.setBounds(-45, 30, width-45, height+30) //MUST BE HERE OR IT WON'T APPEAR, rule of thumb: the higher the values, the smaller the thing,        //the higher value in bottom -> closer it is to the bottom, the higher the value in right, the more it's to the right //the higher value in bottom -> closer it is to the bottom, the higher the value in right, the more it's to the right
         letter?.draw(canvas)
     }
 

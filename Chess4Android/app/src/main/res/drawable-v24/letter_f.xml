@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@color/letter_f_background"/>
-    <foreground android:drawable="@drawable/letter_f_foreground"/>
-</adaptive-icon>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group android:scaleX="0.3875154"
+        android:scaleY="0.3875154"
+        android:translateX="43.537083"
+        android:translateY="20.9628">
+        <group android:translateY="141.67969">
+            <path android:pathData="M34,-102L20,-102L20,-68L32,-68L32,-60L20,-60L20,-0L11,-0L11,-60L3,-60L3,-68L11,-68L11,-101.84375Q11.375,-109.625,19.15625,-110L34,-110L34,-102Z"
+                android:fillColor="@color/cool_orange"/>
+        </group>
+    </group>
+</vector>

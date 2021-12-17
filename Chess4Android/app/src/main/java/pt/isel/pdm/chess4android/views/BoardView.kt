@@ -36,14 +36,10 @@ class BoardView(private val ctx: Context, attrs: AttributeSet?) : GridLayout(ctx
             val piece = Board.companion_chessTable[it]
             val tile = Tile(ctx, (row + column) % 2 == 0, side,
                 ((if(row==1 || row==0 || row==6 || row==7) getDrawablePiece(piece.pieceType, piece.isWhite) //the if and else is not strictly necessary but its a little optimization
-                else blankIcon)!!), indexToColumn(7),
+                else blankIcon)!!), if(row==7) indexToColumn(column) else null,
                 it
             )
             tileMatrix[it] = tile
-            addView(tile)
-        }
-        repeat(side){
-            val tile = Tile(ctx, null, side, indexToColumn(it)!!, null, it)
             addView(tile)
         }
     }
@@ -57,7 +53,7 @@ class BoardView(private val ctx: Context, attrs: AttributeSet?) : GridLayout(ctx
             4 -> getIcon(R.drawable.letter_e)
             5 -> getIcon(R.drawable.letter_f)
             6 -> getIcon(R.drawable.letter_g)
-            7 -> getIcon(R.drawable.letter_h_foreground)
+            7 -> getIcon(R.drawable.letter_h)
             else -> blankIcon
         }
     }

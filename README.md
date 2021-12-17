@@ -11,6 +11,7 @@ Using: lichess API
 - Gonçalo Garcia 44787
 - Tiago Pilaro 46147
 
+# Tags
 ### Tag **chess_royale_1**
 This app gets today's chess puzzle and displays it to the screen. The user can move pieces around according to the most fundamental chess rules. The confirmation that the moves inputed by the user go along with the solution is performed, but it wasn't extensively tested yet. It worked for the puzzle in the example bellow in the picture of the activity 2. The player will have to play with both piece colors
 
