@@ -1,0 +1,36 @@
+@startjson
+{
+
+"game": {
+    "id": "String",
+    "perf": {
+          "icon": "String",
+          "name": "String"
+    },
+    "rated": "Boolean",
+    "players": [
+    {
+    "userId": "String",
+    "name": "String",
+    "color": "String"
+    },
+    {
+    "userId": "String",
+    "name": "String",
+    "color": "String"
+    }
+    ],
+    "pgn": "String"
+},
+
+"puzzle": {
+"id": "String",
+"rating": "Int",
+"plays": "Int",
+"initialPly": "Int",
+"solution": "Array<String>",
+"themes": "Array<String>"
+}
+
+}
+@endjson

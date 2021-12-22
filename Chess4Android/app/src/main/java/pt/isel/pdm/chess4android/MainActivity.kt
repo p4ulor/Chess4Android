@@ -29,7 +29,6 @@ const val GAME_DTO_KEY = "game"
 
 class MainActivity : AppCompatActivity() {
 
-    private var getGameButton: Button? = null
     private var continueButton: Button? = null
 
     private val binding by lazy {
@@ -49,18 +48,8 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.title = getString(R.string.welcome) //alternative: resources.getText(R.string.welcome) //only activity where I have to do this or the app name will be "Welcome" if I set it in the xml..., for all the other activities, their action bar name is set in the xml
 
         //SET VIEWS (text, buttons, etc)
-        //getGameButton = binding.getGameButton //alternative
-        getGameButton = findViewById(R.id.getGameButton)
+        //continueButton = binding.continueButton //alternative
         continueButton = findViewById(R.id.continueButton)
-
-        getGameButton?.setOnClickListener {
-            if(isDataStateNotValid()){
-                thisViewModel.getTodaysGame()
-            }
-            else {
-                toast(R.string.alreadyUpdated, this)
-            }
-        }
 
         val didScreenRotate = thisViewModel.currentScreenOrientation.value != applicationContext.resources.configuration.orientation
         if(didScreenRotate) {
@@ -80,16 +69,14 @@ class MainActivity : AppCompatActivity() {
                     log(thisViewModel.gameDTO?.puzzle.toString())
                     log(thisViewModel.gameDTO?.solution.toString())
                     thisViewModel.updateDisplayed.value=true
-                    doAsyncWithResult {
+                    /*doAsyncWithResult {
                         thisViewModel.updateDB()
-                    }
+                    }*/
                 }
-            } else snackBar(R.string.connectionError)
+            } else snackBar(R.string.WTFerror)
         }
 
         continueButton?.setOnClickListener { launchGame() }
-        log("continue button disabled") //on screen rotation, given this we can conclude that the isGameReady is observed AFTER this
-        continueButton?.isEnabled = false //previously was if(isDataStateNotValid()) continueButton?.isEnabled = false, which checked for the values and date everytime, which isn't necessary
     }
 
     // "on" overwritten methods / Save state methods
@@ -124,24 +111,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun snackBar(stringID: Int){ //https://material.io/components/snackbars/android#using-snackbars //or function: () -> (Unit) https://stackoverflow.com/a/44132689
-        Snackbar.make(findViewById(R.id.getGameButton),getString(stringID), Snackbar.LENGTH_INDEFINITE)
+        Snackbar.make(findViewById(R.id.continueButton),getString(stringID), Snackbar.LENGTH_INDEFINITE)
             .setAction(R.string.retry) {
-                if(thisViewModel.isGameReady.value == false) thisViewModel.getTodaysGame() //if the snackbar appears, and user pressed continue and the game is ready, the snackbar remains on the screen, so when the user clicks "retry" it wont make the volley request again.
+                if(thisViewModel.isGameReady.value == false) thisViewModel.getTodaysGame {} //if the snackbar appears, and user pressed continue and the game is ready, the snackbar remains on the screen, so when the user clicks "retry" it wont make the volley request again.
             }
             .show()
     }
 
     //Launch next activity
     private fun launchGame() {
-
-        if(thisViewModel.isGameReady.value == false) {
-            toast(R.string.WTFerror, this)
-            return
+        thisViewModel.getTodaysGame {
+            if(thisViewModel.isGameReady.value == true) {
+                val intent = Intent(this, PuzzleSolvingActivity::class.java).apply {
+                    putExtra(GAME_DTO_KEY, thisViewModel.gameDTO)
+                }
+                startActivity(intent)
+            }
         }
-        val intent = Intent(this, PuzzleSolvingActivity::class.java).apply {
-            putExtra(GAME_DTO_KEY, thisViewModel.gameDTO)
-        }
-        startActivity(intent)
+        toast(R.string.WTFerror, this)
     }
 
     //UTILITY METHODS
@@ -163,7 +150,6 @@ class MainActivityViewModel(application: Application, private val state: SavedSt
         log("MainActivityViewModel.init()")
     }
 
-
     private val historyDB : GameTableDAO by lazy {
         getApplication<Chess4AndroidApp>().historyDB.getDAO()
     }
@@ -172,20 +158,20 @@ class MainActivityViewModel(application: Application, private val state: SavedSt
         getApplication<Chess4AndroidApp>().repo
     }
 
-    fun getTodaysGame() { //request to get the json from the lichess API, //https://developer.android.com/training/volley/simple    |    //https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/basic-serialization.md
+    fun getTodaysGame(callback: (Result<GameDTO?>) -> Unit) { //request to get the json from the lichess API, //https://developer.android.com/training/volley/simple    |    //https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/basic-serialization.md
         log("Getting the json...")
-        repo.getTodaysPuzzleFromAPI(context) { result ->
+        repo.getTodaysGame (context) { result ->
             result.onSuccess { lichessGameOfTheDay ->
                 if(lichessGameOfTheDay!=null){
                     gameDTO = lichessGameOfTheDay
                     if(!isDataNullOrEmpty()) {
                         writeDateOfTheLatestPuzzlePulled(getTodaysDate())
                         state.set(IS_GAME_READY_LIVEDATA_KEY, true) //when this code executes, the code in "thisActivityViewModel.isGameReady.observe(this)" is also executed
+                        callback(Result.success(gameDTO))
                     } else state.set(IS_GAME_READY_LIVEDATA_KEY, false)
                 }
             }
         }
-
     }
 
     fun isDataNullOrEmpty() = gameDTO?.id.isNullOrEmpty() || gameDTO?.puzzle.isNullOrEmpty() || gameDTO?.solution.isNullOrEmpty() || gameDTO?.date.isNullOrEmpty()

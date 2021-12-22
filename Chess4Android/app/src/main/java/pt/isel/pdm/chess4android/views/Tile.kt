@@ -21,7 +21,7 @@ import java.lang.IllegalArgumentException
  * @property tilesPerSide   The number of tiles in each side of the chess board
  */
 @SuppressLint("ViewConstructor")
-class Tile (private val ctx: Context, private val isWhite: Boolean?, private val tilesPerSide: Int, private var icon: VectorDrawableCompat, private var letter: VectorDrawableCompat?, val index: Int) : View(ctx) {
+class Tile (private val ctx: Context, private val isWhite: Boolean?, private val tilesPerSide: Int, private var icon: VectorDrawableCompat, private var letter: VectorDrawableCompat?, private var number: VectorDrawableCompat?, val index: Int) : View(ctx) {
 
     init {
         if(index<0) throw IllegalArgumentException()

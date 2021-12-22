@@ -36,7 +36,7 @@ class BoardView(private val ctx: Context, attrs: AttributeSet?) : GridLayout(ctx
             val piece = Board.companion_chessTable[it]
             val tile = Tile(ctx, (row + column) % 2 == 0, side,
                 ((if(row==1 || row==0 || row==6 || row==7) getDrawablePiece(piece.pieceType, piece.isWhite) //the if and else is not strictly necessary but its a little optimization
-                else blankIcon)!!), if(row==7) indexToColumn(column) else null,
+                else blankIcon)!!), if(row==7) indexToColumn(column) else null, null,
                 it
             )
             tileMatrix[it] = tile

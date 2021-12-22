@@ -1,0 +1,205 @@
+@startuml
+note "Only fields with val, will have 'val' before it, the others are all var\nAnd methods with no indicated visibility are public " as N1
+
+' -----CONTROLLER-----
+package Controller <<Folder>> {
+
+	class Chess4AndroidApp{
+	  
+	}
+
+	class Chess4AndroidRepo {
+	  
+	}
+
+	package MainActivity.kt <<Rectangle>> {
+		class MainActivity {
+		}
+		
+		class MainActivityViewModel {
+		}
+	}
+
+	package PuzzleSolvingActivity.kt <<Rectangle>> {
+		class PuzzleSolvingActivity {
+		}
+		
+		class PuzzleSolvingActivityViewModel {
+		}
+	}
+
+	package GameHistoryActivity.kt <<Rectangle>> {
+		class GameHistoryActivity {
+		}
+		
+		class GameHistoryActivityViewModel {
+		}
+	}
+
+	class AboutActivity {
+	  onCreate(savedInstanceState: Bundle?)
+	}
+
+}
+
+
+
+
+
+' -----MODEL----------
+package Model <<Folder>> {
+
+	package asyncUtils.kt <<Rectangle>> {
+	  
+	}
+
+	class AutoGetPuzzleWorker {
+	  
+	}
+
+	class Board {
+	  
+	}
+
+	package ChessPieces.kt <<Rectangle>> {
+		class Position {
+			__ constructors __
+			(letter: Char, number: Byte)
+			(string: String)
+			-- fields --
+			letter: Char
+			number: Byte
+			-- methods --
+			-isValid()
+			-isValid(string: String) : Boolean
+			horizontalyInvertPosition() : Position
+			toString() : String
+			isEqual(position: Position) : Boolean
+			getXDiference(destination: Position) : Int 
+			getYDiference(destination: Position) : Int 
+			getYDiferenceNoAbs(destination: Position) : Int
+			isValidMovement(destination: Position, maxX: Byte, maxY: Byte) : Boolean
+			-- companion objects --
+			isValid(string: String) : Boolean
+			convertToPosition(string: String) : Position?
+		}
+		
+		abstract class Piece {
+			__ constructors __
+			(position: Position, isWhite: Boolean)
+			(letter: Char, number: Byte, isWhite: Boolean)
+			-- fields --
+			position: Position
+			isWhite: Boolean
+			{abstract} abstract pieceType: PIECETYPE
+			{abstract} abstract val maxTravelDistanceX: Byte
+			{abstract} abstract val maxTravelDistanceY: Byte
+			-- methods --
+			{abstract} abstract canMoveTo(destination: Position): Boolean
+		}
+		
+		package ChessPieces <<Rectangle>> {
+			class Pawn {
+				-- abstract's overrides  --
+				--
+				-firstMoveUsed: Boolean
+			}
+			class Bishop {
+				-- abstract's overrides  --
+			}
+			class Knight {
+				-- abstract's overrides  --
+			}
+			class Rook {
+				-- abstract's overrides  --
+				--
+				-firstMoveUsed: Boolean
+			}
+			class King {
+				-- abstract's overrides  --
+				--
+				-firstMoveUsed: Boolean
+			}
+			class Queen {
+				-- abstract's overrides  --
+			}
+			class Empty {
+				-- abstract's overrides  --
+			}
+		}
+		
+		enum PIECETYPE {
+			PAWN
+			BISHOP
+			KNIGHT
+			ROOK
+			KING
+			QUEEN
+			EMPTY
+		}
+
+
+		Piece <|- Pawn
+		Piece <|- Bishop
+		Piece <|- Knight
+		Piece <|- Rook
+		Piece <|- King
+		Piece <|- Queen
+		Piece <|- Empty
+
+		Position *-- Piece
+		PIECETYPE *-- Piece
+		
+	}
+
+	class GameDTO {
+	  
+	}
+
+	package GameHistoryDB.kt <<Rectangle>> {
+		class GameTable {
+		
+		}
+		 
+		interface GameTableDAO {
+		
+		}
+		 
+		abstract class GamesDataBase {
+		
+		}
+	}
+
+
+	package LichessJSON.kt <<Rectangle>> {
+
+
+	}
+
+}
+
+
+
+
+
+
+' -----VIEWS-----
+package Views <<Folder>> {
+
+	class BoardView {
+	  
+	}
+
+	package GameHistoryViewAdapter.kt <<Folder>> {
+		class GameHistoryViewAdapter {
+		}
+		class HistoryItemViewHolder {
+		}
+	}
+
+	class Tile {
+	  
+	}
+
+}
+@enduml

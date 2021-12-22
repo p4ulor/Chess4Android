@@ -121,6 +121,9 @@ class PuzzleSolvingActivity : AppCompatActivity() {
                 thisViewModel.correctMovementsPerformed++
                 toast(R.string.correctMove, this)
                 play(R.raw.rareee, this)
+                if(thisViewModel.correctMovementsPerformed!=solution?.size) {
+                    // todo
+                }
             } else {
                 play(R.raw.my_wrong_button_sound, this)
             }

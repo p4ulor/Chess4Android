@@ -1,12 +1,11 @@
 <resources>
     <string name="app_name">Chess4Android G19</string>
-    <string name="getGameButton">Get today\'s game</string>
     <string name="continueButton">Continue</string>
     <string name="retry">Retry</string>
     <string name="connectionError">Error, check wifi connection?</string>
     <string name="puzzleUpdated">Puzzle updated and in memory</string>
     <string name="alreadyUpdated">You already have the puzzle for today</string>
-    <string name="WTFerror">WTF, no valid puzzle or solution</string>
+    <string name="WTFerror">WTF, no valid data</string>
     <string name="progressLost">Progress lost</string>
     <string name="interpretError">Interpretation error of json</string>
     <string name="loadSuccess">Loaded puzzle successfully</string>

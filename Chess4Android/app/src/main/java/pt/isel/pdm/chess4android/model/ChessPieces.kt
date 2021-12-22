@@ -30,7 +30,7 @@ data class Position(var letter: Char, var number: Byte) {
         return this
     }
     override fun toString(): String = "Letter: $letter, Number: $number"
-    fun letterAndNumber(): String ="$letter$number"
+    fun letterAndNumber() : String ="$letter$number"
     fun isEqual(position: Position) : Boolean = this.letter==position.letter && this.number==position.number
 
     //these 2 methods bellow are useful for pieces that have specific and strict movement patterns, like pawns, rooks and bishops. Per example, kings and queens dont need these methods because they can move freely to any direction, but are only restricted by the movement distance. Thus, for these 2 examples, only isValidMovement is used.
@@ -80,7 +80,7 @@ sealed class ChessPieces { //https://antonioleiva.com/sealed-classes-kotlin/ //m
 
         private var firstMoveUsed: Boolean = false
 
-         override fun canMoveTo(destination: Position) : Boolean {
+        override fun canMoveTo(destination: Position) : Boolean {
             if(position.isValidMovement(destination, maxTravelDistanceX, maxTravelDistanceY)){ //part checks logical board bounds and piece maxTravelDistance bounds
                 if(!firstMoveUsed && isWhite && position.getYDiferenceNoAbs(destination)==-1 || position.getYDiferenceNoAbs(destination)==-2){ //kotlin ranges doesnt work with negative values... https://kotlinlang.org/docs/ranges.html
                     //firstMoveUsed = true

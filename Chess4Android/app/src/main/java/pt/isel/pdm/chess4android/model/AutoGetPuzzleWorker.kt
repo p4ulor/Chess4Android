@@ -20,7 +20,7 @@ class AutoGetPuzzleWorker(appContext: Context, workerParams: WorkerParameters)
         log(TAG, "Thread ${Thread.currentThread().name}: Starting AutoGetPuzzleWorker")
 
         return CallbackToFutureAdapter.getFuture { completer ->
-            repo.getTodaysGame { result ->
+            repo.getTodaysGame (app) { result ->
                 result
                     .onSuccess {
                         log(TAG, "Thread ${Thread.currentThread().name}: DownloadDailyQuoteWorker succeeded")

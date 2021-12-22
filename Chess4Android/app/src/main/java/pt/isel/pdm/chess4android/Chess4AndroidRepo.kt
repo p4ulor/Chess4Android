@@ -51,15 +51,15 @@ class Chess4AndroidRepo(private val historyGameDAO: GameTableDAO) {
         }
     }
 
-    fun getTodaysGame(callback: (Result<GameDTO?>) -> Unit) {
+    fun getTodaysGame(context: Application?, callback: (Result<GameDTO?>) -> Unit) {
         getLatestPuzzleFromDB { maybeEntity ->
-            val maybeQuote = maybeEntity.getOrNull()
-            if (maybeQuote != null) {
+            val maybeGame = maybeEntity.getOrNull()
+            if (maybeGame?.date==getTodaysDate()) {
                 log(TAG, "Thread ${Thread.currentThread().name}: Got daily quote from local DB")
-                callback(Result.success(maybeQuote.toGameDTO()))
+                callback(Result.success(maybeGame.toGameDTO()))
             }
             else {
-               getTodaysPuzzleFromAPI (null) { apiResult ->
+               getTodaysPuzzleFromAPI(context) { apiResult ->
                     apiResult.onSuccess { gameDTO ->
                         log(TAG, "Thread ${Thread.currentThread().name}: Got daily quote from API")
                         saveToDB(gameDTO!!) { saveToDBResult ->
