@@ -25,8 +25,6 @@ class GameHistoryActivity : AppCompatActivity(), OnItemClickListener {
 
         binding.gameListRecyclerView.layoutManager = LinearLayoutManager(this)
 
-        // load of history of games if not null
-
         log(TAG, "onCreate")
     }
 

@@ -25,7 +25,12 @@ class Chess4AndroidRepo(private val historyGameDAO: GameTableDAO) {
         }
     }
 
-    fun getTodaysPuzzleFromAPI(context: Application?, callback: (Result<GameDTO?>) -> Unit){
+    private fun saveToDB(dto: GameDTO, callback: (Result<Unit>) -> Unit = { }) {
+        callbackAfterAsync(callback) {
+            historyGameDAO.insert(dto.toGameTable())
+        }
+    }
+    private fun getTodaysPuzzleFromAPI(context: Application?, callback: (Result<GameDTO?>) -> Unit){
         val queue = Volley.newRequestQueue(context)
         val responseListener = Response.Listener<String> { response ->
             log(response.toString())
@@ -43,12 +48,6 @@ class Chess4AndroidRepo(private val historyGameDAO: GameTableDAO) {
         val stringRequest = StringRequest(Request.Method.GET, LICHESSDAILYPUZZLEURL, responseListener, errorListener)
         queue.add(stringRequest)
         log("Request finished")
-    }
-
-    private fun saveToDB(dto: GameDTO, callback: (Result<Unit>) -> Unit = { }) {
-        callbackAfterAsync(callback) {
-            historyGameDAO.insert(dto.toGameTable())
-        }
     }
 
     fun getTodaysGame(context: Application?, callback: (Result<GameDTO?>) -> Unit) {

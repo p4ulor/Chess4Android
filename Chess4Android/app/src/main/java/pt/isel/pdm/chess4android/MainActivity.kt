@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val thisViewModel: MainActivityViewModel by viewModels()
-    // alternative:
+    //alternative:
     //private val thisViewModel by viewModels<MainActivityViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,7 +79,7 @@ class MainActivity : AppCompatActivity() {
         continueButton?.setOnClickListener { launchGame() }
     }
 
-    // "on" overwritten methods / Save state methods
+    // "on" overwritten methods
 
     override fun onDestroy() {
         log("destroyed")
@@ -126,13 +126,9 @@ class MainActivity : AppCompatActivity() {
                     putExtra(GAME_DTO_KEY, thisViewModel.gameDTO)
                 }
                 startActivity(intent)
-            }
+            } else toast(R.string.WTFerror, this)
         }
-        toast(R.string.WTFerror, this)
     }
-
-    //UTILITY METHODS
-    private fun isDataStateNotValid() : Boolean = thisViewModel.todaysPuzzleWasNotPulled() || thisViewModel.isDataNullOrEmpty()
 }
 
 private const val IS_GAME_READY_LIVEDATA_KEY = "ready"
@@ -148,10 +144,6 @@ class MainActivityViewModel(application: Application, private val state: SavedSt
 
     init {
         log("MainActivityViewModel.init()")
-    }
-
-    private val historyDB : GameTableDAO by lazy {
-        getApplication<Chess4AndroidApp>().historyDB.getDAO()
     }
 
     private val repo: Chess4AndroidRepo by lazy{
@@ -211,9 +203,5 @@ class MainActivityViewModel(application: Application, private val state: SavedSt
         val result = if (s.hasNext()) s.next() else "" //reads only 1 line
         log(result)
         return result
-    }
-
-    fun updateDB() {
-        historyDB.insert(gameDTO.toGameTable())
     }
 }

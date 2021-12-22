@@ -44,7 +44,7 @@ fun <T> publishInLiveDataAfterAsync(asyncAction: () -> T): LiveData<Result<T>> {
     return toPublish
 }
 
-// ALTERNATIVES
+// ALTERNATIVES, no callback
 
 private val dataAccessExecutor = Executors.newSingleThreadExecutor() // allocates a task to execute on a new thread
 

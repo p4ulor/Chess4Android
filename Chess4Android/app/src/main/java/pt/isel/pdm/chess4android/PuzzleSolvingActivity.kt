@@ -20,12 +20,6 @@ import pt.isel.pdm.chess4android.views.tileMatrix
 private const val TAG = "PuzzleSolving"
 
 class PuzzleSolvingActivity : AppCompatActivity() {
-    private val binding by lazy {
-        ActivityMainBinding.inflate(layoutInflater)
-    }
-
-    private var puzzle: Array<String>? = null
-    private var solution: Array<String>? = null
 
     private val thisViewModel: PuzzleSolvingActivityViewModel by viewModels()
     private lateinit var myView: BoardView
@@ -48,15 +42,14 @@ class PuzzleSolvingActivity : AppCompatActivity() {
         val gameDTO: GameDTO? = intent.getParcelableExtra(GAME_DTO_KEY)
         if(gameDTO!=null) {
             thisViewModel.gameDTO = gameDTO
-            puzzle = gameDTO.puzzle?.split(" ")?.toTypedArray()
-            solution = gameDTO.solution?.split(" ")?.toTypedArray()
+            thisViewModel.puzzle = gameDTO.puzzle?.split(" ")?.toTypedArray()
+            thisViewModel.solution = gameDTO.solution?.split(" ")?.toTypedArray()
             if(gameDTO.isDone) solutionSwitch.visibility = View.VISIBLE
         } else toast(R.string.WTFerror, this)
 
         soloPlaySwitch.setOnClickListener {
             thisViewModel.soloPlay = !thisViewModel.soloPlay
         }
-
 
         solutionSwitch.setOnClickListener {
             thisViewModel.board = Board() //board.reset() and board.literalReset() weren't working, the pieces still containing the old Position values
@@ -116,17 +109,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
             val pieceThatWillBeEatenIndex = tile.index
             val thePieceToBeEaten = thisViewModel.board.getPieceAtIndex(pieceThatWillBeEatenIndex)
             val theNewPosition = thePieceToBeEaten.position
-            val movement = pieceToMove.position.letterAndNumber()+theNewPosition.letterAndNumber()
-            if(movement == solution?.get(thisViewModel.correctMovementsPerformed)) {
-                thisViewModel.correctMovementsPerformed++
-                toast(R.string.correctMove, this)
-                play(R.raw.rareee, this)
-                if(thisViewModel.correctMovementsPerformed!=solution?.size) {
-                    // todo
-                }
-            } else {
-                play(R.raw.my_wrong_button_sound, this)
-            }
+
             log("destination has index = $pieceThatWillBeEatenIndex and position = $theNewPosition ")
             if(pieceThatWillBeEatenIndex!=currentlySelectedPieceIndex) {
                 if(thisViewModel.board.getPieceAtIndex(pieceThatWillBeEatenIndex).pieceType==PIECETYPE.EMPTY || pieceToMove.isWhite!=thisViewModel.board.getPieceAtIndex(pieceThatWillBeEatenIndex).isWhite){
@@ -147,32 +130,44 @@ class PuzzleSolvingActivity : AppCompatActivity() {
     }
 
     private fun moveIt(pieceThatWillBeEatenIndex: Int, pieceToMove: Piece) {
+        val movement = pieceToMove.position.letterAndNumber()+thisViewModel.board.getPieceAtIndex(pieceThatWillBeEatenIndex).position.letterAndNumber()
         thisViewModel.board.movePieceToAndLeaveEmptyBehind(pieceThatWillBeEatenIndex, pieceToMove)
         myView.invalidate(pieceThatWillBeEatenIndex, thisViewModel.board.getPieceAtIndex(pieceThatWillBeEatenIndex)) //new pos
         myView.invalidate(currentlySelectedPieceIndex, thisViewModel.board.getPieceAtIndex(currentlySelectedPieceIndex)  ) //old pos
-        invalidateEverything()
         log("moved")
         thisViewModel.isWhitesPlaying.value = !(thisViewModel.isWhitesPlaying.value)!!
-        if(thisViewModel.correctMovementsPerformed==solution?.size) {
-            thisViewModel.gameDTO?.isDone = true
-            thisViewModel.isDone = true
-            thisViewModel.setGameAsDoneInDB()
-            snackBar(R.string.won)
-            play(R.raw.kill_bill_siren, this)
-            play(R.raw.gawdamn, this)
-        } else if(thisViewModel.soloPlay){
-            val x = solution?.get(thisViewModel.correctMovementsPerformed)
-            if (x != null) {
-                val initialIndex= Board.positionToIndex(Position(x.substring(0,2)))
-                val destinationIndex = Board.positionToIndex(Position(x.substring(2,4)))
-                thisViewModel.board.movePieceToAndLeaveEmptyBehind(initialIndex, destinationIndex)
-                thisViewModel.isWhitesPlaying.value = !(thisViewModel.isWhitesPlaying.value)!!
-                thisViewModel.correctMovementsPerformed++
 
-                myView.invalidate(initialIndex, thisViewModel.board.getPieceAtIndex(initialIndex)) //new pos
-                myView.invalidate(destinationIndex, thisViewModel.board.getPieceAtIndex(destinationIndex)  ) //old pos
+        if(movement == thisViewModel.solution?.get(thisViewModel.correctMovementsPerformed)) {
+            thisViewModel.correctMovementsPerformed++
+            toast(R.string.correctMove, this)
+            play(R.raw.rareee, this)
+            if(thisViewModel.correctMovementsPerformed==thisViewModel.solution?.size) finishedPuzzle()
+            else if(thisViewModel.soloPlay) {
+                val x = thisViewModel.solution?.get(thisViewModel.correctMovementsPerformed)
+                if (x != null) {
+                    val initialIndex = Board.positionToIndex(Position(x.substring(0, 2)))
+                    val destinationIndex = Board.positionToIndex(Position(x.substring(2, 4)))
+                    thisViewModel.board.movePieceToAndLeaveEmptyBehind(
+                        initialIndex,
+                        destinationIndex
+                    )
+                    thisViewModel.isWhitesPlaying.value = !(thisViewModel.isWhitesPlaying.value)!!
+                    thisViewModel.correctMovementsPerformed++
+
+                    myView.invalidate(initialIndex, thisViewModel.board.getPieceAtIndex(initialIndex)) //new pos
+                    myView.invalidate(destinationIndex, thisViewModel.board.getPieceAtIndex(destinationIndex)) //old pos
+                }
             }
-        }
+        } else play(R.raw.my_wrong_button_sound, this)
+    }
+
+    private fun finishedPuzzle(){
+        thisViewModel.gameDTO?.isDone = true
+        thisViewModel.isDone = true
+        thisViewModel.setGameAsDoneInDB()
+        snackBar(R.string.won)
+        play(R.raw.kill_bill_siren, this)
+        play(R.raw.gawdamn, this)
     }
 
     private fun snackBar(stringID: Int){ //https://material.io/components/snackbars/android#using-snackbars //or function: () -> (Unit) https://stackoverflow.com/a/44132689
@@ -209,9 +204,9 @@ class PuzzleSolvingActivity : AppCompatActivity() {
     }
 
     private fun loadGame() : Boolean {
-        if(puzzle!=null){
+        if(thisViewModel.puzzle!=null){
             var isWhitesPlaying = true
-            puzzle?.forEachIndexed { index, s ->
+            thisViewModel.puzzle?.forEachIndexed { index, s ->
                 isWhitesPlaying = index % 2 == 0
                 if(!thisViewModel.board.interpretMove(s,isWhitesPlaying)) {
                     toast(R.string.interpretError, this)
@@ -230,7 +225,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
     }
 
     private fun performSolution() {
-        solution?.forEach { s ->
+        thisViewModel.solution?.forEach { s ->
             val origin = Position.convertToPosition(s.subSequence(0,2).toString())
             val destination = Position.convertToPosition(s.subSequence(2,4).toString())
             if (origin != null && destination != null) {
@@ -251,7 +246,6 @@ class PuzzleSolvingActivityViewModel(application: Application, private val state
         log("MainActivityViewModel.init()")
     }
 
-
     private val historyDB : GameTableDAO by lazy {
         getApplication<Chess4AndroidApp>().historyDB.getDAO()
     }
@@ -263,6 +257,8 @@ class PuzzleSolvingActivityViewModel(application: Application, private val state
     var board: Board = Board()
     var correctMovementsPerformed: Int = 0
     var gameDTO: GameDTO? = null
+    var puzzle: Array<String>? = null
+    var solution: Array<String>? = null
 
     fun setGameAsDoneInDB(){
         doAsyncWithResult {
