@@ -22,6 +22,7 @@
 
 ### Extra rules
 - On a check, you can only move pieces that kill the piece that made the check, block it's path, or move the king out of the reach of that piece
+- [En Passant, pawn move](https://www.youtube.com/watch?v=c_KRIH0wnhE)
 
 #### When a pawn reaches the opponent's side limit, it can turn into: a queen, horse, tower or bishop. Format examples:
 - d1=q   //turns into queen

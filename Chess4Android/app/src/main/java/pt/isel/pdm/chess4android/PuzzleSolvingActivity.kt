@@ -52,7 +52,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
         }
 
         solutionSwitch.setOnClickListener {
-            thisViewModel.board = Board() //board.reset() and board.literalReset() weren't working, the pieces still containing the old Position values
+            thisViewModel.board = Board() //board.reset() and board.literalReset() weren't working, the pieces still containing the old Position values, garbage collector's fault?
             loadGame()
             if(!thisViewModel.isDone) {
                 performSolution()
@@ -131,13 +131,13 @@ class PuzzleSolvingActivity : AppCompatActivity() {
 
     private fun moveIt(pieceThatWillBeEatenIndex: Int, pieceToMove: Piece) {
         val movement = pieceToMove.position.letterAndNumber()+thisViewModel.board.getPieceAtIndex(pieceThatWillBeEatenIndex).position.letterAndNumber()
-        thisViewModel.board.movePieceToAndLeaveEmptyBehind(pieceThatWillBeEatenIndex, pieceToMove)
-        myView.invalidate(pieceThatWillBeEatenIndex, thisViewModel.board.getPieceAtIndex(pieceThatWillBeEatenIndex)) //new pos
-        myView.invalidate(currentlySelectedPieceIndex, thisViewModel.board.getPieceAtIndex(currentlySelectedPieceIndex)  ) //old pos
-        log("moved")
-        thisViewModel.isWhitesPlaying.value = !(thisViewModel.isWhitesPlaying.value)!!
 
         if(movement == thisViewModel.solution?.get(thisViewModel.correctMovementsPerformed)) {
+            thisViewModel.board.movePieceToAndLeaveEmptyBehind(pieceThatWillBeEatenIndex, pieceToMove)
+            myView.invalidate(pieceThatWillBeEatenIndex, thisViewModel.board.getPieceAtIndex(pieceThatWillBeEatenIndex)) //new pos
+            myView.invalidate(currentlySelectedPieceIndex, thisViewModel.board.getPieceAtIndex(currentlySelectedPieceIndex)  ) //old pos
+            log("moved")
+            thisViewModel.isWhitesPlaying.value = !(thisViewModel.isWhitesPlaying.value)!!
             thisViewModel.correctMovementsPerformed++
             toast(R.string.correctMove, this)
             play(R.raw.rareee, this)
@@ -156,6 +156,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
 
                     myView.invalidate(initialIndex, thisViewModel.board.getPieceAtIndex(initialIndex)) //new pos
                     myView.invalidate(destinationIndex, thisViewModel.board.getPieceAtIndex(destinationIndex)) //old pos
+                    if(thisViewModel.correctMovementsPerformed==thisViewModel.solution?.size) finishedPuzzle()
                 }
             }
         } else play(R.raw.my_wrong_button_sound, this)
@@ -163,8 +164,10 @@ class PuzzleSolvingActivity : AppCompatActivity() {
 
     private fun finishedPuzzle(){
         thisViewModel.gameDTO?.isDone = true
-        thisViewModel.isDone = true
-        thisViewModel.setGameAsDoneInDB()
+        if(!thisViewModel.isDone) {
+            thisViewModel.isDone = true
+            thisViewModel.setGameAsDoneInDB()
+        }
         snackBar(R.string.won)
         play(R.raw.kill_bill_siren, this)
         play(R.raw.gawdamn, this)

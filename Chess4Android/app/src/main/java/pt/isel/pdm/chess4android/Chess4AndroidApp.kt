@@ -51,7 +51,7 @@ class Chess4AndroidApp : Application() { // synonyms to apply to this class to u
             )
         }
 
-        val workRequest = PeriodicWorkRequestBuilder<AutoGetPuzzleWorker>(1, TimeUnit.DAYS)
+        val workRequest = PeriodicWorkRequestBuilder<AutoGetPuzzleWorker>(12, TimeUnit.HOURS)
                         .setConstraints(Constraints.Builder()
                                                             .setRequiresBatteryNotLow(true)
                                                             .setRequiresStorageNotLow(true).build()
