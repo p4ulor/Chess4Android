@@ -1,43 +1,176 @@
 @startuml
+
+'left to right direction
+' https://svgtopng.com/
 note "Only fields with val, will have 'val' before it, the others are all var\nAnd methods with no indicated visibility are public " as N1
 
 ' -----CONTROLLER-----
 package Controller <<Folder>> {
-
 	class Chess4AndroidApp{
-	  
+	    __ fields __
+        const val DATEPATTERN: String
+        -const val TAG: String
+        -const val DB: String
+        val historyDB: GamesDataBase
+        val repo: Chess4AndroidRepo
+        __ methods __
+        override onCreate()
+        play(id: Int, ctx: Context)
+        getTodaysDate(): String
+        log(s: String)
+        log(t: String, s: String)
+        toast(s: String, ctx: Context)
+        toast(id: Int, ctx: Context)
+        topToast(text: String, ctx: Context)
 	}
 
 	class Chess4AndroidRepo {
-	  
+	    __ fields __
+        const val TAG: String
+        const val LICHESSDAILYPUZZLEURL: String
+        private val historyGameDAO: GameTableDAO
+        __ constructor __
+        (historyGameDAO: GameTableDAO)
+        __ methods __
+        -getLatestPuzzleFromDB(callback: (Result<GameTable?>) -> Unit)
+        -saveToDB(dto: GameDTO, callback: (Result<Unit>) -> Unit = { })
+        -getTodaysPuzzleFromAPI(context: Application?, callback: (Result<GameDTO?>) -> Unit)
+        getTodaysGame(context: Application?, callback: (Result<GameDTO?>) -> Unit)
+        -lichessJSON_to_GameDTO(lichessJSON: LichessJSON) : GameDTO
 	}
 
 	package MainActivity.kt <<Rectangle>> {
 		class MainActivity {
+            __ fields __
+            const val TAG: String
+            const val DATEFILE: String
+            const val GAME_DTO_KEY: String
+            -continueButton: Button?
+            -val binding: ActivityMainBinding
+            -val thisViewModel: MainActivityViewModel
+            -const val IS_GAME_READY_LIVEDATA_KEY
+            __overrides__
+            onCreate(savedInstanceState: Bundle?)
+            onDestroy()
+            onBackPressed()
+            onCreateOptionsMenu(menu: Menu): Boolean
+            onOptionsItemSelected(item: MenuItem): Boolean
+
+            __ methods __
+            -snackBar(stringID: Int)
+            -launchGame()
+
 		}
+
+		Android.Application <|-[#blue]- MainActivity
 		
 		class MainActivityViewModel {
+            __ fields __
+            gameDTO: GameDTO
+            val isGameReady: LiveData<Boolean>
+            val context: Application
+            currentScreenOrientation: MutableLiveData<Int>
+            updateDisplayed: MutableLiveData<Boolean>
+            -val repo: Chess4AndroidRepo
+            __ constructor__
+            (application: Application, private val state: SavedStateHandle)
+            __ methods __
+            getTodaysGame(callback: (Result<GameDTO?>) -> Unit)
+            -isDataNullOrEmpty() : Boolean
+            -readDateOfTheLatestPuzzlePull() : String
+            -writeDateOfTheLatestPuzzlePulled(string: String)
 		}
+
+		Android.AndroidViewModel <|-[#green]- MainActivityViewModel
 	}
 
 	package PuzzleSolvingActivity.kt <<Rectangle>> {
 		class PuzzleSolvingActivity {
+            __ fields __
+            -val thisViewModel: PuzzleSolvingActivityViewModel
+            -lateinit myView: BoardView
+            -lateinit soloPlaySwitch: SwitchCompat
+            -lateinit solutionSwitch: SwitchCompat
+            -lateinit currentColorPlaying: ToggleButton
+            -currentlySelectedPieceIndex: Int
+            __ overrides __
+            onCreate(savedInstanceState: Bundle?)
+            onStart()
+            onResume()
+            onPause()
+            onBackPressed()
+            __ methods __
+            -tileBehaviour(tile: Tile)
+            -moveIt(pieceThatWillBeEatenIndex: Int, pieceToMove: Piece)
+            -finishedPuzzle()
+            -snackBar(stringID: Int)
+            -loadGame() : Boolean
+            -performSolution()
+            -invalidateEverything()
 		}
+
+		Android.AppCompatActivity <|-[#red]- PuzzleSolvingActivity
 		
 		class PuzzleSolvingActivityViewModel {
+		    __ fields __
+            -val historyDB: GameTableDAO
+            soloPlay: Boolean
+            isDone: Boolean
+            isGameLoaded: Boolean
+            isWhitesPlaying: MutableLiveData<Boolean>
+            board: Board
+            correctMovementsPerformed: Int
+            gameDTO: GameDTO?
+            puzzle: Array<String>?
+            solution: Array<String>?
+            __ constructor __
+            (application: Application)
+            __ methods __
+            setGameAsDoneInDB()
 		}
+
+		Android.AndroidViewModel <|-[#black]- PuzzleSolvingActivityViewModel
 	}
 
 	package GameHistoryActivity.kt <<Rectangle>> {
 		class GameHistoryActivity {
+            __ fields __
+            -val binding: ActivityGameHistoryBinding
+            -val thisViewModel: GameHistoryViewModel
+
+            __ overrides__
+            onCreate(savedInstanceState: Bundle?)
+            onResume()
+            onItemClicked(gameDTO: GameDTO, holderPosition: Int)
+            onCheckBoxClicked(isChecked: Boolean)
+            __ methods __
+            -launchGame(gameDTO: GameDTO)
 		}
+
+		OnItemClickListener <|- GameHistoryActivity
 		
 		class GameHistoryActivityViewModel {
+		    __ fields __
+            history: LiveData<List<GameDTO>>?
+            gameSelected: Int
+            -val historyDB: GameTableDAO
+            __ methods __
+            loadHistory() : LiveData<List<GameDTO>>
 		}
+
+		Android.AndroidViewModel <|- GameHistoryViewModel
+
+		interface OnItemClickListener{
+            onItemClicked(gameDTO: GameDTO, holderPosition: Int)
+            onCheckBoxClicked(isChecked: Boolean)
+        }
 	}
 
 	class AboutActivity {
-	  onCreate(savedInstanceState: Bundle?)
+	    __ fields __
+	    const val GITHUBURL: String
+	    __ overrides __
+	    onCreate(savedInstanceState: Bundle?)
 	}
 
 }
@@ -45,30 +178,85 @@ package Controller <<Folder>> {
 
 
 
-
 ' -----MODEL----------
 package Model <<Folder>> {
+	class asyncUtils <<(K,#7B86E2)>> {
+      -- fields --
+      -val ioExecutor: ExecutorService
+      -val dataAccessExecutor: ExecutorService
+      -- methods --
+      -<T> executeAndCollectResult(asyncAction: () -> T): Result<T>
+      <T> callbackAfterAsync(callback: (Result<T>) -> Unit, asyncAction: () -> T)
+      <T> publishInLiveDataAfterAsync(asyncAction: () -> T): LiveData<Result<T>>
+      <T> doAsyncWithResult(action: () -> T) : MutableLiveData<T>
+      doAsync(action: () -> Unit)
+    }
 
-	package asyncUtils.kt <<Rectangle>> {
-	  
-	}
+    class LichessJSON <<(K,#7B86E2)>> {
+        {{json
+        {"game":{"id": "String","perf": {"icon": "String","name": "String"},"rated": "Boolean","players": [{"userId": "String","name": "String","color": "String"},{"userId": "String","name": "String","color": "String"}],"pgn": "String"}, "puzzle": {
+                                                                                                                                                                                                                                                          "id": "String",
+                                                                                                                                                                                                                                                          "rating": "Int",
+                                                                                                                                                                                                                                                          "plays": "Int",
+                                                                                                                                                                                                                                                          "initialPly": "Int",
+                                                                                                                                                                                                                                                          "solution": "Array<String>",
+                                                                                                                                                                                                                                                          "themes": "Array<String>"}}
+        }}
+    }
 
 	class AutoGetPuzzleWorker {
-	  
+	  __ constructor __
+	  (appContext: Context, workerParams: WorkerParameters)
+	  __ interface overrides __
+	  override fun startWork(): ListenableFuture<Result>
 	}
 
+	Android.ListenableWorker <|-- AutoGetPuzzleWorker
+
 	class Board {
-	  
+	  __ fields __
+      -const val TAG: String
+      val BOARD_SIDE_SIZE: Int
+      val BOARDLENGHT: Int
+      -val startingChessPiecesTablePositions: Array<Piece>
+      -chessPiecesTablePositions: Array<Piece>
+
+      __ companion object __
+      val companion_chessTable: Array<Piece>
+      indexToPosition(index: Int) : Position
+      positionToIndex(position: Position) : Int
+      -letterToColumnNumber(char: Char) : Int
+      -columnNumberToLetter(n : Int) : Char
+
+      __ methods __
+      -isNotEmptyPiece(index: Int) : Boolean
+      -isPositionWithPieceType(index: Int, pieceType: PIECETYPE) : Boolean
+      getPieceAtIndex(index: Int) : Piece
+      -getPieceAtPosition(position: Position) : Piece
+      -getPieceColor(position: Position) : Boolean?
+      -getIndexesOfPieceWithConditions(column: Char?, line: Byte?, pieceType: PIECETYPE?, isWhite: Boolean?) : IntArray
+      -getIndexOfPieceWithConditions2(column: Char?, line: Char?, pieceType: PIECETYPE?, isWhite: Boolean?) : IntArray
+      -setPieceAtIndex(index: Int, piece: Piece)
+      -setPieceAtPosition(position: Position, piece: Piece)
+      switchPiecesAtIndexes(index1: Int, index2: Int)
+      movePieceToAndLeaveEmptyBehind(origin: Position, destination: Position)
+      movePieceToAndLeaveEmptyBehind(indexOrigin: Int, indexDestination: Int)
+      movePieceToAndLeaveEmptyBehind(indexDestination: Int, pieceOrigin: Piece)
+      movePieceToAndLeaveEmptyBehind(position: Position, pieceOrigin: Piece)
+      interpretMove(move: String, isWhite: Boolean) : Boolean
+      -getPieceThatCanMoveTo(destination: Position, array: IntArray) : Piece?
+      -isPathClear(origin: Position, destination: Position) : Boolean
+      -isOutOfBounds (index: Int) : Boolean
 	}
 
 	package ChessPieces.kt <<Rectangle>> {
 		class Position {
+		    -- fields --
+            letter: Char
+            number: Byte
 			__ constructors __
 			(letter: Char, number: Byte)
 			(string: String)
-			-- fields --
-			letter: Char
-			number: Byte
 			-- methods --
 			-isValid()
 			-isValid(string: String) : Boolean
@@ -85,15 +273,15 @@ package Model <<Folder>> {
 		}
 		
 		abstract class Piece {
+		    -- fields --
+            position: Position
+            isWhite: Boolean
+            {abstract} abstract pieceType: PIECETYPE
+            {abstract} abstract val maxTravelDistanceX: Byte
+            {abstract} abstract val maxTravelDistanceY: Byte
 			__ constructors __
 			(position: Position, isWhite: Boolean)
 			(letter: Char, number: Byte, isWhite: Boolean)
-			-- fields --
-			position: Position
-			isWhite: Boolean
-			{abstract} abstract pieceType: PIECETYPE
-			{abstract} abstract val maxTravelDistanceX: Byte
-			{abstract} abstract val maxTravelDistanceY: Byte
 			-- methods --
 			{abstract} abstract canMoveTo(destination: Position): Boolean
 		}
@@ -153,27 +341,40 @@ package Model <<Folder>> {
 	}
 
 	class GameDTO {
-	  
+	  __ fields __
+      id: String?
+      puzzle: String?
+      solution: String?
+      date: String?
+      isDone: Boolean
+      __ methods __
+      toGameTable() : GameTable
 	}
 
 	package GameHistoryDB.kt <<Rectangle>> {
 		class GameTable {
-		
+		    @PrimaryKey id: String
+            puzzle: String
+            solution: String
+            date: String
+            isDone: Boolean
+            __ methods __
+            toGameDTO() : GameDTO
 		}
 		 
 		interface GameTableDAO {
-		
+		    @Insert insert(gameTable: GameTable)
+            @Delete delete(gameTable: GameTable)
+            @Update update(gameTable: GameTable)
+            @Query getAll() : List<GameTable>
+            @Query getLast(count: Int) : List<GameTable>
+            @Query getGameWithID(id: String) : GameTable
+            @Query setIsDone(id: String, isDone: Boolean)
 		}
 		 
 		abstract class GamesDataBase {
-		
+		    {abstract} abstract getDAO() : GameTableDAO
 		}
-	}
-
-
-	package LichessJSON.kt <<Rectangle>> {
-
-
 	}
 
 }
@@ -187,19 +388,85 @@ package Model <<Folder>> {
 package Views <<Folder>> {
 
 	class BoardView {
-	  
+	  __ fields __
+      const val SIDE: Int
+      const val TAG: String
+      tileMatrix: Array<Tile>
+      -val ctx: Context
+      -val blankIcon: VectorDrawableCompat
+      __ constructor __
+      (ctx: Context, attrs: AttributeSet?)
+      __ methods __
+      -indexToColumn(it: Int): VectorDrawableCompat?
+      -getDrawablePiece(pieceType: PIECETYPE, isWhite: Boolean) : VectorDrawableCompat?
+      invalidate(index: Int, piece: Piece)
+      -getIcon(xmlID: Int): VectorDrawableCompat?
+      -val brush: Paint
+      override dispatchDraw(canvas: Canvas)
 	}
 
-	package GameHistoryViewAdapter.kt <<Folder>> {
+	Android.GridLayout <|-- BoardView
+
+	package GameHistoryViewAdapter.kt <<Rectangle>> {
 		class GameHistoryViewAdapter {
+		    -gamesHistoryData: List<GameDTO>
+            -itemClickedListener: OnItemClickListener
+            __ overrides __
+            onCreateViewHolder(parent: ViewGroup, viewType: Int): HistoryItemViewHolder
+            onBindViewHolder(holder: HistoryItemViewHolder, position: Int)
+            getItemCount(): Int
 		}
+
+        Android.RecyclerView_Adapter <|-[#orange]- GameHistoryViewAdapter
+
 		class HistoryItemViewHolder {
+            __ fields __
+            -val dateView: TextView
+            -val idView: TextView
+            -val checkBox: CheckBox
+            __ constructor __
+            (itemView: View)
+            __ methods __
+            bindTo(gameDTO: GameDTO, itemClickedListener: OnItemClickListener)
 		}
+
+		Android.RecyclerView_ViewHolder <|-[#black]- HistoryItemViewHolder
 	}
 
 	class Tile {
-	  
+	    __ fields __
+        ctx: Context
+        val isWhite: Boolean?
+        val tilesPerSide: Int
+        icon: VectorDrawableCompat
+        letter: VectorDrawableCompat?
+        number: VectorDrawableCompat?
+        index: Int
+        -val padding: Int
+        -val brush: Paint
+        __ constructor__
+        (ctx: Context, val isWhite: Boolean?, val tilesPerSide: Int, var icon: VectorDrawableCompat,letter: VectorDrawableCompat?,number: VectorDrawableCompat?, index: Int)
+        __ overrides __
+        onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int)
+        fun onDraw(canvas: Canvas)
+        __ methods __
+        setIcon (icon: VectorDrawableCompat) : Tile
 	}
 
+	Android.View <|-[#yellow]- Tile
+
+}
+
+
+
+package Android <<Folder>> {
+    interface ListenableWorker
+    class AppCompatActivity
+    class Application
+    class AndroidViewModel
+    class GridLayout
+    class RecyclerView_Adapter
+    class RecyclerView_ViewHolder
+    class View
 }
 @enduml

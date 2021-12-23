@@ -42,6 +42,25 @@ Date: 21/11/2021
 - In the 3rd Activity, there's a textView with the names of the authors, a textView that acts like a button which links to this repo, an image of the github icon, and a textView that also acts like a button which will open the URL to the daily puzzle API.
 
 ### Tag **chess_royale_2**
+### Aditions and notes:
+- The app stores the each puzzle obtained for each day locally on the phone and all of it's details. Including if it's done. This list is displayed in a new activity called the GameHistoryActivity
+- When opening a solved puzzle, a switch will be available for viewing the solution. While the switch is on, the user cant move pieces. When opening a non-solved puzzle, this switch will not appear.
+- The app tries to get the puzzle from the API in a repeatedly in an interval of 12hours (this is done with WorkManager) and stores it in the app's database. If the phone already has the app for today, it will access the database and not make a request to get the JSON from the API. Thus, the app's android programming design was altered so that it contains a Repository, which will have all of the app's I/O related to writing and reading a puzzle(our GameDTO) passing through it.
+- Added switch that will autoPlay (you vs the phone if you will, using the solution) after correctly moving a piece.
+- Added toggleButton so the user knows the color of the piece that is playing
+- The user now cannot move pieces if it doesn't correspond to the solution of the puzzle.
+- Given the previous alterations, the "Get todays game" in the MainActivity was removed
+- A variety of sounds where added to cheer up the app. When: loading a game successfully, trying to move a piece in the wrong direction, moving a piece in accordance to the solution, winning the game and trying to click a checkBox that is not checked in the GameHistoryActivity
+- Added indication of the column letter in the layout, but it's very small atleast in emulator :/
+- AppDocumentation folder added with many helpful diagrams to understand and visualize the app.
+- Major indentified problem with in this point in time: code could be more organized. Part of this was to blame to the fact that I wanted to try different approaches and coding styles while adapting and learning kotlin or/and learn new things in android, and therefore I ended up using a variety of things. And I will try to solve all of this next.
+
+### GameHistoryActivity
+![](_imgs/T2_1.png)
+
+### PuzzleSolvingActivity
+![](_imgs/T2_2.png)
+
 
 ## Consult today's game here
 - https://lichess.org/training/daily

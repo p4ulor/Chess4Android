@@ -22,7 +22,6 @@ import pt.isel.pdm.chess4android.databinding.ActivityMainBinding
 import pt.isel.pdm.chess4android.model.*
 
 private const val TAG = "MainActivity"
-const val LICHESSDAILYPUZZLEURL: String = "https://lichess.org/api/puzzle/daily"
 private const val DATEFILE = "latest_data_fetch_date.txt"
 //LiveData and Intent data keys
 const val GAME_DTO_KEY = "game"
@@ -166,7 +165,7 @@ class MainActivityViewModel(application: Application, private val state: SavedSt
         }
     }
 
-    fun isDataNullOrEmpty() = gameDTO?.id.isNullOrEmpty() || gameDTO?.puzzle.isNullOrEmpty() || gameDTO?.solution.isNullOrEmpty() || gameDTO?.date.isNullOrEmpty()
+    private fun isDataNullOrEmpty() = gameDTO?.id.isNullOrEmpty() || gameDTO?.puzzle.isNullOrEmpty() || gameDTO?.solution.isNullOrEmpty() || gameDTO?.date.isNullOrEmpty()
 
     //Current date methods
 

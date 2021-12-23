@@ -16,6 +16,7 @@ import pt.isel.pdm.chess4android.model.*
  */
 
 private const val TAG = "Repo"
+const val LICHESSDAILYPUZZLEURL: String = "https://lichess.org/api/puzzle/daily"
 
 class Chess4AndroidRepo(private val historyGameDAO: GameTableDAO) {
 
@@ -30,12 +31,13 @@ class Chess4AndroidRepo(private val historyGameDAO: GameTableDAO) {
             historyGameDAO.insert(dto.toGameTable())
         }
     }
+
     private fun getTodaysPuzzleFromAPI(context: Application?, callback: (Result<GameDTO?>) -> Unit){
         val queue = Volley.newRequestQueue(context)
         val responseListener = Response.Listener<String> { response ->
             log(response.toString())
             val lichessGameOfTheDay = Json { ignoreUnknownKeys = true }.decodeFromString(LichessJSON.serializer(),response)
-            val result = Result.success(LichessJSON_to_GameDTO(lichessGameOfTheDay))
+            val result = Result.success(lichessJSON_to_GameDTO(lichessGameOfTheDay))
             callback(result)
             log("Response received")
         }
@@ -54,22 +56,22 @@ class Chess4AndroidRepo(private val historyGameDAO: GameTableDAO) {
         getLatestPuzzleFromDB { maybeEntity ->
             val maybeGame = maybeEntity.getOrNull()
             if (maybeGame?.date==getTodaysDate()) {
-                log(TAG, "Thread ${Thread.currentThread().name}: Got daily quote from local DB")
+                log(TAG, "Thread ${Thread.currentThread().name}: Got daily puzzle from local DB")
                 callback(Result.success(maybeGame.toGameDTO()))
             }
             else {
                getTodaysPuzzleFromAPI(context) { apiResult ->
                     apiResult.onSuccess { gameDTO ->
-                        log(TAG, "Thread ${Thread.currentThread().name}: Got daily quote from API")
+                        log(TAG, "Thread ${Thread.currentThread().name}: Got daily puzzle from API")
                         saveToDB(gameDTO!!) { saveToDBResult ->
                             saveToDBResult.onSuccess {
-                                log(TAG, "Thread ${Thread.currentThread().name}: Saved daily quote to local DB")
+                                log(TAG, "Thread ${Thread.currentThread().name}: Saved daily puzzle to local DB")
                                 callback(Result.success(gameDTO))
                             }
-                                .onFailure {
-                                    Log.i(TAG, "Thread ${Thread.currentThread().name}: Failed to save daily quote to local DB", it)
-                                    callback(Result.failure(it))
-                                }
+                            .onFailure {
+                                Log.i(TAG, "Thread ${Thread.currentThread().name}: Failed to save daily puzzle to local DB", it)
+                                callback(Result.failure(it))
+                            }
                         }
                     }
                     callback(apiResult)
@@ -79,7 +81,7 @@ class Chess4AndroidRepo(private val historyGameDAO: GameTableDAO) {
     }
 }
 
-fun LichessJSON_to_GameDTO(lichessJSON: LichessJSON) : GameDTO {
+private fun lichessJSON_to_GameDTO(lichessJSON: LichessJSON) : GameDTO {
     val sb: StringBuilder = StringBuilder()
     for(i in lichessJSON.puzzle.solution){
         sb.append("$i ")

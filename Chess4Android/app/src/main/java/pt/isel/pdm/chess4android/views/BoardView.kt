@@ -9,6 +9,7 @@ import android.util.Log
 import android.widget.GridLayout
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import pt.isel.pdm.chess4android.R
+import pt.isel.pdm.chess4android.log
 import pt.isel.pdm.chess4android.model.BOARD_SIDE_SIZE
 import pt.isel.pdm.chess4android.model.Board
 import pt.isel.pdm.chess4android.model.PIECETYPE
@@ -20,21 +21,22 @@ import pt.isel.pdm.chess4android.model.Piece
 /**
  * Custom view that implements a chess board.
  */
-const val side = BOARD_SIDE_SIZE
-var tileMatrix = arrayOfNulls<Tile>(side*side)
+const val SIDE = BOARD_SIDE_SIZE
+const val TAG = "BoardView"
+var tileMatrix = arrayOfNulls<Tile>(SIDE*SIDE)
 @SuppressLint("ClickableViewAccessibility")
 class BoardView(private val ctx: Context, attrs: AttributeSet?) : GridLayout(ctx, attrs) {
 
     private val blankIcon = VectorDrawableCompat.create(ctx.resources, R.drawable.ic_blank, null)
 
     init { //will always read the startingChessPiecesTablePositions (because the companion object references it)
-        rowCount = side
-        columnCount = side
-        repeat(side * side) {
-            val row = it / side
-            val column = it % side
+        rowCount = SIDE
+        columnCount = SIDE
+        repeat(SIDE * SIDE) {
+            val row = it / SIDE
+            val column = it % SIDE
             val piece = Board.companion_chessTable[it]
-            val tile = Tile(ctx, (row + column) % 2 == 0, side,
+            val tile = Tile(ctx, (row + column) % 2 == 0, SIDE,
                 ((if(row==1 || row==0 || row==6 || row==7) getDrawablePiece(piece.pieceType, piece.isWhite) //the if and else is not strictly necessary but its a little optimization
                 else blankIcon)!!), if(row==7) indexToColumn(column) else null, null,
                 it
@@ -70,13 +72,13 @@ class BoardView(private val ctx: Context, attrs: AttributeSet?) : GridLayout(ctx
         }
     }
 
-    fun invalidate(index: Int, piece: Piece ){
+    fun invalidate(index: Int, piece: Piece){
         if(index<0 || index >= tileMatrix.size) throw IllegalArgumentException()
         val img = getDrawablePiece(piece.pieceType, piece.isWhite)
         if(img!=null){
             tileMatrix[index]?.setIcon(img)?.invalidate()
             //log("invalidated")
-        } else log("invalidate failed")
+        } else log(TAG,"invalidate failed")
     }
 
     private fun getIcon(xmlID: Int): VectorDrawableCompat? = VectorDrawableCompat.create(ctx.resources, xmlID, null)
@@ -95,5 +97,3 @@ class BoardView(private val ctx: Context, attrs: AttributeSet?) : GridLayout(ctx
         canvas.drawLine(width.toFloat(), 0f, width.toFloat(), height.toFloat(), brush)
     }
 }
-
-fun log(s: String) = Log.i("MY_LOG_BoardView", s)

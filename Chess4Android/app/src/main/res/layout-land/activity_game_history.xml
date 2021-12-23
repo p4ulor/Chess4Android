@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+https://stackoverflow.com/a/38995399/9375488 (recyclerview-inside-scrollview-is-not-working)
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:label="AAAAAAA"
+    tools:context=".GameHistoryActivity">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/gameListRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="vertical"
+        app:layoutManager="LinearLayoutManager" />
+
+</RelativeLayout>

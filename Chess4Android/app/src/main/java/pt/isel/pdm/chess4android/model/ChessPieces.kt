@@ -1,6 +1,5 @@
 package pt.isel.pdm.chess4android.model
 
-import android.util.Log
 import pt.isel.pdm.chess4android.log
 import java.lang.IllegalArgumentException
 import kotlin.math.abs
@@ -15,20 +14,17 @@ data class Position(var letter: Char, var number: Byte) {
     constructor(string: String) : this(string[0], string[1].digitToInt()?.toByte())
 
     private fun isValid() = validXPositions.contains(/*this.*/letter) && validYPositions.contains(/*this.*/number)
-    private fun isValid(string: String) : Boolean { //probably useless, but if needed, I would need to include O, -, +, # and other special chars
-        string.forEach { c ->
-            if(c.isDigit()){
-                if(!validYPositions.contains(c.code.toByte())) return false
-            }
-            else if(!validXPositions.contains(c)) return false
-        }
-        return true
+    private fun isValid(string: String) : Boolean {
+        if(string.length!=2) return false
+        if(validXPositions.contains(string[0]) && validYPositions.contains(string[1].code.toByte())) return true
+        return false
     }
 
     fun horizontalyInvertPosition() : Position {
         number = (BOARD_SIDE_SIZE+1 - number).toByte() //https://stackoverflow.com/questions/16242259/reverse-number-in-a-range
         return this
     }
+
     override fun toString(): String = "Letter: $letter, Number: $number"
     fun letterAndNumber() : String ="$letter$number"
     fun isEqual(position: Position) : Boolean = this.letter==position.letter && this.number==position.number
@@ -51,9 +47,8 @@ data class Position(var letter: Char, var number: Byte) {
         fun convertToPosition(string: String) : Position? {
             if(string.length==2){
                 try {
-                    val position = Position(string[0], string[1].digitToInt().toByte())
-                    return position
-                } catch (e: Exception){
+                    return Position(string[0], string[1].digitToInt().toByte())
+                } catch (e: Exception) {
                     log(TAG, e.toString())
                 }
             }
@@ -62,7 +57,7 @@ data class Position(var letter: Char, var number: Byte) {
     }
 }
 
-abstract class Piece (var position: Position, open var isWhite: Boolean) {
+abstract class Piece (open var position: Position, open var isWhite: Boolean) {
     abstract val pieceType: PIECETYPE //lowercase
     abstract val maxTravelDistanceX: Byte //positive value
     abstract val maxTravelDistanceY: Byte //positive value
@@ -73,7 +68,7 @@ abstract class Piece (var position: Position, open var isWhite: Boolean) {
 
 sealed class ChessPieces { //https://antonioleiva.com/sealed-classes-kotlin/ //maybe not needed here?
 
-    data class Pawn (var letter: Char, var number: Byte, override var isWhite: Boolean) : Piece(letter, number, isWhite) {
+    data class Pawn (override var position: Position, override var isWhite: Boolean) : Piece(position, isWhite) {
         override val pieceType = PIECETYPE.PAWN
         override val maxTravelDistanceX: Byte = 1
         override val maxTravelDistanceY: Byte = 2
@@ -83,10 +78,10 @@ sealed class ChessPieces { //https://antonioleiva.com/sealed-classes-kotlin/ //m
         override fun canMoveTo(destination: Position) : Boolean {
             if(position.isValidMovement(destination, maxTravelDistanceX, maxTravelDistanceY)){ //part checks logical board bounds and piece maxTravelDistance bounds
                 if(!firstMoveUsed && isWhite && position.getYDiferenceNoAbs(destination)==-1 || position.getYDiferenceNoAbs(destination)==-2){ //kotlin ranges doesnt work with negative values... https://kotlinlang.org/docs/ranges.html
-                    //firstMoveUsed = true
+                    if(!firstMoveUsed) firstMoveUsed = true
                     return true
                 } else if (!firstMoveUsed && !isWhite && (position.getYDiferenceNoAbs(destination) in 1..2)){
-                    //firstMoveUsed = true
+                    if(!firstMoveUsed) firstMoveUsed = true
                     return true
                 } else if(isWhite && position.getYDiferenceNoAbs(destination) == -1){
                     return true
@@ -99,11 +94,10 @@ sealed class ChessPieces { //https://antonioleiva.com/sealed-classes-kotlin/ //m
 
         fun movesDiagonally(destination: Position) : Boolean = position.getXDiference(destination)==1
 
-
         override fun toString(): String = "Pawn"
     }
 
-    data class Bishop (var letter: Char, var number: Byte, override var isWhite: Boolean) : Piece(letter, number, isWhite) {
+    data class Bishop (override var position: Position, override var isWhite: Boolean) : Piece(position, isWhite) {
         override val pieceType = PIECETYPE.BISHOP
         override val maxTravelDistanceX: Byte = 7
         override val maxTravelDistanceY: Byte = 7
@@ -120,7 +114,7 @@ sealed class ChessPieces { //https://antonioleiva.com/sealed-classes-kotlin/ //m
         override fun toString(): String = "Bishop"
     }
 
-    data class Knight (var letter: Char, var number: Byte, override var isWhite: Boolean) : Piece(letter, number, isWhite) {
+    data class Knight (override var position: Position, override var isWhite: Boolean) : Piece(position, isWhite) {
         override val pieceType = PIECETYPE.KNIGHT
         override val maxTravelDistanceX: Byte = 0 //Knight is an exception (we will do it hardcoded)
         override val maxTravelDistanceY: Byte = 0 //Knight is an exception (we will do it hardcoded)
@@ -138,7 +132,7 @@ sealed class ChessPieces { //https://antonioleiva.com/sealed-classes-kotlin/ //m
         override fun toString(): String = "Knight"
     }
 
-    data class Rook (var letter: Char, var number: Byte, override var isWhite: Boolean) : Piece(letter, number, isWhite) {
+    data class Rook (override var position: Position, override var isWhite: Boolean) : Piece(position, isWhite) {
         override val pieceType = PIECETYPE.ROOK
         override val maxTravelDistanceX: Byte = 7
         override val maxTravelDistanceY: Byte = 7
@@ -148,9 +142,11 @@ sealed class ChessPieces { //https://antonioleiva.com/sealed-classes-kotlin/ //m
         override fun canMoveTo(destination: Position) : Boolean {
             if(position.isValidMovement(destination, maxTravelDistanceX, maxTravelDistanceY)){
                 if(position.getXDiference(destination)==0 && position.getYDiference(destination)!=0) {
+                    if(!firstMoveUsed) firstMoveUsed = true
                     return true
                 }
                 else if (position.getXDiference(destination)!=0 && position.getYDiference(destination)==0) {
+                    if(!firstMoveUsed) firstMoveUsed = true
                     return true
                 }
             }
@@ -160,7 +156,7 @@ sealed class ChessPieces { //https://antonioleiva.com/sealed-classes-kotlin/ //m
         override fun toString(): String = "Rook"
     }
 
-    data class King (var letter: Char, var number: Byte, override var isWhite: Boolean) : Piece(letter, number, isWhite) {
+    data class King (override var position: Position, override var isWhite: Boolean) : Piece(position, isWhite) {
         override val pieceType = PIECETYPE.KING
         override val maxTravelDistanceX: Byte = 1
         override val maxTravelDistanceY: Byte = 1
@@ -169,6 +165,7 @@ sealed class ChessPieces { //https://antonioleiva.com/sealed-classes-kotlin/ //m
 
         override fun canMoveTo(destination: Position) : Boolean {
             if(position.isValidMovement(destination, maxTravelDistanceX, maxTravelDistanceY)){
+                if(!firstMoveUsed) firstMoveUsed = true
                 return true
             }
             return false
@@ -177,7 +174,7 @@ sealed class ChessPieces { //https://antonioleiva.com/sealed-classes-kotlin/ //m
         override fun toString(): String = "King"
     }
 
-    data class Queen (var letter: Char, var number: Byte, override var isWhite: Boolean) : Piece(letter, number, isWhite) {
+    data class Queen (override var position: Position, override var isWhite: Boolean) : Piece(position, isWhite) {
         override val pieceType = PIECETYPE.QUEEN
         override val maxTravelDistanceX: Byte = 7
         override val maxTravelDistanceY: Byte = 7
@@ -192,7 +189,7 @@ sealed class ChessPieces { //https://antonioleiva.com/sealed-classes-kotlin/ //m
         override fun toString(): String = "Queen"
     }
 
-    data class Empty (var letter: Char, var number: Byte) : Piece(letter, number, false) {
+    data class Empty (override var position: Position) : Piece(position, false) {
         override val pieceType = PIECETYPE.EMPTY
         override val maxTravelDistanceX: Byte = 0
         override val maxTravelDistanceY: Byte = 0

@@ -11,7 +11,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
 import androidx.lifecycle.MutableLiveData
 import com.google.android.material.snackbar.Snackbar
-import pt.isel.pdm.chess4android.databinding.ActivityMainBinding
 import pt.isel.pdm.chess4android.model.*
 import pt.isel.pdm.chess4android.views.BoardView
 import pt.isel.pdm.chess4android.views.Tile
@@ -72,7 +71,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
             if(thisViewModel.isGameLoaded){
                 invalidateEverything()
             } else if(loadGame()) {
-                invalidateEverything() //it's easier for us to invalidate everything when loading
+                invalidateEverything() //it's easier for us to invalidate everything after all the pieces are set, instead of invalidating for every move. Every puzzle has 30+ moves. So that's 30*2 tile invalidates. So, its worth the simplicity (or cost) of invalidating everything (64 positions)
                 play(R.raw.pictures_snare, this)
             }
         }
@@ -107,8 +106,8 @@ class PuzzleSolvingActivity : AppCompatActivity() {
             log("analysing movement validity:")
             val pieceToMove = thisViewModel.board.getPieceAtIndex(currentlySelectedPieceIndex)
             val pieceThatWillBeEatenIndex = tile.index
-            val thePieceToBeEaten = thisViewModel.board.getPieceAtIndex(pieceThatWillBeEatenIndex)
-            val theNewPosition = thePieceToBeEaten.position
+            val pieceThatWillBeEaten = thisViewModel.board.getPieceAtIndex(pieceThatWillBeEatenIndex)
+            val theNewPosition = pieceThatWillBeEaten.position
 
             log("destination has index = $pieceThatWillBeEatenIndex and position = $theNewPosition ")
             if(pieceThatWillBeEatenIndex!=currentlySelectedPieceIndex) {
@@ -116,7 +115,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
                     if(pieceToMove.canMoveTo(theNewPosition)){
                         if(pieceToMove.pieceType==PIECETYPE.PAWN) {
                             val thePawn = pieceToMove as ChessPieces.Pawn
-                            if(thePawn.movesDiagonally(theNewPosition) && thePieceToBeEaten.pieceType==PIECETYPE.EMPTY){
+                            if(thePawn.movesDiagonally(theNewPosition) && pieceThatWillBeEaten.pieceType==PIECETYPE.EMPTY){
                                 log("the pawn can only move diagonally when it will eat a piece")
                             } else moveIt(pieceThatWillBeEatenIndex, pieceToMove)
                         } else {
@@ -124,7 +123,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
                         }
                     } else log("the piece cant move to selected position")
                 } else log("the pieces are of the same color!")
-            } else log("the indexes of the pieces to move are the same or some values are null")
+            } else log("the indexes of the pieces to move are the same")
             currentlySelectedPieceIndex = -1
         }
     }
@@ -219,7 +218,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
                 //if(index==14) return true //useful for testing index by index, movement by movement
             }
             thisViewModel.isWhitesPlaying.value = !isWhitesPlaying
-            toast(R.string.loadSuccess, this)
+            // toast(R.string.loadSuccess, this)
             thisViewModel.isGameLoaded = true
             return true
         }
@@ -244,7 +243,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
     }
 }
 
-class PuzzleSolvingActivityViewModel(application: Application, private val state: SavedStateHandle) : AndroidViewModel(application) {
+class PuzzleSolvingActivityViewModel(application: Application) : AndroidViewModel(application) {
     init {
         log("MainActivityViewModel.init()")
     }

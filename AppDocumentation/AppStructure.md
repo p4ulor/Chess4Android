@@ -4,4 +4,5 @@
 
 ## Auxiliary Tools
 - https://www.aconvert.com/image/png-to-svg/
+- https://svgtopng.com/
 

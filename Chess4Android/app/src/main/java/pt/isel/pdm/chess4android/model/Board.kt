@@ -1,6 +1,5 @@
 package pt.isel.pdm.chess4android.model
 
-import android.util.Log
 import pt.isel.pdm.chess4android.log
 import kotlin.math.abs
 private const val TAG = "Board"
@@ -10,92 +9,93 @@ const val BOARDLENGHT: Int = BOARD_SIDE_SIZE * BOARD_SIDE_SIZE
 class Board {
     private val startingChessPiecesTablePositions = arrayOf(
 
-        ChessPieces.Rook('a', 8, false),
-        ChessPieces.Knight('b', 8, false),
-        ChessPieces.Bishop('c', 8, false),
-        ChessPieces.Queen('d', 8,false),
-        ChessPieces.King('e', 8, false),
-        ChessPieces.Bishop('f', 8, false),
-        ChessPieces.Knight('g', 8, false),
-        ChessPieces.Rook('h', 8, false),
+        ChessPieces.Rook(Position('a', 8), false),
+        ChessPieces.Knight(Position('b', 8), false),
+        ChessPieces.Bishop(Position('c', 8), false),
+        ChessPieces.Queen(Position('d', 8),false),
+        ChessPieces.King(Position('e', 8), false),
+        ChessPieces.Bishop(Position('f', 8), false),
+        ChessPieces.Knight(Position('g', 8), false),
+        ChessPieces.Rook(Position('h', 8), false),
 
-        ChessPieces.Pawn('a', 7, false),
-        ChessPieces.Pawn('b', 7, false),
-        ChessPieces.Pawn('c', 7, false),
-        ChessPieces.Pawn('d', 7, false),
-        ChessPieces.Pawn('e', 7, false),
-        ChessPieces.Pawn('f', 7, false),
-        ChessPieces.Pawn('g', 7, false),
-        ChessPieces.Pawn('h', 7, false),
+        ChessPieces.Pawn(Position('a', 7), false),
+        ChessPieces.Pawn(Position('b', 7), false),
+        ChessPieces.Pawn(Position('c', 7), false),
+        ChessPieces.Pawn(Position('d', 7), false),
+        ChessPieces.Pawn(Position('e', 7), false),
+        ChessPieces.Pawn(Position('f', 7), false),
+        ChessPieces.Pawn(Position('g', 7), false),
+        ChessPieces.Pawn(Position('h', 7), false),
 
-        ChessPieces.Empty('a', 6),
-        ChessPieces.Empty('b', 6),
-        ChessPieces.Empty('c', 6),
-        ChessPieces.Empty('d', 6),
-        ChessPieces.Empty('e', 6),
-        ChessPieces.Empty('f', 6),
-        ChessPieces.Empty('g', 6),
-        ChessPieces.Empty('h', 6),
+        ChessPieces.Empty(Position('a', 6)),
+        ChessPieces.Empty(Position('b', 6)),
+        ChessPieces.Empty(Position('c', 6)),
+        ChessPieces.Empty(Position('d', 6)),
+        ChessPieces.Empty(Position('e', 6)),
+        ChessPieces.Empty(Position('f', 6)),
+        ChessPieces.Empty(Position('g', 6)),
+        ChessPieces.Empty(Position('h', 6)),
 
-        ChessPieces.Empty('a', 5),
-        ChessPieces.Empty('b', 5),
-        ChessPieces.Empty('c', 5),
-        ChessPieces.Empty('d', 5),
-        ChessPieces.Empty('e', 5),
-        ChessPieces.Empty('f', 5),
-        ChessPieces.Empty('g', 5),
-        ChessPieces.Empty('h', 5),
+        ChessPieces.Empty(Position('a', 5)),
+        ChessPieces.Empty(Position('b', 5)),
+        ChessPieces.Empty(Position('c', 5)),
+        ChessPieces.Empty(Position('d', 5)),
+        ChessPieces.Empty(Position('e', 5)),
+        ChessPieces.Empty(Position('f', 5)),
+        ChessPieces.Empty(Position('g', 5)),
+        ChessPieces.Empty(Position('h', 5)),
 
-        ChessPieces.Empty('a', 4),
-        ChessPieces.Empty('b', 4),
-        ChessPieces.Empty('c', 4),
-        ChessPieces.Empty('d', 4),
-        ChessPieces.Empty('e', 4),
-        ChessPieces.Empty('f', 4),
-        ChessPieces.Empty('g', 4),
-        ChessPieces.Empty('h', 4),
+        ChessPieces.Empty(Position('a', 4)),
+        ChessPieces.Empty(Position('b', 4)),
+        ChessPieces.Empty(Position('c', 4)),
+        ChessPieces.Empty(Position('d', 4)),
+        ChessPieces.Empty(Position('e', 4)),
+        ChessPieces.Empty(Position('f', 4)),
+        ChessPieces.Empty(Position('g', 4)),
+        ChessPieces.Empty(Position('h', 4)),
 
-        ChessPieces.Empty('a', 3),
-        ChessPieces.Empty('b', 3),
-        ChessPieces.Empty('c', 3),
-        ChessPieces.Empty('d', 3),
-        ChessPieces.Empty('e', 3),
-        ChessPieces.Empty('f', 3),
-        ChessPieces.Empty('g', 3),
-        ChessPieces.Empty('h', 3),
+        ChessPieces.Empty(Position('a', 3)),
+        ChessPieces.Empty(Position('b', 3)),
+        ChessPieces.Empty(Position('c', 3)),
+        ChessPieces.Empty(Position('d', 3)),
+        ChessPieces.Empty(Position('e', 3)),
+        ChessPieces.Empty(Position('f', 3)),
+        ChessPieces.Empty(Position('g', 3)),
+        ChessPieces.Empty(Position('h', 3)),
 
-        ChessPieces.Pawn('a', 2, true),
-        ChessPieces.Pawn('b', 2, true),
-        ChessPieces.Pawn('c', 2, true),
-        ChessPieces.Pawn('d', 2, true),
-        ChessPieces.Pawn('e', 2, true),
-        ChessPieces.Pawn('f', 2, true),
-        ChessPieces.Pawn('g', 2, true),
-        ChessPieces.Pawn('h', 2, true),
+        ChessPieces.Pawn(Position('a', 2), true),
+        ChessPieces.Pawn(Position('b', 2), true),
+        ChessPieces.Pawn(Position('c', 2), true),
+        ChessPieces.Pawn(Position('d', 2), true),
+        ChessPieces.Pawn(Position('e', 2), true),
+        ChessPieces.Pawn(Position('f', 2), true),
+        ChessPieces.Pawn(Position('g', 2), true),
+        ChessPieces.Pawn(Position('h', 2), true),
 
-        ChessPieces.Rook('a', 1, true),
-        ChessPieces.Knight('b', 1, true),
-        ChessPieces.Bishop('c', 1, true),
-        ChessPieces.Queen('d', 1,true),
-        ChessPieces.King('e', 1, true),
-        ChessPieces.Bishop('f', 1, true),
-        ChessPieces.Knight('g', 1, true),
-        ChessPieces.Rook('h', 1, true)
+        ChessPieces.Rook(Position('a', 1), true),
+        ChessPieces.Knight(Position('b', 1), true),
+        ChessPieces.Bishop(Position('c', 1), true),
+        ChessPieces.Queen(Position('d', 1),true),
+        ChessPieces.King(Position('e', 1), true),
+        ChessPieces.Bishop(Position('f', 1), true),
+        ChessPieces.Knight(Position('g', 1), true),
+        ChessPieces.Rook(Position('h', 1), true)
     )
+    private var chessPiecesTablePositions = startingChessPiecesTablePositions.copyOf()
     companion object {
         val companion_chessTable = Board().startingChessPiecesTablePositions.copyOf()  //startingChessPiecesTablePositions will be read only for classes that want to acess it
         fun indexToPosition(index: Int) : Position {
-            return Position(numberToLetter(index % BOARD_SIDE_SIZE), (BOARD_SIDE_SIZE / 8).toByte())
+            return Position(columnNumberToLetter(index % BOARD_SIDE_SIZE), (BOARD_SIDE_SIZE / 8).toByte())
         }
 
         fun positionToIndex(position: Position) : Int {
             //log("position->$position")
-            val res : String = ((BOARD_SIDE_SIZE-position.number) * BOARD_SIDE_SIZE + letterToColumn(position.letter)).toString()
+            //val res : String = ((BOARD_SIDE_SIZE-position.number) * BOARD_SIDE_SIZE + letterToColumnNumber(position.letter)).toString()
             //log("to index -> $res")
-            return (BOARD_SIDE_SIZE-position.number) * BOARD_SIDE_SIZE + letterToColumn(position.letter)
+            return (BOARD_SIDE_SIZE-position.number) * BOARD_SIDE_SIZE + letterToColumnNumber(position.letter)
         }
 
-        private fun letterToColumn(char: Char) : Int {
+        private fun letterToColumnNumber(char: Char) : Int {
             return when(char){
                 'a' -> 0
                 'b' -> 1
@@ -109,7 +109,7 @@ class Board {
             }
         }
 
-        private fun numberToLetter(n : Int) : Char {
+        private fun columnNumberToLetter(n : Int) : Char {
             return when(n){
                  0 -> 'a'
                  1 -> 'b'
@@ -123,8 +123,8 @@ class Board {
             }
         }
     }
-    private var chessPiecesTablePositions = startingChessPiecesTablePositions.copyOf()
-    constructor() {
+
+    init {
         assert(chessPiecesTablePositions.size == BOARDLENGHT)
     }
 
@@ -133,7 +133,7 @@ class Board {
     // BOOLEANS
     private fun isNotEmptyPiece(index: Int) : Boolean = getPieceAtIndex(index).pieceType!=PIECETYPE.EMPTY
 
-    fun isPositionWithPieceType(index: Int, pieceType: PIECETYPE) : Boolean {
+    private fun isPositionWithPieceType(index: Int, pieceType: PIECETYPE) : Boolean {
         if(getPieceAtIndex(index).pieceType==pieceType) return true
         return false
     }
@@ -144,6 +144,15 @@ class Board {
         return chessPiecesTablePositions[index]
     }
 
+    private fun getPieceAtPosition(position: Position) : Piece = getPieceAtIndex(positionToIndex(position))
+
+    private fun getPieceColor(position: Position) : Boolean? {
+        val piece = getPieceAtPosition(position)
+        if(piece.pieceType==PIECETYPE.EMPTY) return null
+        if(piece.isWhite) return true
+        return false
+    }
+
     // GET INDEX (and thus piece, and its properties), also can serve as method as isPositionWithPieceType : Boolean, per example
 
     // function use in a nutshell: if param is null, dont evaluate equality when searching for the index, otherwise, do evaluate.
@@ -151,23 +160,28 @@ class Board {
         var boolColumn = column!=null
         var boolLine = line!=null
         var boolPosition = boolColumn && boolLine
+        if(boolPosition) { //to null out duplicate checking of position AND column and line
+            boolColumn = false
+            boolLine = false
+        }
         var boolType = pieceType!=null
         var boolIsWhite = isWhite!=null
         var position: Position? = null
-        var arrayOfMaxingIndexes = IntArray(BOARD_SIDE_SIZE) { -1 }
+        var arrayOfMatchingIndexes = IntArray(BOARD_SIDE_SIZE*2) { -1 } //this is the length considering that since the color is always specified in our code, it can be 8*2. For the worst and possibly impossible case, all pieces could go to some position, which would require setting the lenght to (8*4)
+        if(!boolColumn && !boolLine && !boolPosition && !boolType && !boolIsWhite) return arrayOfMatchingIndexes
         if(boolPosition){ //is position really needed? if we have both line and column?
             try {
                 position = Position(column!!, line!!) //according to our validation above, !! is fine and has to be here
                 boolColumn = false
                 boolLine = false
             } catch (e: IllegalArgumentException){
-                return arrayOfMaxingIndexes
+                return arrayOfMatchingIndexes
             }
 
         } else if(boolColumn){
-            if(!validXPositions.contains(column!!)) return arrayOfMaxingIndexes
+            if(!validXPositions.contains(column!!)) return arrayOfMatchingIndexes
         } else if(boolLine){
-            if(!validYPositions.contains(line!!)) return arrayOfMaxingIndexes
+            if(!validYPositions.contains(line!!)) return arrayOfMatchingIndexes
         }
 
         var i = -1
@@ -189,9 +203,9 @@ class Board {
             if(boolIsWhite){
                 if(piece.isWhite!=isWhite) continue
             }
-            arrayOfMaxingIndexes[index++] = i
+            arrayOfMatchingIndexes[index++] = i
         }
-        return arrayOfMaxingIndexes
+        return arrayOfMatchingIndexes
     }
 
     // I had to add 2 to the end of the method, because if there are certain params that are null the compiler cannot know which overloaded method is to be called
@@ -203,7 +217,7 @@ class Board {
         chessPiecesTablePositions[index]=piece
     }
 
-    fun setPieceAtPosition(position: Position, piece: Piece) = setPieceAtIndex(positionToIndex(position), piece)
+    private fun setPieceAtPosition(position: Position, piece: Piece) = setPieceAtIndex(positionToIndex(position), piece)
 
     // *** MOVEMENTS ***
 
@@ -234,12 +248,12 @@ class Board {
         val auxPosition = pieceOrigin.position
         pieceOrigin.position = getPieceAtIndex(indexDestination)?.position!! //change the position of the piece to the position of the destination that its going to (change the value the object has)
         setPieceAtIndex(indexDestination, pieceOrigin) //change the array at the index of destination (change the positions at which the objects are located in the array)
-        setPieceAtIndex(positionToIndex(auxPosition), ChessPieces.Empty(auxPosition.letter, auxPosition.number)) //change
+        setPieceAtIndex(positionToIndex(auxPosition), ChessPieces.Empty(Position(auxPosition.letter, auxPosition.number))) //change
     }
 
     private fun movePieceToAndLeaveEmptyBehind(position: Position, pieceOrigin: Piece) = movePieceToAndLeaveEmptyBehind(positionToIndex(position), pieceOrigin)
 
-    /*
+   /**
    * examples:
    * pawns: e4, exf5
    * others: Nf3, Nxg5, Nfg5 (on "conflict" of possibilities), Nfxg5 (on "conflict" of possibilities AND kills piece)
@@ -295,6 +309,7 @@ class Board {
                     if (position != null) {
                         val thePawn: ChessPieces.Pawn? = getPieceThatCanMoveTo(position, getIndexOfPieceWithConditions2(move[0], null, PIECETYPE.PAWN, isWhite)) as? ChessPieces.Pawn //this works for both x and non x cases because the first letter is always the column
                         if (thePawn != null) {
+                            if(thePawn.isWhite==getPieceColor(position)) return false
                             movePieceToAndLeaveEmptyBehind(position, thePawn)
                             return true
                         }
@@ -321,6 +336,7 @@ class Board {
                     if(position != null) {
                         val thePiece = pieceToChessPieceCorrespondingToItsType(getPieceThatCanMoveTo(position, getIndexOfPieceWithConditions2(column, line, pieceTypeToMove, isWhite)), pieceTypeToMove)
                         if(thePiece!=null) {
+                            if(thePiece.isWhite==getPieceColor(position)) return false
                             movePieceToAndLeaveEmptyBehind(position, thePiece)
                             return true
                         }
