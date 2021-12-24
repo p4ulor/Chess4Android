@@ -10,5 +10,6 @@
     <color name="chess_board_white">#FFE7CAB3</color>
     <color name="chess_board_black">#FF804F21</color>
     <color name="black2">#80000000</color>
-    <color name="cool_orange">#FF9800</color>
+    <color name="cool_orange">#FF5722</color>
+    <color name="red">#FF1D1D</color>
 </resources>

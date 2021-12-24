@@ -6,7 +6,6 @@ import android.view.View
 import android.widget.ToggleButton
 import androidx.activity.viewModels
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.SavedStateHandle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
 import androidx.lifecycle.MutableLiveData
@@ -25,6 +24,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
     private lateinit var soloPlaySwitch: SwitchCompat
     private lateinit var solutionSwitch: SwitchCompat
     private lateinit var currentColorPlaying: ToggleButton
+    private lateinit var showHintButton: ToggleButton
 
     private var currentlySelectedPieceIndex: Int = -1
 
@@ -37,6 +37,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
         soloPlaySwitch = findViewById(R.id.soloSwitch)
         solutionSwitch =  findViewById(R.id.solutionSwitch)
         currentColorPlaying = findViewById(R.id.toggleButton)
+        showHintButton = findViewById(R.id.toggleShowHint)
 
         val gameDTO: GameDTO? = intent.getParcelableExtra(GAME_DTO_KEY)
         if(gameDTO!=null) {
@@ -44,6 +45,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
             thisViewModel.puzzle = gameDTO.puzzle?.split(" ")?.toTypedArray()
             thisViewModel.solution = gameDTO.solution?.split(" ")?.toTypedArray()
             if(gameDTO.isDone) solutionSwitch.visibility = View.VISIBLE
+            updateHint()
         } else toast(R.string.WTFerror, this)
 
         soloPlaySwitch.setOnClickListener {
@@ -59,6 +61,10 @@ class PuzzleSolvingActivity : AppCompatActivity() {
             invalidateEverything()
             thisViewModel.isDone = !thisViewModel.isDone //makes so the user cant move pieces when viewing the solution as it's done in the first 'if' tileBehaviour
             thisViewModel.correctMovementsPerformed = 0
+        }
+
+        showHintButton.setOnClickListener {
+            updateHint()
         }
 
         tileMatrix.forEach { tile ->
@@ -137,6 +143,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
             myView.invalidate(currentlySelectedPieceIndex, thisViewModel.board.getPieceAtIndex(currentlySelectedPieceIndex)  ) //old pos
             log("moved")
             thisViewModel.isWhitesPlaying.value = !(thisViewModel.isWhitesPlaying.value)!!
+            updateHint()
             thisViewModel.correctMovementsPerformed++
             toast(R.string.correctMove, this)
             play(R.raw.rareee, this)
@@ -183,8 +190,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
     override fun onStart() {
         log("Started")
         thisViewModel.isWhitesPlaying.observe(this){
-            if(it) currentColorPlaying.text = currentColorPlaying.textOn
-            else currentColorPlaying.text = currentColorPlaying.textOff
+            currentColorPlaying.isChecked = it
         }
         super.onStart()
     }
@@ -239,6 +245,13 @@ class PuzzleSolvingActivity : AppCompatActivity() {
     private fun invalidateEverything() {
         repeat(BOARDLENGHT) {
             myView.invalidate(it, thisViewModel.board.getPieceAtIndex(it))
+        }
+    }
+
+    private fun updateHint() { //https://stackoverflow.com/questions/27999623/android-togglebutton-setontext-and-invalidate-doesnt-refresh-text
+        if(showHintButton.isChecked) {
+            showHintButton.textOn = thisViewModel.solution?.get(thisViewModel.correctMovementsPerformed)?.subSequence(0,2)
+            showHintButton.isChecked = showHintButton.isChecked
         }
     }
 }

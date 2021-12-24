@@ -11,4 +11,15 @@
         android:icon="@android:drawable/ic_menu_info_details"
         android:title="@string/about_menu"
         app:showAsAction="collapseActionView" />
+    <item
+        android:id="@+id/file"
+        android:title="@string/more" >
+        <!-- submenu -->
+        <menu>
+            <item android:id="@+id/create_new"
+                android:title="@string/play_offline" />
+            <item android:id="@+id/open"
+                android:title="@string/play_online" />
+        </menu>
+    </item>
 </menu>

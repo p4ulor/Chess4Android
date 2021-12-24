@@ -64,7 +64,7 @@ class MainActivity : AppCompatActivity() {
                 if(didScreenRotate && thisViewModel.updateDisplayed.value == true) { //could be elvis operator, but intellij optimized
                     binding.root.postDelayed ({toast(R.string.iSurvived, this)}, 1000)
                 } else {
-                    toast(R.string.puzzleUpdated, this)
+                    //toast(R.string.puzzleUpdated, this)
                     log(thisViewModel.gameDTO?.puzzle.toString())
                     log(thisViewModel.gameDTO?.solution.toString())
                     thisViewModel.updateDisplayed.value=true
@@ -105,6 +105,8 @@ class MainActivity : AppCompatActivity() {
                 startActivity(Intent(this, GameHistoryActivity::class.java))
                 true
             }
+
+
             else -> super.onOptionsItemSelected(item)
         }
     }

@@ -21,7 +21,13 @@ import java.lang.IllegalArgumentException
  * @property tilesPerSide   The number of tiles in each side of the chess board
  */
 @SuppressLint("ViewConstructor")
-class Tile (private val ctx: Context, private val isWhite: Boolean?, private val tilesPerSide: Int, private var icon: VectorDrawableCompat, private var letter: VectorDrawableCompat?, private var number: VectorDrawableCompat?, val index: Int) : View(ctx) {
+class Tile (
+    private val ctx: Context,
+    private val isWhite: Boolean?,
+    private val tilesPerSide: Int,
+    private var icon: VectorDrawableCompat,
+    private var letter: VectorDrawableCompat?,
+    val index: Int) : View(ctx) {
 
     init {
         if(index<0) throw IllegalArgumentException()
@@ -47,7 +53,8 @@ class Tile (private val ctx: Context, private val isWhite: Boolean?, private val
 
         icon.setBounds(2, padding, width-padding, height-padding)
         icon.draw(canvas)
-        letter?.setBounds(-45, 30, width-45, height+30) //MUST BE HERE OR IT WON'T APPEAR, rule of thumb: the higher the values, the smaller the thing,        //the higher value in bottom -> closer it is to the bottom, the higher the value in right, the more it's to the right //the higher value in bottom -> closer it is to the bottom, the higher the value in right, the more it's to the right
+        if(index==61) letter?.setBounds(-40, -15, width+105, height-30)
+        else letter?.setBounds(10, -25, width+55, height-30) //MUST BE HERE OR IT WON'T APPEAR, rule of thumb: the higher the values, the smaller the thing,        //the higher value in bottom -> closer it is to the bottom, the higher the value in right, the more it's to the right //the higher value in bottom -> closer it is to the bottom, the higher the value in right, the more it's to the right
         letter?.draw(canvas)
     }
 

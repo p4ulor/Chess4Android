@@ -28,4 +28,8 @@
     <string name="blacks">Blacks</string>
     <string name="solution">Solution</string>
     <string name="soloPlay">Solo play</string>
+    <string name="show_hint">Show hint</string>
+    <string name="more">More</string>
+    <string name="play_offline">Free play</string>
+    <string name="play_online">Play online</string>
 </resources>
