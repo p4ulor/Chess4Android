@@ -75,7 +75,6 @@ class BoardView(private val ctx: Context, attrs: AttributeSet?) : GridLayout(ctx
         val img = getDrawablePiece(piece.pieceType, piece.isWhite)
         if(img!=null){
             tileMatrix[index]?.setIcon(img)?.invalidate()
-            //log("invalidated")
         } else log(TAG,"invalidate failed")
     }
 

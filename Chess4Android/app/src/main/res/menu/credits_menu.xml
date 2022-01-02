@@ -16,9 +16,9 @@
         android:title="@string/more" >
         <!-- submenu -->
         <menu>
-            <item android:id="@+id/create_new"
+            <item android:id="@+id/play_offline_item"
                 android:title="@string/play_offline" />
-            <item android:id="@+id/open"
+            <item android:id="@+id/play_online_item"
                 android:title="@string/play_online" />
         </menu>
     </item>

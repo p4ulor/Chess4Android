@@ -106,7 +106,17 @@ class MainActivity : AppCompatActivity() {
                 true
             }
 
+            R.id.play_offline_item -> {
+                val intent = Intent(this, PuzzleSolvingActivity::class.java).apply {
+                    //putExtra(GAME_DTO_KEY, thisViewModel.gameDTO)
+                }
+                startActivity(intent)
+                true
+            }
 
+            R.id.play_offline_item -> {
+                false
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }

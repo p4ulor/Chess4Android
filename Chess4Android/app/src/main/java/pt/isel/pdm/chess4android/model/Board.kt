@@ -88,6 +88,10 @@ class Board {
             return Position(columnNumberToLetter(index % BOARD_SIDE_SIZE), (BOARD_SIDE_SIZE / 8).toByte())
         }
 
+        fun movementToPositionString(indexOrigin: Int, indexDestination: Int) : String {
+            return indexToPosition(indexOrigin).letterAndNumber() + indexToPosition(indexDestination).letterAndNumber()
+        }
+
         fun positionToIndex(position: Position) : Int {
             //log("position->$position")
             //val res : String = ((BOARD_SIDE_SIZE-position.number) * BOARD_SIDE_SIZE + letterToColumnNumber(position.letter)).toString()
@@ -243,10 +247,10 @@ class Board {
         movePieceToAndLeaveEmptyBehind(indexDestination, getPieceAtIndex(indexOrigin))
     }
 
-    fun movePieceToAndLeaveEmptyBehind(indexDestination: Int, pieceOrigin: Piece){
+    private fun movePieceToAndLeaveEmptyBehind(indexDestination: Int, pieceOrigin: Piece){
         if(isOutOfBounds(indexDestination)) return
         val auxPosition = pieceOrigin.position
-        pieceOrigin.position = getPieceAtIndex(indexDestination)?.position!! //change the position of the piece to the position of the destination that its going to (change the value the object has)
+        pieceOrigin.position = indexToPosition(indexDestination) //change the position of the piece to the position of the destination that its going to (change the value the object has)
         setPieceAtIndex(indexDestination, pieceOrigin) //change the array at the index of destination (change the positions at which the objects are located in the array)
         setPieceAtIndex(positionToIndex(auxPosition), ChessPieces.Empty(Position(auxPosition.letter, auxPosition.number))) //change
     }

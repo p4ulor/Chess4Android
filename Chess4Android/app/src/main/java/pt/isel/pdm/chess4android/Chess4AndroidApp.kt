@@ -73,7 +73,13 @@ fun play(id: Int, ctx: Context) {
     player.start()
 }
 
-fun getTodaysDate(): String = SimpleDateFormat(DATEPATTERN).format(Date()) //The 'M' must be uppercase or it will read the minutes
+fun getTodaysDate(): String {
+    val s: StringBuilder = StringBuilder(SimpleDateFormat(DATEPATTERN).format(Date())) //The 'M' must be uppercase or it will read the minutes
+    if(s[4] =='/'){
+        s.insert(3,'0') // "01/1/2022" -> "01/01/2022"
+    }
+    return s.toString()
+}
 
 fun convertToDate(date: String?): java.sql.Date {
     val df: DateFormat = SimpleDateFormat(DATEPATTERN)

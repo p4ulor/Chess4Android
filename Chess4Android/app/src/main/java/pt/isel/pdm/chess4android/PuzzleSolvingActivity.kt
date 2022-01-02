@@ -46,25 +46,29 @@ class PuzzleSolvingActivity : AppCompatActivity() {
             thisViewModel.solution = gameDTO.solution?.split(" ")?.toTypedArray()
             if(gameDTO.isDone) solutionSwitch.visibility = View.VISIBLE
             updateHint()
-        } else toast(R.string.WTFerror, this)
 
-        soloPlaySwitch.setOnClickListener {
-            thisViewModel.soloPlay = !thisViewModel.soloPlay
-        }
-
-        solutionSwitch.setOnClickListener {
-            thisViewModel.board = Board() //board.reset() and board.literalReset() weren't working, the pieces still containing the old Position values, garbage collector's fault?
-            loadGame()
-            if(!thisViewModel.isDone) {
-                performSolution()
+            soloPlaySwitch.setOnClickListener {
+                thisViewModel.soloPlay = !thisViewModel.soloPlay
             }
-            invalidateEverything()
-            thisViewModel.isDone = !thisViewModel.isDone //makes so the user cant move pieces when viewing the solution as it's done in the first 'if' tileBehaviour
-            thisViewModel.correctMovementsPerformed = 0
-        }
 
-        showHintButton.setOnClickListener {
-            updateHint()
+            solutionSwitch.setOnClickListener {
+                thisViewModel.board = Board() //board.reset() and board.literalReset() weren't working, the pieces still containing the old Position values, garbage collector's fault?
+                loadGame()
+                if(!thisViewModel.isDone) {
+                    performSolution()
+                }
+                invalidateEverything()
+                thisViewModel.isDone = !thisViewModel.isDone //makes so the user cant move pieces when viewing the solution as it's done in the first 'if' tileBehaviour
+                thisViewModel.correctMovementsPerformed = 0
+            }
+
+            showHintButton.setOnClickListener {
+                updateHint()
+            }
+        } else {
+            soloPlaySwitch.visibility=View.INVISIBLE
+            showHintButton.visibility=View.INVISIBLE
+            thisViewModel.isWhitesPlaying.value=true
         }
 
         tileMatrix.forEach { tile ->
@@ -123,9 +127,9 @@ class PuzzleSolvingActivity : AppCompatActivity() {
                             val thePawn = pieceToMove as ChessPieces.Pawn
                             if(thePawn.movesDiagonally(theNewPosition) && pieceThatWillBeEaten.pieceType==PIECETYPE.EMPTY){
                                 log("the pawn can only move diagonally when it will eat a piece")
-                            } else moveIt(pieceThatWillBeEatenIndex, pieceToMove)
+                            } else moveIt(pieceThatWillBeEatenIndex)
                         } else {
-                            moveIt(pieceThatWillBeEatenIndex, pieceToMove)
+                            moveIt(pieceThatWillBeEatenIndex)
                         }
                     } else log("the piece cant move to selected position")
                 } else log("the pieces are of the same color!")
@@ -134,16 +138,15 @@ class PuzzleSolvingActivity : AppCompatActivity() {
         }
     }
 
-    private fun moveIt(pieceThatWillBeEatenIndex: Int, pieceToMove: Piece) {
-        val movement = pieceToMove.position.letterAndNumber()+thisViewModel.board.getPieceAtIndex(pieceThatWillBeEatenIndex).position.letterAndNumber()
-
-        if(movement == thisViewModel.solution?.get(thisViewModel.correctMovementsPerformed)) {
-            thisViewModel.board.movePieceToAndLeaveEmptyBehind(pieceThatWillBeEatenIndex, pieceToMove)
-            myView.invalidate(pieceThatWillBeEatenIndex, thisViewModel.board.getPieceAtIndex(pieceThatWillBeEatenIndex)) //new pos
-            myView.invalidate(currentlySelectedPieceIndex, thisViewModel.board.getPieceAtIndex(currentlySelectedPieceIndex)  ) //old pos
+    private fun moveIt(pieceThatWillBeEatenIndex: Int) {
+        val movement = Board.movementToPositionString(currentlySelectedPieceIndex, pieceThatWillBeEatenIndex)
+        if(thisViewModel.gameDTO==null){
+            moveAndInvalidate(currentlySelectedPieceIndex, pieceThatWillBeEatenIndex)
+            thisViewModel.isWhitesPlaying.value = !(thisViewModel.isWhitesPlaying.value)!!
+        } else if(movement == thisViewModel.solution?.get(thisViewModel.correctMovementsPerformed)) {
+            moveAndInvalidate(currentlySelectedPieceIndex, pieceThatWillBeEatenIndex)
             log("moved")
             thisViewModel.isWhitesPlaying.value = !(thisViewModel.isWhitesPlaying.value)!!
-            updateHint()
             thisViewModel.correctMovementsPerformed++
             toast(R.string.correctMove, this)
             play(R.raw.rareee, this)
@@ -151,20 +154,15 @@ class PuzzleSolvingActivity : AppCompatActivity() {
             else if(thisViewModel.soloPlay) {
                 val x = thisViewModel.solution?.get(thisViewModel.correctMovementsPerformed)
                 if (x != null) {
-                    val initialIndex = Board.positionToIndex(Position(x.substring(0, 2)))
-                    val destinationIndex = Board.positionToIndex(Position(x.substring(2, 4)))
-                    thisViewModel.board.movePieceToAndLeaveEmptyBehind(
-                        initialIndex,
-                        destinationIndex
-                    )
+                    val indexOrigin = Board.positionToIndex(Position(x.substring(0, 2)))
+                    val indexDestination = Board.positionToIndex(Position(x.substring(2, 4)))
+                    moveAndInvalidate(indexOrigin, indexDestination)
                     thisViewModel.isWhitesPlaying.value = !(thisViewModel.isWhitesPlaying.value)!!
                     thisViewModel.correctMovementsPerformed++
-
-                    myView.invalidate(initialIndex, thisViewModel.board.getPieceAtIndex(initialIndex)) //new pos
-                    myView.invalidate(destinationIndex, thisViewModel.board.getPieceAtIndex(destinationIndex)) //old pos
                     if(thisViewModel.correctMovementsPerformed==thisViewModel.solution?.size) finishedPuzzle()
                 }
             }
+            updateHint()
         } else play(R.raw.my_wrong_button_sound, this)
     }
 
@@ -249,10 +247,16 @@ class PuzzleSolvingActivity : AppCompatActivity() {
     }
 
     private fun updateHint() { //https://stackoverflow.com/questions/27999623/android-togglebutton-setontext-and-invalidate-doesnt-refresh-text
-        if(showHintButton.isChecked) {
+        if(showHintButton.isChecked && !thisViewModel.isDone) {
             showHintButton.textOn = thisViewModel.solution?.get(thisViewModel.correctMovementsPerformed)?.subSequence(0,2)
             showHintButton.isChecked = showHintButton.isChecked
         }
+    }
+
+    private fun moveAndInvalidate(indexOrigin: Int, indexDestination: Int) {
+        thisViewModel.board.movePieceToAndLeaveEmptyBehind(indexOrigin, indexDestination)
+        myView.invalidate(indexOrigin, thisViewModel.board.getPieceAtIndex(indexOrigin)) //new pos
+        myView.invalidate(indexDestination, thisViewModel.board.getPieceAtIndex(indexDestination)) //old pos
     }
 }
 

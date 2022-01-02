@@ -30,6 +30,6 @@
     <string name="soloPlay">Solo play</string>
     <string name="show_hint">Show hint</string>
     <string name="more">More</string>
-    <string name="play_offline">Free play</string>
+    <string name="play_offline">Play offline</string>
     <string name="play_online">Play online</string>
 </resources>
