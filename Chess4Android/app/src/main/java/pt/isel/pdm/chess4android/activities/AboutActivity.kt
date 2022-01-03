@@ -1,4 +1,4 @@
-package pt.isel.pdm.chess4android
+package pt.isel.pdm.chess4android.activities
 
 import android.content.Intent
 import android.net.Uri
@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ImageView
 import android.widget.TextView
+import pt.isel.pdm.chess4android.LICHESSDAILYPUZZLEURL
+import pt.isel.pdm.chess4android.R
 
 private const val GITHUBURL = "https://github.com/p4ulor/PDM-2122i-LI5X-G19"
 

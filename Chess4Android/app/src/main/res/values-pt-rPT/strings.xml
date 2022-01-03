@@ -33,4 +33,9 @@
     <string name="more">Mais</string>
     <string name="play_offline">Jogar offline</string>
     <string name="play_online">Jogar online</string>
+    <string name="createChallenge">Criar desafio</string>
+    <string name="name">Nome</string>
+    <string name="message">Mensagem</string>
+    <string name="finish">Feito</string>
+    <string name="waiting">À espera de adversário</string>
 </resources>

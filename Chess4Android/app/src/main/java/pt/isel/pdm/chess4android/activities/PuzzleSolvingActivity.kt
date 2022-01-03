@@ -1,4 +1,4 @@
-package pt.isel.pdm.chess4android
+package pt.isel.pdm.chess4android.activities
 
 import android.app.Application
 import android.os.Bundle
@@ -10,6 +10,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
 import androidx.lifecycle.MutableLiveData
 import com.google.android.material.snackbar.Snackbar
+import pt.isel.pdm.chess4android.*
+import pt.isel.pdm.chess4android.databinding.ActivityPuzzleSolvingBinding
 import pt.isel.pdm.chess4android.model.*
 import pt.isel.pdm.chess4android.views.BoardView
 import pt.isel.pdm.chess4android.views.Tile
@@ -18,6 +20,8 @@ import pt.isel.pdm.chess4android.views.tileMatrix
 private const val TAG = "PuzzleSolving"
 
 class PuzzleSolvingActivity : AppCompatActivity() {
+
+    private val layout by lazy { ActivityPuzzleSolvingBinding.inflate(layoutInflater) }
 
     private val thisViewModel: PuzzleSolvingActivityViewModel by viewModels()
     private lateinit var myView: BoardView
@@ -31,13 +35,13 @@ class PuzzleSolvingActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         log("Created")
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_puzzle_solving)
+        setContentView(layout.root)
 
-        myView = findViewById(R.id.boardView)
-        soloPlaySwitch = findViewById(R.id.soloSwitch)
-        solutionSwitch =  findViewById(R.id.solutionSwitch)
-        currentColorPlaying = findViewById(R.id.toggleButton)
-        showHintButton = findViewById(R.id.toggleShowHint)
+        myView = layout.boardView
+        soloPlaySwitch = layout.soloSwitch
+        solutionSwitch =  layout.solutionSwitch
+        currentColorPlaying = layout.toggleColorButton
+        showHintButton = layout.toggleShowHintButton!! //!! cuz IDE was complaining which is weird I think
 
         val gameDTO: GameDTO? = intent.getParcelableExtra(GAME_DTO_KEY)
         if(gameDTO!=null) {
@@ -68,7 +72,6 @@ class PuzzleSolvingActivity : AppCompatActivity() {
         } else {
             soloPlaySwitch.visibility=View.INVISIBLE
             showHintButton.visibility=View.INVISIBLE
-            thisViewModel.isWhitesPlaying.value=true
         }
 
         tileMatrix.forEach { tile ->
@@ -81,7 +84,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
             if(thisViewModel.isGameLoaded){
                 invalidateEverything()
             } else if(loadGame()) {
-                invalidateEverything() //it's easier for us to invalidate everything after all the pieces are set, instead of invalidating for every move. Every puzzle has 30+ moves. So that's 30*2 tile invalidates. So, its worth the simplicity (or cost) of invalidating everything (64 positions)
+                invalidateEverything() //it's easier for us to invalidate everything after all the pieces are set, instead of invalidating for every move. Every puzzle has 30+ moves. So that's 30*2 (2 for old and new position) tile invalidates. So, its worth the simplicity (or cost) of invalidating everything (64 positions)
                 play(R.raw.pictures_snare, this)
             }
         }
@@ -91,26 +94,17 @@ class PuzzleSolvingActivity : AppCompatActivity() {
         if(thisViewModel.isDone) return
         if(currentlySelectedPieceIndex==-1) {
             if(thisViewModel.board.getPieceAtIndex(tile.index).pieceType!=PIECETYPE.EMPTY){
-                currentlySelectedPieceIndex = tile.index
-                val pieceColor = thisViewModel.board.getPieceAtIndex(currentlySelectedPieceIndex).isWhite
+                val pieceColor = thisViewModel.board.getPieceAtIndex(tile.index).isWhite
                 when {
                     thisViewModel.isWhitesPlaying.value==pieceColor -> {
+                        currentlySelectedPieceIndex = tile.index
                         val pieceType = thisViewModel.board.getPieceAtIndex(currentlySelectedPieceIndex).pieceType
                         log("picked a $pieceType")
                     }
-                    pieceColor -> {
-                        log("hey! the black pieces are playing")
-                        currentlySelectedPieceIndex = -1
-                    }
-                    else -> {
-                        log("hey! the white pieces are playing")
-                        currentlySelectedPieceIndex = -1
-                    }
+                    pieceColor -> log("hey! the black pieces are playing")
+                    else -> log("hey! the white pieces are playing")
                 }
-            } else {
-                log("you picked a empty spot...")
-                currentlySelectedPieceIndex = -1
-            }
+            } else log("you picked a empty spot...")
         }
         else {
             log("analysing movement validity:")
@@ -146,7 +140,6 @@ class PuzzleSolvingActivity : AppCompatActivity() {
         } else if(movement == thisViewModel.solution?.get(thisViewModel.correctMovementsPerformed)) {
             moveAndInvalidate(currentlySelectedPieceIndex, pieceThatWillBeEatenIndex)
             log("moved")
-            thisViewModel.isWhitesPlaying.value = !(thisViewModel.isWhitesPlaying.value)!!
             thisViewModel.correctMovementsPerformed++
             toast(R.string.correctMove, this)
             play(R.raw.rareee, this)
@@ -157,7 +150,6 @@ class PuzzleSolvingActivity : AppCompatActivity() {
                     val indexOrigin = Board.positionToIndex(Position(x.substring(0, 2)))
                     val indexDestination = Board.positionToIndex(Position(x.substring(2, 4)))
                     moveAndInvalidate(indexOrigin, indexDestination)
-                    thisViewModel.isWhitesPlaying.value = !(thisViewModel.isWhitesPlaying.value)!!
                     thisViewModel.correctMovementsPerformed++
                     if(thisViewModel.correctMovementsPerformed==thisViewModel.solution?.size) finishedPuzzle()
                 }
@@ -219,7 +211,6 @@ class PuzzleSolvingActivity : AppCompatActivity() {
                     log(getString(R.string.interpretError)+" at index $index")
                     return false
                 }
-                //if(index==14) return true //useful for testing index by index, movement by movement
             }
             thisViewModel.isWhitesPlaying.value = !isWhitesPlaying
             // toast(R.string.loadSuccess, this)
@@ -257,6 +248,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
         thisViewModel.board.movePieceToAndLeaveEmptyBehind(indexOrigin, indexDestination)
         myView.invalidate(indexOrigin, thisViewModel.board.getPieceAtIndex(indexOrigin)) //new pos
         myView.invalidate(indexDestination, thisViewModel.board.getPieceAtIndex(indexDestination)) //old pos
+        thisViewModel.isWhitesPlaying.value = !(thisViewModel.isWhitesPlaying.value)!!
     }
 }
 
@@ -272,7 +264,7 @@ class PuzzleSolvingActivityViewModel(application: Application) : AndroidViewMode
     var soloPlay: Boolean = false
     var isDone: Boolean = false
     var isGameLoaded: Boolean = false
-    var isWhitesPlaying: MutableLiveData<Boolean> = MutableLiveData(false)
+    var isWhitesPlaying: MutableLiveData<Boolean> = MutableLiveData(true)
     var board: Board = Board()
     var correctMovementsPerformed: Int = 0
     var gameDTO: GameDTO? = null

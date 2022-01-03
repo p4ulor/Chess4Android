@@ -4,6 +4,7 @@ plugins {
     id "org.jetbrains.kotlin.plugin.serialization" version "1.6.0-RC"
     id 'kotlin-parcelize'
     id 'kotlin-kapt'
+    id 'com.google.gms.google-services'
     //id 'org.jetbrains.kotlin.multiplatform' version '1.5.31'
     //id 'org.jetbrains.kotlin.plugin.serialization' version '1.5.31'
 }
@@ -49,9 +50,14 @@ dependencies {
     implementation 'com.google.android.material:material:1.4.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.1'
 
-    implementation 'com.android.volley:volley:1.2.0' //added by me, Volley to get the json
+    //Volley to get the json
+    implementation 'com.android.volley:volley:1.2.0'
 
-    // added by me View model and lifecycle
+    //Firestore, to play online, multiplayer
+    implementation 'com.google.firebase:firebase-firestore:24.0.0'
+
+
+    //View model and lifecycle
     def lifecycle_version = "2.3.1"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
@@ -68,6 +74,9 @@ dependencies {
     def work_version = "2.6.0" //aleluia https://stackoverflow.com/questions/69037481/android-app-wont-build-the-mincompilesdk-31-specified-in-a-dependencys-an
     implementation "androidx.work:work-runtime-ktx:$work_version"
     implementation "androidx.concurrent:concurrent-futures-ktx:1.1.0"
+
+    // Swipe refresh layout
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

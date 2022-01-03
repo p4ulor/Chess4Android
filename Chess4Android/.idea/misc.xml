@@ -26,6 +26,7 @@
         <entry key="..\:/INTELI/GITHUB/MYREPOS/PDM-2122i-LI5X-G19/Chess4Android/app/src/main/res/drawable-v24/letter_f.xml" value="0.17222222222222222" />
         <entry key="..\:/INTELI/GITHUB/MYREPOS/PDM-2122i-LI5X-G19/Chess4Android/app/src/main/res/drawable-v24/letter_g.xml" value="0.17222222222222222" />
         <entry key="..\:/INTELI/GITHUB/MYREPOS/PDM-2122i-LI5X-G19/Chess4Android/app/src/main/res/drawable-v24/letter_h.xml" value="0.17222222222222222" />
+        <entry key="..\:/INTELI/GITHUB/MYREPOS/PDM-2122i-LI5X-G19/Chess4Android/app/src/main/res/drawable/challenge_tuple_style.xml" value="0.1824074074074074" />
         <entry key="..\:/INTELI/GITHUB/MYREPOS/PDM-2122i-LI5X-G19/Chess4Android/app/src/main/res/drawable/custum_button_style.xml" value="0.1125" />
         <entry key="..\:/INTELI/GITHUB/MYREPOS/PDM-2122i-LI5X-G19/Chess4Android/app/src/main/res/drawable/ic_black_bishop.xml" value="0.22552083333333334" />
         <entry key="..\:/INTELI/GITHUB/MYREPOS/PDM-2122i-LI5X-G19/Chess4Android/app/src/main/res/drawable/ic_black_king.xml" value="0.17222222222222222" />
@@ -55,10 +56,13 @@
         <entry key="..\:/INTELI/GITHUB/MYREPOS/PDM-2122i-LI5X-G19/Chess4Android/app/src/main/res/layout-land/activity_main.xml" value="0.34427083333333336" />
         <entry key="..\:/INTELI/GITHUB/MYREPOS/PDM-2122i-LI5X-G19/Chess4Android/app/src/main/res/layout-land/activity_puzzle_solving.xml" value="0.34427083333333336" />
         <entry key="..\:/INTELI/GITHUB/MYREPOS/PDM-2122i-LI5X-G19/Chess4Android/app/src/main/res/layout/activity_about.xml" value="0.25" />
+        <entry key="..\:/INTELI/GITHUB/MYREPOS/PDM-2122i-LI5X-G19/Chess4Android/app/src/main/res/layout/activity_challenges_list.xml" value="0.33" />
+        <entry key="..\:/INTELI/GITHUB/MYREPOS/PDM-2122i-LI5X-G19/Chess4Android/app/src/main/res/layout/activity_create_challenge.xml" value="0.209375" />
         <entry key="..\:/INTELI/GITHUB/MYREPOS/PDM-2122i-LI5X-G19/Chess4Android/app/src/main/res/layout/activity_game_history.xml" value="0.209375" />
         <entry key="..\:/INTELI/GITHUB/MYREPOS/PDM-2122i-LI5X-G19/Chess4Android/app/src/main/res/layout/activity_main.xml" value="0.33" />
         <entry key="..\:/INTELI/GITHUB/MYREPOS/PDM-2122i-LI5X-G19/Chess4Android/app/src/main/res/layout/activity_puzzle_solving.xml" value="0.33" />
         <entry key="..\:/INTELI/GITHUB/MYREPOS/PDM-2122i-LI5X-G19/Chess4Android/app/src/main/res/layout/button_style.xml" value="0.209375" />
+        <entry key="..\:/INTELI/GITHUB/MYREPOS/PDM-2122i-LI5X-G19/Chess4Android/app/src/main/res/layout/challenge_item_tuple_view.xml" value="0.209375" />
         <entry key="..\:/INTELI/GITHUB/MYREPOS/PDM-2122i-LI5X-G19/Chess4Android/app/src/main/res/layout/history_item_tuple_view.xml" value="0.209375" />
         <entry key="..\:/INTELI/GITHUB/MYREPOS/PDM-2122i-LI5X-G19/Chess4Android/app/src/main/res/menu/credits_menu.xml" value="0.25" />
         <entry key="..\:/INTELI/GITHUB/MYREPOS/PDM-2122i-LI5X-G19/Chess4Android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.22552083333333334" />

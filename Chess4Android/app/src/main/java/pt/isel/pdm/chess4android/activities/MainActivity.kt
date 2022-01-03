@@ -1,4 +1,4 @@
-package pt.isel.pdm.chess4android
+package pt.isel.pdm.chess4android.activities
 
 import android.app.Application
 import android.content.Context
@@ -14,8 +14,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import com.google.android.material.snackbar.Snackbar
+import pt.isel.pdm.chess4android.*
 import java.io.*
-import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.text.StringBuilder
 import pt.isel.pdm.chess4android.databinding.ActivityMainBinding
@@ -28,11 +28,9 @@ const val GAME_DTO_KEY = "game"
 
 class MainActivity : AppCompatActivity() {
 
-    private var continueButton: Button? = null
+    private val layout /*(binding)*/ by lazy { ActivityMainBinding.inflate(layoutInflater) }
 
-    private val binding by lazy {
-        ActivityMainBinding.inflate(layoutInflater)
-    }
+    private var continueButton: Button? = null
 
     private val thisViewModel: MainActivityViewModel by viewModels()
     //alternative:
@@ -41,14 +39,14 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         log("created")
         super.onCreate(savedInstanceState)
-        setContentView(binding.root) //mandatory before referencing view's using findViewById
+        setContentView(layout.root) //mandatory before referencing view's using findViewById or layout.
         //setContentView(R.layout.activity_main); //alternative to what's above
 
         supportActionBar?.title = getString(R.string.welcome) //alternative: resources.getText(R.string.welcome) //only activity where I have to do this or the app name will be "Welcome" if I set it in the xml..., for all the other activities, their action bar name is set in the xml
 
         //SET VIEWS (text, buttons, etc)
-        //continueButton = binding.continueButton //alternative
-        continueButton = findViewById(R.id.continueButton)
+        continueButton = layout.continueButton
+        //continueButton = findViewById(R.id.continueButton) //alternative
 
         val didScreenRotate = thisViewModel.currentScreenOrientation.value != applicationContext.resources.configuration.orientation
         if(didScreenRotate) {
@@ -62,7 +60,7 @@ class MainActivity : AppCompatActivity() {
                 //if(applicationContext.resources.configuration.orientation==Configuration.ORIENTATION_LANDSCAPE) toast(R.string.iSurvived)
                 continueButton?.isEnabled=true
                 if(didScreenRotate && thisViewModel.updateDisplayed.value == true) { //could be elvis operator, but intellij optimized
-                    binding.root.postDelayed ({toast(R.string.iSurvived, this)}, 1000)
+                    layout.root.postDelayed ({toast("R.string.iSurvived", this)}, 1000)
                 } else {
                     //toast(R.string.puzzleUpdated, this)
                     log(thisViewModel.gameDTO?.puzzle.toString())
@@ -117,6 +115,7 @@ class MainActivity : AppCompatActivity() {
             R.id.play_offline_item -> {
                 false
             }
+
             else -> super.onOptionsItemSelected(item)
         }
     }

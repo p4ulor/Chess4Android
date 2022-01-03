@@ -1,4 +1,4 @@
-package pt.isel.pdm.chess4android
+package pt.isel.pdm.chess4android.activities
 
 import android.app.Application
 import android.content.Intent
@@ -8,6 +8,7 @@ import androidx.activity.viewModels
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.LinearLayoutManager
+import pt.isel.pdm.chess4android.*
 import pt.isel.pdm.chess4android.databinding.ActivityGameHistoryBinding
 import pt.isel.pdm.chess4android.model.*
 import pt.isel.pdm.chess4android.views.GameHistoryViewAdapter
@@ -16,14 +17,14 @@ private const val TAG = "GameHistory"
 
 class GameHistoryActivity : AppCompatActivity(), OnItemClickListener {
 
-    private val binding by lazy { ActivityGameHistoryBinding.inflate(layoutInflater) }
+    private val layout by lazy { ActivityGameHistoryBinding.inflate(layoutInflater) }
     private val thisViewModel by viewModels<GameHistoryViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(binding.root)
+        setContentView(layout.root)
 
-        binding.gameListRecyclerView.layoutManager = LinearLayoutManager(this)
+        layout.gameListRecyclerView.layoutManager = LinearLayoutManager(this)
 
         log(TAG, "onCreate")
     }
@@ -32,7 +33,7 @@ class GameHistoryActivity : AppCompatActivity(), OnItemClickListener {
         log(TAG,"onResume")
         thisViewModel.loadHistory()
         thisViewModel.history?.observe(this){
-            binding.gameListRecyclerView.adapter = GameHistoryViewAdapter(it, this)
+            layout.gameListRecyclerView.adapter = GameHistoryViewAdapter(it, this)
         }
         /*
         if(thisViewModel.position!=-1) { //doesnt work because I need to access and change the List<GameDTO>! in GameHistoryViewAdapter, and I wasn't able to figure out how to do it

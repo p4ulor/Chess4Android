@@ -19,7 +19,7 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <ToggleButton
-        android:id="@+id/toggleButton"
+        android:id="@+id/toggleColorButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/toggle_button_style"
@@ -50,7 +50,7 @@
         android:visibility="invisible"
         app:layout_constraintBottom_toTopOf="@+id/boardView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/toggleButton"
+        app:layout_constraintStart_toEndOf="@+id/toggleColorButton"
         app:layout_constraintTop_toTopOf="parent"
         app:showText="true"
         app:track="@drawable/switch_slide_style" />
@@ -67,7 +67,7 @@
         android:textStyle="bold"
         android:thumb="@drawable/switch_style"
         app:layout_constraintBottom_toTopOf="@+id/boardView"
-        app:layout_constraintEnd_toStartOf="@+id/toggleButton"
+        app:layout_constraintEnd_toStartOf="@+id/toggleColorButton"
 
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -75,7 +75,7 @@
         app:track="@drawable/switch_slide_style" />
 
     <ToggleButton
-        android:id="@+id/toggleShowHint"
+        android:id="@+id/toggleShowHintButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
