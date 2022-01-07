@@ -43,7 +43,7 @@
 
 
     <Button
-        android:id="@+id/action"
+        android:id="@+id/makeChallengeButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="start"
@@ -66,7 +66,7 @@
         app:layout_constraintEnd_toEndOf="@+id/message"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="@+id/message"
-        app:layout_constraintTop_toBottomOf="@+id/action" />
+        app:layout_constraintTop_toBottomOf="@+id/makeChallengeButton" />
 
     <TextView
         android:id="@+id/waitingMessage"

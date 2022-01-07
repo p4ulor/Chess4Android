@@ -11,6 +11,7 @@ import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.google.gson.Gson
 import pt.isel.pdm.chess4android.model.*
 import java.text.DateFormat
 import java.text.SimpleDateFormat
@@ -35,6 +36,10 @@ class Chess4AndroidApp : Application() { // synonyms to apply to this class to u
     val repo: Chess4AndroidRepo by lazy {
         Chess4AndroidRepo(historyDB.getDAO())
     }
+
+    private val mapper: Gson by lazy { Gson() }
+
+    val fireBase: FireBaseChallengesRepo by lazy { FireBaseChallengesRepo(mapper) }
 
     override fun onCreate() {
         super.onCreate()

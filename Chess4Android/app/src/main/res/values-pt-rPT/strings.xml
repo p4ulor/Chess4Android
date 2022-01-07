@@ -28,7 +28,7 @@
     <string name="whites">Brancas</string>
     <string name="blacks">Pretas</string>
     <string name="solution">Solução</string>
-    <string name="soloPlay">Jogar sozinho</string>
+    <string name="auto">Adversário\nautomatico</string>
     <string name="show_hint">Mostrar dica</string>
     <string name="more">Mais</string>
     <string name="play_offline">Jogar offline</string>
@@ -38,4 +38,10 @@
     <string name="message">Mensagem</string>
     <string name="finish">Feito</string>
     <string name="waiting">À espera de adversário</string>
+    <string name="createALobby">Crie uma partida</string>
+    <string name="openLobbies">Partidas abertas</string>
+    <string name="makeChallenge">Criar desafio</string>
+    <string name="cancel">Cancelar</string>
+    <string name="errorChallenge">Erro ao criar desafio</string>
+    <string name="accept_challenge_dialog_title">Aceitar desafio do %s?</string>
 </resources>

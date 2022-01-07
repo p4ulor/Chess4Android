@@ -36,13 +36,13 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <androidx.appcompat.widget.SwitchCompat
-        android:id="@+id/soloSwitch"
+        android:id="@+id/autoOpponent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginTop="32dp"
         android:minHeight="48dp"
-        android:text="@string/soloPlay"
+        android:text="@string/auto"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

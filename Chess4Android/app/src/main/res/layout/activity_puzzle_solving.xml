@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:clickable="false"
-    tools:context=".PuzzleSolvingActivity">
+    android:clickable="false">
 
     <pt.isel.pdm.chess4android.views.BoardView
         android:id="@+id/boardView"
@@ -53,25 +52,32 @@
         app:layout_constraintStart_toEndOf="@+id/toggleColorButton"
         app:layout_constraintTop_toTopOf="parent"
         app:showText="true"
+        app:switchPadding="10px"
         app:track="@drawable/switch_slide_style" />
 
     <androidx.appcompat.widget.SwitchCompat
-        android:id="@+id/soloSwitch"
+        android:id="@+id/autoOpponent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:checked="false"
+        android:lineSpacingExtra="2sp"
+        android:lines="2"
         android:minHeight="48dp"
-        android:text="@string/soloPlay"
+        android:singleLine="false"
+        android:text="@string/auto"
+
+        android:textAlignment="center"
         android:textOff="O"
         android:textOn="I"
+        android:textSize="14sp"
         android:textStyle="bold"
         android:thumb="@drawable/switch_style"
         app:layout_constraintBottom_toTopOf="@+id/boardView"
         app:layout_constraintEnd_toStartOf="@+id/toggleColorButton"
-
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:showText="true"
+        app:switchPadding="15px"
         app:track="@drawable/switch_slide_style" />
 
     <ToggleButton

@@ -25,7 +25,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
 
     private val thisViewModel: PuzzleSolvingActivityViewModel by viewModels()
     private lateinit var myView: BoardView
-    private lateinit var soloPlaySwitch: SwitchCompat
+    private lateinit var autoOpponentSwitch: SwitchCompat
     private lateinit var solutionSwitch: SwitchCompat
     private lateinit var currentColorPlaying: ToggleButton
     private lateinit var showHintButton: ToggleButton
@@ -38,7 +38,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
         setContentView(layout.root)
 
         myView = layout.boardView
-        soloPlaySwitch = layout.soloSwitch
+        autoOpponentSwitch = layout.autoOpponent
         solutionSwitch =  layout.solutionSwitch
         currentColorPlaying = layout.toggleColorButton
         showHintButton = layout.toggleShowHintButton!! //!! cuz IDE was complaining which is weird I think
@@ -51,7 +51,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
             if(gameDTO.isDone) solutionSwitch.visibility = View.VISIBLE
             updateHint()
 
-            soloPlaySwitch.setOnClickListener {
+            autoOpponentSwitch.setOnClickListener {
                 thisViewModel.soloPlay = !thisViewModel.soloPlay
             }
 
@@ -70,7 +70,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
                 updateHint()
             }
         } else {
-            soloPlaySwitch.visibility=View.INVISIBLE
+            autoOpponentSwitch.visibility=View.INVISIBLE
             showHintButton.visibility=View.INVISIBLE
         }
 

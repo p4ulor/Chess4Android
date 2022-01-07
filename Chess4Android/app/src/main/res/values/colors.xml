@@ -12,4 +12,8 @@
     <color name="black2">#80000000</color>
     <color name="cool_orange">#FF5722</color>
     <color name="red">#FF1D1D</color>
+    <color name="list_item_background">#FFFFFF</color>
+    <color name="list_item_border">#edf0f6</color>
+    <color name="list_item_background_selected">#5EA1A3A3</color>
+    <color name="list_item_border_selected">#6F7070</color>
 </resources>

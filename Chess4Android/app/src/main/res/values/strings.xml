@@ -27,7 +27,7 @@
     <string name="whites">Whites</string>
     <string name="blacks">Blacks</string>
     <string name="solution">Solution</string>
-    <string name="soloPlay">Solo play</string>
+    <string name="auto">Auto\nopponent</string>
     <string name="show_hint">Show hint</string>
     <string name="more">More</string>
     <string name="play_offline">Play offline</string>
@@ -37,4 +37,10 @@
     <string name="message">Message</string>
     <string name="finish">Finish</string>
     <string name="waiting">Waiting for opponent</string>
+    <string name="createALobby">Create a lobby</string>
+    <string name="openLobbies">Open lobbies</string>
+    <string name="makeChallenge">Make challenge</string>
+    <string name="cancel">Cancel</string>
+    <string name="errorChallenge">Error creating challenge</string>
+    <string name="accept_challenge_dialog_title">Accept %s\'s challenge?</string>
 </resources>

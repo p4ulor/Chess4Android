@@ -6,6 +6,10 @@ import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.QueryDocumentSnapshot
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import kotlinx.serialization.json.Json
 import pt.isel.pdm.chess4android.model.*
 
@@ -32,11 +36,17 @@ class Chess4AndroidRepo(private val historyGameDAO: GameTableDAO) {
         }
     }
 
-    private fun getTodaysPuzzleFromAPI(context: Application?, callback: (Result<GameDTO?>) -> Unit){
+    private fun getTodaysPuzzleFromAPI(
+        context: Application?,
+        callback: (Result<GameDTO?>) -> Unit
+    ) {
         val queue = Volley.newRequestQueue(context)
         val responseListener = Response.Listener<String> { response ->
             log(response.toString())
-            val lichessGameOfTheDay = Json { ignoreUnknownKeys = true }.decodeFromString(LichessJSON.serializer(),response)
+            val lichessGameOfTheDay = Json { ignoreUnknownKeys = true }.decodeFromString(
+                LichessJSON.serializer(),
+                response
+            )
             val result = Result.success(lichessJSON_to_GameDTO(lichessGameOfTheDay))
             callback(result)
             log("Response received")
@@ -47,7 +57,12 @@ class Chess4AndroidRepo(private val historyGameDAO: GameTableDAO) {
             callback(result)
         }
 
-        val stringRequest = StringRequest(Request.Method.GET, LICHESSDAILYPUZZLEURL, responseListener, errorListener)
+        val stringRequest = StringRequest(
+            Request.Method.GET,
+            LICHESSDAILYPUZZLEURL,
+            responseListener,
+            errorListener
+        )
         queue.add(stringRequest)
         log("Request finished")
     }
@@ -55,12 +70,11 @@ class Chess4AndroidRepo(private val historyGameDAO: GameTableDAO) {
     fun getTodaysGame(context: Application?, callback: (Result<GameDTO?>) -> Unit) {
         getLatestPuzzleFromDB { maybeEntity ->
             val maybeGame = maybeEntity.getOrNull()
-            if (maybeGame?.date==getTodaysDate()) {
+            if (maybeGame?.date == getTodaysDate()) {
                 log(TAG, "Thread ${Thread.currentThread().name}: Got daily puzzle from local DB")
                 callback(Result.success(maybeGame.toGameDTO()))
-            }
-            else {
-               getTodaysPuzzleFromAPI(context) { apiResult ->
+            } else {
+                getTodaysPuzzleFromAPI(context) { apiResult ->
                     apiResult.onSuccess { gameDTO ->
                         log(TAG, "Thread ${Thread.currentThread().name}: Got daily puzzle from API")
                         saveToDB(gameDTO!!) { saveToDBResult ->
@@ -68,10 +82,9 @@ class Chess4AndroidRepo(private val historyGameDAO: GameTableDAO) {
                                 log(TAG, "Thread ${Thread.currentThread().name}: Saved daily puzzle to local DB")
                                 callback(Result.success(gameDTO))
                             }
-                            .onFailure {
-                                Log.i(TAG, "Thread ${Thread.currentThread().name}: Failed to save daily puzzle to local DB", it)
-                                callback(Result.failure(it))
-                            }
+                                .onFailure { Log.i(TAG, "Thread ${Thread.currentThread().name}: Failed to save daily puzzle to local DB", it)
+                                    callback(Result.failure(it))
+                                }
                         }
                     }
                     callback(apiResult)

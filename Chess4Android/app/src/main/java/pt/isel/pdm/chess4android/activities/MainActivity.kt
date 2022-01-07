@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(layout.root) //mandatory before referencing view's using findViewById or layout.
         //setContentView(R.layout.activity_main); //alternative to what's above
 
-        supportActionBar?.title = getString(R.string.welcome) //alternative: resources.getText(R.string.welcome) //only activity where I have to do this or the app name will be "Welcome" if I set it in the xml..., for all the other activities, their action bar name is set in the xml
+        supportActionBar?.title = getString(R.string.welcome) //alternative: resources.getText(R.string.welcome) //only activity where I have to do this or the app name will be "Welcome" if I set it in the xml..., for all the other activities, their action bar name is set in the Manifest.xml
 
         //SET VIEWS (text, buttons, etc)
         continueButton = layout.continueButton
@@ -105,18 +105,15 @@ class MainActivity : AppCompatActivity() {
             }
 
             R.id.play_offline_item -> {
-                val intent = Intent(this, PuzzleSolvingActivity::class.java).apply {
-                    //putExtra(GAME_DTO_KEY, thisViewModel.gameDTO)
-                }
-                startActivity(intent)
+                startActivity(Intent(this, ChessGameActivity::class.java))
                 true
             }
 
-            R.id.play_offline_item -> {
-                false
+            R.id.play_online_item -> {
+                startActivity(Intent(this, ChallengesListActivity::class.java))
+                true
             }
-
-            else -> super.onOptionsItemSelected(item)
+            else -> true //super.onOptionsItemSelected(item)
         }
     }
 
@@ -180,7 +177,7 @@ class MainActivityViewModel(application: Application, private val state: SavedSt
 
     //Current date methods
 
-    fun todaysPuzzleWasNotPulled() : Boolean = !getTodaysDate().equals(readDateOfTheLatestPuzzlePull())
+    fun todaysPuzzleWasNotPulled() : Boolean = getTodaysDate() != readDateOfTheLatestPuzzlePull()
 
     private fun readDateOfTheLatestPuzzlePull() : String { //https://developer.android.com/training/data-storage/app-specific
         var sb = StringBuilder()

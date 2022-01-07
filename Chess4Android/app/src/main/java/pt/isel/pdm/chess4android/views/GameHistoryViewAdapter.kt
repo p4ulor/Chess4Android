@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import pt.isel.pdm.chess4android.OnItemClickListener
+import pt.isel.pdm.chess4android.activities.OnItemClickListener
 import pt.isel.pdm.chess4android.R
 import pt.isel.pdm.chess4android.model.GameDTO
 

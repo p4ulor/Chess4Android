@@ -54,8 +54,8 @@ dependencies {
     implementation 'com.android.volley:volley:1.2.0'
 
     //Firestore, to play online, multiplayer
-    implementation 'com.google.firebase:firebase-firestore:24.0.0'
-
+    implementation 'com.google.firebase:firebase-firestore-ktx:24.0.0'
+    implementation 'com.google.code.gson:gson:2.8.9'
 
     //View model and lifecycle
     def lifecycle_version = "2.3.1"
