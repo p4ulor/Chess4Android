@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.view.isVisible
 import androidx.lifecycle.AndroidViewModel
@@ -26,8 +25,7 @@ class CreateChallengeActivity : AppCompatActivity() {
     private val viewModel: CreateChallengeViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(layout.root)
+        super.onCreate(savedInstanceState); setContentView(layout.root)
 
         viewModel.created.observe(this) {
             if (it == null) displayCreateChallenge()
@@ -86,8 +84,6 @@ class CreateChallengeActivity : AppCompatActivity() {
     }
 }
 
-
-
 // Challenges are created by participants and are posted on the server, awaiting acceptance.
 class CreateChallengeViewModel(app: Application) : AndroidViewModel(app) {
 
@@ -95,16 +91,13 @@ class CreateChallengeViewModel(app: Application) : AndroidViewModel(app) {
     private val _created: MutableLiveData<Result<ChallengeInfo>?> = MutableLiveData(null)
     val created: LiveData<Result<ChallengeInfo>?> = _created
 
-
     //Used to publish the acceptance state of the challenge
     private val _accepted: MutableLiveData<Boolean> = MutableLiveData(false)
     val accepted: LiveData<Boolean> = _accepted
 
     //Creates a challenge with the given arguments. The result is placed in [created]
     fun createChallenge(name: String, message: String) {
-        getApplication<Chess4AndroidApp>().fireBase.publishChallenge(
-            name = name,
-            message = message,
+        getApplication<Chess4AndroidApp>().fireBase.createChallenge(name, message,
             onComplete = {
                 _created.value = it
                 it.onSuccess(::waitForAcceptance)
@@ -122,17 +115,14 @@ class CreateChallengeViewModel(app: Application) : AndroidViewModel(app) {
         val fb = getApplication<Chess4AndroidApp>().fireBase
         subscription?.let { fb.unsubscribeToChallengeAcceptance(it) }
         currentChallenge.onSuccess {
-            fb.withdrawChallenge(
+            fb.deleteChallenge(
                 challengeId = it.id,
                 onComplete = { _created.value = null }
             )
         }
     }
 
-    /**
-     * Lets cleanup. The view model is about to be destroyed.
-     */
-    override fun onCleared() {
+    override fun onCleared() { //Lets cleanup. The view model is about to be destroyed.
         if (created.value != null && created.value?.isSuccess == true)
             removeChallenge()
     }
@@ -146,5 +136,4 @@ class CreateChallengeViewModel(app: Application) : AndroidViewModel(app) {
             onChallengeAccepted = { _accepted.value = true },
         )
     }
-
 }

@@ -13,8 +13,7 @@ private const val GITHUBURL = "https://github.com/p4ulor/PDM-2122i-LI5X-G19"
 
 class AboutActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_about)
+        super.onCreate(savedInstanceState); setContentView(R.layout.activity_about)
 
         findViewById<ImageView>(R.id.gitHubButtonAndImage).setOnClickListener {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(GITHUBURL)).apply {

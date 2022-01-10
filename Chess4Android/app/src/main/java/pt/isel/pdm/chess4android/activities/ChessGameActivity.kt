@@ -23,7 +23,6 @@ class ChessGameActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(layout.root)
+        super.onCreate(savedInstanceState); setContentView(layout.root)
     }
 }

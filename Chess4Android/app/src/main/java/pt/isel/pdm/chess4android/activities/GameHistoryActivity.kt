@@ -18,11 +18,10 @@ private const val TAG = "GameHistory"
 class GameHistoryActivity : AppCompatActivity(), OnItemClickListener {
 
     private val layout by lazy { ActivityGameHistoryBinding.inflate(layoutInflater) }
-    private val thisViewModel by viewModels<GameHistoryViewModel>()
+    private val viewModel by viewModels<GameHistoryViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(layout.root)
+        super.onCreate(savedInstanceState); setContentView(layout.root)
 
         layout.gameListRecyclerView.layoutManager = LinearLayoutManager(this)
 
@@ -31,8 +30,8 @@ class GameHistoryActivity : AppCompatActivity(), OnItemClickListener {
 
     override fun onResume() { //I wasn't able to do or find any better solutions in order to update the recycler view in order for it to update the checkBox after successfully completing the puzzle and going back to this activity
         log(TAG,"onResume")
-        thisViewModel.loadHistory()
-        thisViewModel.history?.observe(this){
+        viewModel.loadHistory()
+        viewModel.history?.observe(this){
             layout.gameListRecyclerView.adapter = GameHistoryViewAdapter(it, this)
         }
         /*
@@ -46,7 +45,7 @@ class GameHistoryActivity : AppCompatActivity(), OnItemClickListener {
 
     override fun onItemClicked(gameDTO: GameDTO, holderPosition: Int) {
         topToast(getString(R.string.youSelected)+gameDTO.id, this)
-        thisViewModel.gameSelected = holderPosition
+        viewModel.gameSelected = holderPosition
         launchGame(gameDTO)
     }
 

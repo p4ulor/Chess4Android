@@ -21,20 +21,16 @@ import pt.isel.pdm.chess4android.model.User
 import pt.isel.pdm.chess4android.views.ChallengesListAdapter
 
 private const val TAG = "ChallengesList"
+
 class ChallengesListActivity : AppCompatActivity() {
 
     private val layout by lazy { ActivityChallengesListBinding.inflate(layoutInflater) }
-
     private val viewModel: ChallengesListViewModel by viewModels()
 
-    /**
-     * Sets up the screen behaviour
-     */
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(layout.root)
+    override fun onCreate(savedInstanceState: Bundle?) { //Sets up the screen behaviour
+        super.onCreate(savedInstanceState); setContentView(layout.root)
 
-        layout.challengesList.setHasFixedSize(true)
+        layout.challengesList.setHasFixedSize(true) //hmmmmm
         layout.challengesList.layoutManager = LinearLayoutManager(this)
 
         viewModel.challenges.observe(this) { result ->
@@ -48,6 +44,7 @@ class ChallengesListActivity : AppCompatActivity() {
         }
 
         layout.refreshLayout.setOnRefreshListener { updateChallengesList() }
+
         layout.createChallengeButton.setOnClickListener {
             startActivity(Intent(this, CreateChallengeActivity::class.java))
         }
@@ -65,29 +62,17 @@ class ChallengesListActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * The screen is about to become visible: refresh its contents.
-     */
-    override fun onStart() {
+    override fun onStart() { //The screen is about to become visible: refresh its contents.
         super.onStart()
         updateChallengesList()
     }
 
-    /**
-     * Called whenever the challenges list is to be fetched again.
-     */
-    private fun updateChallengesList() {
+    private fun updateChallengesList() { //Called whenever the challenges list is to be fetched again.
         layout.refreshLayout.isRefreshing = true
         viewModel.fetchChallenges()
     }
 
-    /**
-     * Called whenever a list element is selected. The player that accepts the challenge is the
-     * first to make a move.
-     *
-     * @param challenge the selected challenge
-     */
-    private fun challengeSelected(challenge: ChallengeInfo) {
+    private fun challengeSelected(challenge: ChallengeInfo) { //Action set when player selects a challenge. The player that accepts the challenge is the first to make a move
         AlertDialog.Builder(this)
             .setTitle(getString(R.string.accept_challenge_dialog_title, challenge.challengerName))
             .setPositiveButton(R.string.ok) { _, _ -> viewModel.tryAcceptChallenge(challenge) }
@@ -113,9 +98,7 @@ class ChallengesListViewModel (app: Application) : AndroidViewModel(app) {
             _challenges.value = it
         })
 
-    /**
-     * Contains information about the enrolment in a game.
-     */
+    // Contains information about the enrolment in a game.
     private val _enrolmentResult: MutableLiveData<Result<Pair<ChallengeInfo, GameState>>?> = MutableLiveData()
     val enrolmentResult: LiveData<Result<Pair<ChallengeInfo, GameState>>?> = _enrolmentResult
 
@@ -126,7 +109,7 @@ class ChallengesListViewModel (app: Application) : AndroidViewModel(app) {
     fun tryAcceptChallenge(challengeInfo: ChallengeInfo) {
         val app = getApplication<Chess4AndroidApp>()
         Log.v(TAG, "Challenge accepted. Signalling by removing challenge from list")
-        app.fireBase.withdrawChallenge(
+        app.fireBase.deleteChallenge(
             challengeId = challengeInfo.id,
             onComplete = {
                 it.onSuccess {

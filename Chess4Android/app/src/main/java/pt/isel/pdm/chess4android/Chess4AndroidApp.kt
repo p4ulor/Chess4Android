@@ -18,16 +18,12 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-const val DATEPATTERN = "dd/M/yyyy"
-
 private const val TAG = "MYLOG_"
+private const val DATEPATTERN = "dd/M/yyyy" //The 'M' must be uppercase or it will read the minutes
 private const val DB = "game-history" //DataBase key
 
 class Chess4AndroidApp : Application() { // synonyms to apply to this class to understand what it represents: AppViewModel, SuperViewModel, SuperActivity, AppRootActivity,  omnipresent object that lives throughout the app's lifecycle and in all activities, will be used as the means to access our local DB and has global methods
-
-    init {
-        Log.i(TAG, "Chess4AndroidApp executed")
-    }
+    init { Log.i(TAG, "Chess4AndroidApp executed") }
 
     val historyDB: GamesDataBase by lazy {
         Room.databaseBuilder(this, GamesDataBase::class.java, DB).build()
@@ -79,7 +75,7 @@ fun play(id: Int, ctx: Context) {
 }
 
 fun getTodaysDate(): String {
-    val s: StringBuilder = StringBuilder(SimpleDateFormat(DATEPATTERN).format(Date())) //The 'M' must be uppercase or it will read the minutes
+    val s: StringBuilder = StringBuilder(SimpleDateFormat(DATEPATTERN).format(Date()))
     if(s[4] =='/'){
         s.insert(3,'0') // "01/1/2022" -> "01/01/2022"
     }
