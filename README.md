@@ -1,10 +1,23 @@
 # PDM-2122i-LI5X-G19
-Chess Puzzle solving app for Mobile Device Programming discipline.
-Using: lichess API
+Chess games app Mobile Device Programming discipline. 
+You can:
+- Play chess offline
+- Play online with other users
+- Solve daily chess puzzles obtained from the [lichess API](https://lichess.org/api/puzzle/daily). You can try these puzzles on the browser [here](https://lichess.org/training/daily). These puzzles get saved on the app, and they
+
+## [Download the app here]()
 
 ## Shortcuts for main source code
 - [src](Chess4Android/app/src/main/java/pt/isel/pdm/chess4android)
 - [layout (activities)](Chess4Android/app/src/main/res/layout)
+
+## Repository contents
+- **_imgs** -> Images used in this README file or other images with technical details
+- **AppDocumentation** -> Images, diagrams and texts that explain the app on a programmer level and user level
+- **Chess4Android** -> The android project. Open using Android Studio
+- The 3 .pdf's in this directory are the 3 assignment papers that outline the goals and work to be done in each one.
+- this README file, explains what this entire repository is about, a thing most people don't do for some reason
+- src_code shortcut, a directory independent shortcut to the source code, opens it in another explorer window
 
 ## Authors
 - Paulo Rosa 44873
@@ -55,22 +68,14 @@ Date: 21/11/2021
 - AppDocumentation folder added with many helpful diagrams to understand and visualize the app.
 - Major indentified problem with in this point in time: code could be more organized. Part of this was to blame to the fact that I wanted to try different approaches and coding styles while adapting and learning kotlin or/and learn new things in android, and therefore I ended up using a variety of things. And I will try to solve all of this next.
 
-### GameHistoryActivity
-![](_imgs/T2_1.png)
-
-### PuzzleSolvingActivity
-![](_imgs/T2_2.png)
+![](_imgs/T2_1.png "GameHistoryActivity") ![](_imgs/T2_2.png "PuzzleSolvingActivity")
 
 
-## Consult today's game here
-- https://lichess.org/training/daily
-- https://lichess.org/api/puzzle/daily (json)
+### Tag **chess_royale_3**
+### Navigation details
 
-## Places to learn coordinates and moves
-- https://lichess.org/analysis
-- http://www.chessfornovices.com/chessnotation2.html
-- https://en.wikipedia.org/wiki/Rules_of_chess
-- https://levelup.gitconnected.com/finding-all-legal-chess-moves-2cb872d05bc6
-- http://www.jimmyvermeer.com/rules.html
-- https://www.chess.com/forum/view/game-analysis/in-a-computer-analysis---means-what
-- https://www.chess.com/forum/view/general/all-the-terminology-and-symbol-meanings
+### Aditions and notes:
+
+# Techical details
+## Libraries and technologies used
+

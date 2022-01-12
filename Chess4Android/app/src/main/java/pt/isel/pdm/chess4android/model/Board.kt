@@ -85,7 +85,7 @@ class Board {
     companion object {
         val companion_chessTable = Board().startingChessPiecesTablePositions.copyOf()  //startingChessPiecesTablePositions will be read only for classes that want to acess it
         fun indexToPosition(index: Int) : Position {
-            return Position(columnNumberToLetter(index % BOARD_SIDE_SIZE), (BOARD_SIDE_SIZE / 8).toByte())
+            return Position(columnNumberToLetter(index % BOARD_SIDE_SIZE), (BOARD_SIDE_SIZE-(index / BOARD_SIDE_SIZE)).toByte())
         }
 
         fun movementToPositionString(indexOrigin: Int, indexDestination: Int) : String {

@@ -10,9 +10,16 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class GameState(
     val id: String,
-    val turn: String?,
-    val board: String
-): Parcelable
+    val colorPlaying: Boolean,
+    val board: Array<FireBasePiece>
+) : Parcelable
+
+@Parcelize
+data class FireBasePiece(
+    val index: Byte,
+    val isWhite: Boolean,
+    val pieceType: PIECETYPE
+) : Parcelable
 
 /**
  * Extension to create a [GameState] instance from this [Board].

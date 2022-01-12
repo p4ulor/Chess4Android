@@ -2,16 +2,13 @@ package pt.isel.pdm.chess4android.model
 
 // I named this User because Player is already in use by the LichessJSON
 enum class User {
-
-    CIRCLE, CROSS;
+    WHITE,
+    BLACK;
 
     companion object {
-        val firstToMove: User = CIRCLE
+        val firstToMove: User = WHITE
     }
 
-    /**
-     * The other player
-     */
-    val other: User
-        get() = if (this == CIRCLE) CROSS else CIRCLE
+    val opponent: User
+    get() = if (this == WHITE) BLACK else WHITE
 }

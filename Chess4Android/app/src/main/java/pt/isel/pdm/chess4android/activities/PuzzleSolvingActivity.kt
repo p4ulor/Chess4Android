@@ -134,7 +134,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
         val movement = Board.movementToPositionString(currentlySelectedPieceIndex, pieceThatWillBeEatenIndex)
         if(viewModel.gameDTO==null){
             moveAndInvalidate(currentlySelectedPieceIndex, pieceThatWillBeEatenIndex)
-            viewModel.isWhitesPlaying.value = !(viewModel.isWhitesPlaying.value)!!
+            switchColorTurn()
         } else if(movement == viewModel.solution?.get(viewModel.correctMovementsPerformed)) {
             moveAndInvalidate(currentlySelectedPieceIndex, pieceThatWillBeEatenIndex)
             log("moved")
@@ -201,16 +201,16 @@ class PuzzleSolvingActivity : AppCompatActivity() {
 
     private fun loadGame() : Boolean {
         if(viewModel.puzzle!=null){
-            var isWhitesPlaying = true
-            viewModel.puzzle?.forEachIndexed { index, s ->
-                isWhitesPlaying = index % 2 == 0
-                if(!viewModel.board.interpretMove(s,isWhitesPlaying)) {
+            viewModel.isWhitesPlaying.value = true
+            viewModel.puzzle?.forEachIndexed { index, move ->
+                viewModel.isWhitesPlaying.value = index % 2 == 0
+                if(!viewModel.board.interpretMove(move, viewModel.isWhitesPlaying.value!!)) {
                     toast(R.string.interpretError, this)
                     log(getString(R.string.interpretError)+" at index $index")
                     return false
                 }
             }
-            viewModel.isWhitesPlaying.value = !isWhitesPlaying
+            switchColorTurn()
             // toast(R.string.loadSuccess, this)
             viewModel.isGameLoaded = true
             return true
@@ -246,7 +246,11 @@ class PuzzleSolvingActivity : AppCompatActivity() {
         viewModel.board.movePieceToAndLeaveEmptyBehind(indexOrigin, indexDestination)
         myView.invalidate(indexOrigin, viewModel.board.getPieceAtIndex(indexOrigin)) //new pos
         myView.invalidate(indexDestination, viewModel.board.getPieceAtIndex(indexDestination)) //old pos
-        viewModel.isWhitesPlaying.value = !(viewModel.isWhitesPlaying.value)!!
+        switchColorTurn()
+    }
+
+    private fun switchColorTurn() {
+        viewModel.isWhitesPlaying.value = !viewModel.isWhitesPlaying.value!!
     }
 }
 

@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
             viewModel.currentScreenOrientation.value = applicationContext.resources.configuration.orientation
         }
 
-        //the following code will only execute if the request of the json was sucessful, good example of a good use of the observing capacity of LiveData
+        //the following code will only execute if the request of the json was sucessful, good example of a good use of the observing capacity of LiveData. Orientation code just for fun and learning
         viewModel.isGameReady.observe(this){
             log("observed")
             if(it){
@@ -60,15 +60,7 @@ class MainActivity : AppCompatActivity() {
                 continueButton?.isEnabled=true
                 if(didScreenRotate && viewModel.updateDisplayed.value == true) { //could be elvis operator, but intellij optimized
                     layout.root.postDelayed ({toast("R.string.iSurvived", this)}, 1000)
-                } else {
-                    //toast(R.string.puzzleUpdated, this)
-                    log(viewModel.gameDTO?.puzzle.toString())
-                    log(viewModel.gameDTO?.solution.toString())
-                    viewModel.updateDisplayed.value=true
-                    /*doAsyncWithResult {
-                        thisViewModel.updateDB()
-                    }*/
-                }
+                } else viewModel.updateDisplayed.value=true
             } else snackBar(R.string.WTFerror)
         }
 
@@ -160,6 +152,8 @@ class MainActivityViewModel(application: Application, private val state: SavedSt
                 if(lichessGameOfTheDay!=null){
                     gameDTO = lichessGameOfTheDay
                     if(!isDataNullOrEmpty()) {
+                        log(gameDTO.puzzle.toString())
+                        log(gameDTO.solution.toString())
                         state.set(IS_GAME_READY_LIVEDATA_KEY, true) //when this code executes, the code in "thisActivityViewModel.isGameReady.observe(this)" is also executed
                         callback(Result.success(gameDTO))
                     } else state.set(IS_GAME_READY_LIVEDATA_KEY, false)

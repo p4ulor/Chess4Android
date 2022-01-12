@@ -5,15 +5,13 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.LinearLayoutManager
-import pt.isel.pdm.chess4android.Chess4AndroidApp
-import pt.isel.pdm.chess4android.R
+import pt.isel.pdm.chess4android.*
 import pt.isel.pdm.chess4android.databinding.ActivityChallengesListBinding
 import pt.isel.pdm.chess4android.model.ChallengeInfo
 import pt.isel.pdm.chess4android.model.GameState
@@ -34,12 +32,13 @@ class ChallengesListActivity : AppCompatActivity() {
         layout.challengesList.layoutManager = LinearLayoutManager(this)
 
         viewModel.challenges.observe(this) { result ->
-            result.onSuccess {
-                layout.challengesList.adapter = ChallengesListAdapter(it, ::challengeSelected)
+            result.onSuccess { listOfChallenges ->
+                layout.challengesList.adapter = ChallengesListAdapter(listOfChallenges, ::popConfirmationBoxUponChallenge)
                 layout.refreshLayout.isRefreshing = false
             }
             result.onFailure {
-                Toast.makeText(this, R.string.errorChallenge, Toast.LENGTH_LONG).show()
+                toast(R.string.errorChallenge, this)
+                // (and the refreshLayout keeps the spinning symbol rolling) because isRefreshing wasn't set to false
             }
         }
 
@@ -52,9 +51,9 @@ class ChallengesListActivity : AppCompatActivity() {
         viewModel.enrolmentResult.observe(this) {
             it?.onSuccess { createdGameInfo ->
                 val intent = ChessGameActivity.buildIntent(
-                    origin = this,
+                    context = this,
                     turn = User.firstToMove,
-                    local = User.firstToMove.other,
+                    local = User.firstToMove.opponent,
                     challengeInfo = createdGameInfo.first
                 )
                 startActivity(intent)
@@ -72,7 +71,7 @@ class ChallengesListActivity : AppCompatActivity() {
         viewModel.fetchChallenges()
     }
 
-    private fun challengeSelected(challenge: ChallengeInfo) { //Action set when player selects a challenge. The player that accepts the challenge is the first to make a move
+    private fun popConfirmationBoxUponChallenge(challenge: ChallengeInfo) { //Action set when player selects a challenge. The player that accepts the challenge is the first to make a move
         AlertDialog.Builder(this)
             .setTitle(getString(R.string.accept_challenge_dialog_title, challenge.challengerName))
             .setPositiveButton(R.string.ok) { _, _ -> viewModel.tryAcceptChallenge(challenge) }
@@ -83,7 +82,8 @@ class ChallengesListActivity : AppCompatActivity() {
 }
 
 class ChallengesListViewModel (app: Application) : AndroidViewModel(app) {
-    private val app = getApplication<Chess4AndroidApp>()
+
+    private val fb: FireBaseChallengesRepo by lazy { getApplication<Chess4AndroidApp>().fireBase }
 
     //Contains the result of the last attempt to fetch the challenges list
     private val _challenges: MutableLiveData<Result<List<ChallengeInfo>>> = MutableLiveData()
@@ -94,7 +94,7 @@ class ChallengesListViewModel (app: Application) : AndroidViewModel(app) {
      * through [challenges]
      */
     fun fetchChallenges() =
-        app.fireBase.fetchChallenges(onComplete = {
+        fb.fetchChallenges(onComplete = {
             _challenges.value = it
         })
 
@@ -107,14 +107,13 @@ class ChallengesListViewModel (app: Application) : AndroidViewModel(app) {
      * through [enrolmentResult] LiveData instance.
      */
     fun tryAcceptChallenge(challengeInfo: ChallengeInfo) {
-        val app = getApplication<Chess4AndroidApp>()
-        Log.v(TAG, "Challenge accepted. Signalling by removing challenge from list")
-        app.fireBase.deleteChallenge(
+        log(TAG, "Challenge accepted. Signalling by removing challenge from list")
+        fb.deleteChallenge(
             challengeId = challengeInfo.id,
             onComplete = {
                 it.onSuccess {
-                    Log.v(TAG, "We successfully unpublished the challenge. Let's start the game")
-                    app.fireBase.createGame(challengeInfo, onComplete = { game ->
+                    log(TAG, "We successfully deleted the challenge. Let's start the game")
+                    fb.createGame(challengeInfo, onComplete = { game ->
                         _enrolmentResult.value = game
                     })
                 }

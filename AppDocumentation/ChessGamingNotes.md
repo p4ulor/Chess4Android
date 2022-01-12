@@ -1,3 +1,12 @@
+## Places to learn coordinates and moves
+- https://lichess.org/analysis
+- http://www.chessfornovices.com/chessnotation2.html
+- https://en.wikipedia.org/wiki/Rules_of_chess
+- https://levelup.gitconnected.com/finding-all-legal-chess-moves-2cb872d05bc6
+- http://www.jimmyvermeer.com/rules.html
+- https://www.chess.com/forum/view/game-analysis/in-a-computer-analysis---means-what
+- https://www.chess.com/forum/view/general/all-the-terminology-and-symbol-meanings
+
 ## About the encoding of the json
 - The movements to build up the puzzle are in the property: **game.pgn**
 - The solution to the puzzle is in the property: **puzzle.solution**

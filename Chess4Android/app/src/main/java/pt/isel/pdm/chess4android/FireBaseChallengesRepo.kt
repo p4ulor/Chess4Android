@@ -10,15 +10,16 @@ import pt.isel.pdm.chess4android.model.GameState
 import com.google.gson.Gson
 
 private const val TAG = "FireBase"
-// firebase props
+// firebase collection and property names
 private const val CHALLENGES_COLLECTION = "challenges"
 private const val CHALLENGER_NAME = "challengerName"
 private const val CHALLENGER_MESSAGE = "challengerMessage"
-
 private const val GAMES_COLLECTION = "games"
 private const val GAME_STATE_KEY = "game"
 
 class FireBaseChallengesRepo(private val mapper: Gson) {
+
+    private val fs = Firebase.firestore
     /**
      * Fetches the list of open challenges from the backend
      * Implementation note: We limit the maximum number of obtained challenges. Fetching ALL
@@ -26,21 +27,23 @@ class FireBaseChallengesRepo(private val mapper: Gson) {
      */
     fun fetchChallenges(onComplete: (Result<List<ChallengeInfo>>) -> Unit) {
         val limit = 20
-        Firebase.firestore.collection(CHALLENGES_COLLECTION)
+        fs.collection(CHALLENGES_COLLECTION)
             .get()
             .addOnSuccessListener { result ->
                 log(TAG, "Repo got list from Firestore")
+                for (document in result) {
+                    log(TAG, "${document.id} => ${document.data}")
+                }
                 onComplete(Result.success(result.take(limit).map { it.toChallengeInfo() }))
             }
             .addOnFailureListener {
-                log(TAG, "Repo: An error occurred while fetching list from Firestore")
-                log(TAG, "Error was $it")
+                log(TAG, "FireBaseRepo: Error {$it} occurred while fetching list from Firestore")
                 onComplete(Result.failure(it))
             }
     }
 
     fun createChallenge(name: String, message: String, onComplete: (Result<ChallengeInfo>) -> Unit) {
-        Firebase.firestore.collection(CHALLENGES_COLLECTION)
+        fs.collection(CHALLENGES_COLLECTION)
             .add(hashMapOf(CHALLENGER_NAME to name, CHALLENGER_MESSAGE to message))
             .addOnSuccessListener {
                 onComplete(Result.success(ChallengeInfo(it.id, name, message)))
@@ -49,16 +52,14 @@ class FireBaseChallengesRepo(private val mapper: Gson) {
     }
 
     fun deleteChallenge(challengeId: String, onComplete: (Result<Unit>) -> Unit) {
-        Firebase.firestore.collection(CHALLENGES_COLLECTION).document(challengeId)
+        fs.collection(CHALLENGES_COLLECTION).document(challengeId)
             .delete()
             .addOnSuccessListener { onComplete(Result.success(Unit)) }
             .addOnFailureListener { onComplete(Result.failure(it)) }
     }
 
     fun subscribeToChallengeAcceptance(challengeId: String, onSubscriptionError: (Exception) -> Unit, onChallengeAccepted: () -> Unit): ListenerRegistration {
-        return Firebase.firestore
-            .collection(CHALLENGES_COLLECTION)
-            .document(challengeId)
+        return fs.collection(CHALLENGES_COLLECTION).document(challengeId)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
                     onSubscriptionError(error)
@@ -76,25 +77,27 @@ class FireBaseChallengesRepo(private val mapper: Gson) {
         subscription.remove()
     }
 
-    // GAMES METHODS
+    // *** GAMES METHODS ***
+
+    // there's no fetchGames because it's a private thing
 
     fun createGame(challenge: ChallengeInfo, onComplete: (Result<Pair<ChallengeInfo, GameState>>) -> Unit) {
         //val gameState = Board().toGameState(challenge.id)
-        Firebase.firestore.collection(GAMES_COLLECTION).document(challenge.id)
+        fs.collection(GAMES_COLLECTION).document(challenge.id)
             .set(hashMapOf(GAME_STATE_KEY to mapper.toJson(challenge)))
             //.addOnSuccessListener { onComplete(Result.success(Pair(challenge, challenge))) }
             .addOnFailureListener { onComplete(Result.failure(it)) }
     }
 
     fun updateGameState(gameState: GameState, onComplete: (Result<GameState>) -> Unit) {
-        Firebase.firestore.collection(GAMES_COLLECTION).document(gameState.id)
+        fs.collection(GAMES_COLLECTION).document(gameState.id)
             .set(hashMapOf(GAME_STATE_KEY to mapper.toJson(gameState)))
             .addOnSuccessListener { onComplete(Result.success(gameState)) }
             .addOnFailureListener { onComplete(Result.failure(it)) }
     }
 
     fun subscribeToGameStateChanges(challengeId: String, onSubscriptionError: (Exception) -> Unit, onGameStateChange: (GameState) -> Unit): ListenerRegistration {
-        return Firebase.firestore.collection(GAMES_COLLECTION).document(challengeId)
+        return fs.collection(GAMES_COLLECTION).document(challengeId)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
                     onSubscriptionError(error)
@@ -112,7 +115,7 @@ class FireBaseChallengesRepo(private val mapper: Gson) {
     }
 
     fun deleteGame(challengeId: String, onComplete: (Result<Unit>) -> Unit) {
-        Firebase.firestore.collection(GAMES_COLLECTION).document(challengeId)
+        fs.collection(GAMES_COLLECTION).document(challengeId)
             .delete()
             .addOnSuccessListener { onComplete(Result.success(Unit)) }
             .addOnFailureListener { onComplete(Result.failure(it)) }
