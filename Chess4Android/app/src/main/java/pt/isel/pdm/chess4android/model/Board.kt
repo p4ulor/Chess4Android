@@ -221,6 +221,13 @@ class Board {
         chessPiecesTablePositions[index]=piece
     }
 
+    fun setPieceAtIndex(fireBasePiece: FireBasePiece){
+        val piece = makePiece(fireBasePiece.index, fireBasePiece.pieceType, fireBasePiece.isWhite)
+        if (piece != null) {
+            chessPiecesTablePositions[fireBasePiece.index.toInt()]=piece
+        }
+    }
+
     private fun setPieceAtPosition(position: Position, piece: Piece) = setPieceAtIndex(positionToIndex(position), piece)
 
     // *** MOVEMENTS ***
@@ -427,3 +434,31 @@ class Board {
         return false
     }
 }
+
+
+// USED FOR FIREBASE
+
+//Extension to create a [GameState] instance from this [Board].
+/*fun Board.toGameState(gameId: String, isWhitesPlaying: Boolean): GameState {
+    var board: Array<FireBasePiece> = initBoard() //cuz I dont wanna use nulls because I would need to adapt "FireBasePiece" to "FireBasePiece?"
+    var piece: Piece
+
+    board.forEachIndexed { index, _ ->
+        piece = this.getPieceAtIndex(index)
+        board[index] = FireBasePiece(index.toByte(), piece.pieceType, piece.isWhite)
+    }
+
+    return GameState(gameId, isWhitesPlaying, board)
+}*/
+
+
+
+// Extension to create a list of moves from this string
+/*
+private fun String.toBoardContents(): List<Player?> = this.map {
+    when(it) {
+        'X' -> User.CROSS
+        'O' -> User.CIRCLE
+        else -> null
+    }
+}*/

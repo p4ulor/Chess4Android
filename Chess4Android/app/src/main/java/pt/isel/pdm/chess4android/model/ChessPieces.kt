@@ -64,6 +64,7 @@ abstract class Piece (open var position: Position, open var isWhite: Boolean) {
     abstract fun canMoveTo(destination: Position): Boolean
 
     constructor(letter: Char, number: Byte, isWhite: Boolean) : this(Position(letter, number), isWhite)
+
 }
 
 sealed class ChessPieces { //https://antonioleiva.com/sealed-classes-kotlin/ //maybe not needed here?
@@ -231,6 +232,19 @@ fun pieceToChessPieceCorrespondingToItsType(piece: Piece?, pieceType: PIECETYPE)
         PIECETYPE.ROOK -> piece as ChessPieces.Rook
         PIECETYPE.KING -> piece as ChessPieces.King
         PIECETYPE.QUEEN -> piece as ChessPieces.Queen
+        else -> null
+    }
+}
+
+fun makePiece(index: Byte, pieceType: PIECETYPE, isWhite: Boolean) : Piece? {
+    val position = Board.indexToPosition(index.toInt())
+    return when(pieceType){
+        PIECETYPE.PAWN ->  ChessPieces.Pawn(position, isWhite)
+        PIECETYPE.BISHOP -> ChessPieces.Bishop(position, isWhite)
+        PIECETYPE.KNIGHT -> ChessPieces.Knight(position, isWhite)
+        PIECETYPE.ROOK -> ChessPieces.Rook(position, isWhite)
+        PIECETYPE.KING -> ChessPieces.King(position, isWhite)
+        PIECETYPE.QUEEN -> ChessPieces.Queen(position, isWhite)
         else -> null
     }
 }

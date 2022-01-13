@@ -1,6 +1,5 @@
 package pt.isel.pdm.chess4android
 
-import android.util.Log
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
@@ -17,16 +16,14 @@ private const val CHALLENGER_MESSAGE = "challengerMessage"
 private const val GAMES_COLLECTION = "games"
 private const val GAME_STATE_KEY = "game"
 
-class FireBaseChallengesRepo(private val mapper: Gson) {
-
+class FireBaseChallengesRepo {
+    private val mapper: Gson by lazy { Gson() }
     private val fs = Firebase.firestore
-    /**
-     * Fetches the list of open challenges from the backend
-     * Implementation note: We limit the maximum number of obtained challenges. Fetching ALL
-     * challenges is a bad design decision because the resulting data set size is unbounded!
-     */
+
+    /* *** CHALLENGES METHODS *** */
+    // Fetches the list of open challenges from firebase
     fun fetchChallenges(onComplete: (Result<List<ChallengeInfo>>) -> Unit) {
-        val limit = 20
+        val limit = 20 //Fetching ALL challenges is a bad design decision because the resulting data set size is unbounded
         fs.collection(CHALLENGES_COLLECTION)
             .get()
             .addOnSuccessListener { result ->
@@ -58,12 +55,12 @@ class FireBaseChallengesRepo(private val mapper: Gson) {
             .addOnFailureListener { onComplete(Result.failure(it)) }
     }
 
-    fun subscribeToChallengeAcceptance(challengeId: String, onSubscriptionError: (Exception) -> Unit, onChallengeAccepted: () -> Unit): ListenerRegistration {
+    fun listenToChallengeAcceptance(challengeId: String, onSubscriptionError: (Exception) -> Unit, onChallengeAccepted: () -> Unit): ListenerRegistration {
         return fs.collection(CHALLENGES_COLLECTION).document(challengeId)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
                     onSubscriptionError(error)
-                    return@addSnapshotListener
+                    return@addSnapshotListener // local return to the caller of the lambda
                 }
 
                 if (snapshot?.exists() == false) { // Document has been removed, thereby signalling that someone accepted the challenge
@@ -73,19 +70,19 @@ class FireBaseChallengesRepo(private val mapper: Gson) {
     }
 
     // Unsubscribes for changes in the challenge identified by [challengeId]
-    fun unsubscribeToChallengeAcceptance(subscription: ListenerRegistration) {
+    fun cancelListeningToChallengeAcceptance(subscription: ListenerRegistration) {
         subscription.remove()
     }
 
-    // *** GAMES METHODS ***
+    /* *** GAMES METHODS *** */
 
-    // there's no fetchGames because it's a private thing
+    // there's no "fetchGames()" because it's a private thing, the ongoing games shouldn't be public or provided anywhere
 
     fun createGame(challenge: ChallengeInfo, onComplete: (Result<Pair<ChallengeInfo, GameState>>) -> Unit) {
-        //val gameState = Board().toGameState(challenge.id)
+        val gameState = GameState(challenge.id, true, null, null, null)
         fs.collection(GAMES_COLLECTION).document(challenge.id)
             .set(hashMapOf(GAME_STATE_KEY to mapper.toJson(challenge)))
-            //.addOnSuccessListener { onComplete(Result.success(Pair(challenge, challenge))) }
+            .addOnSuccessListener { onComplete(Result.success(Pair(challenge, gameState))) }
             .addOnFailureListener { onComplete(Result.failure(it)) }
     }
 
@@ -96,8 +93,8 @@ class FireBaseChallengesRepo(private val mapper: Gson) {
             .addOnFailureListener { onComplete(Result.failure(it)) }
     }
 
-    fun subscribeToGameStateChanges(challengeId: String, onSubscriptionError: (Exception) -> Unit, onGameStateChange: (GameState) -> Unit): ListenerRegistration {
-        return fs.collection(GAMES_COLLECTION).document(challengeId)
+    fun listenToGameStateChanges(gameID: String, onSubscriptionError: (Exception) -> Unit, onGameStateChange: (GameState) -> Unit): ListenerRegistration {
+        return fs.collection(GAMES_COLLECTION).document(gameID)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
                     onSubscriptionError(error)

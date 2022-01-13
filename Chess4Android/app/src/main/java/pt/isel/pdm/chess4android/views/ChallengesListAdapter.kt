@@ -1,6 +1,7 @@
 package pt.isel.pdm.chess4android.views
 
 import android.animation.ValueAnimator
+import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -32,7 +33,7 @@ class ChallengeViewHolder(private val view: ViewGroup) : RecyclerView.ViewHolder
         )
 
         animation.addUpdateListener { animator ->
-            val background = view.background as GradientDrawable
+            val background = radialGradientDrawable() //view.background as GradientDrawable doesnt work cuz my background is state type background
             background.setColor(animator.animatedValue as Int)
         }
 
@@ -61,6 +62,23 @@ class ChallengeViewHolder(private val view: ViewGroup) : RecyclerView.ViewHolder
                     itemView.isClickable = true
                 }
             }
+    }
+}
+
+private fun radialGradientDrawable() : GradientDrawable { //https://android--code.blogspot.com/2020/06/android-kotlin-create-gradientdrawable.html
+    return GradientDrawable().apply {
+        colors = intArrayOf(
+            Color.parseColor("#DA1884"),
+            Color.parseColor("#FFF600"),
+            Color.parseColor("#800020")
+        )
+        gradientType = GradientDrawable.RADIAL_GRADIENT
+        shape = GradientDrawable.RECTANGLE
+
+        gradientRadius = 350F
+
+        // border around drawable
+        setStroke(5,Color.parseColor("#CD5700"))
     }
 }
 

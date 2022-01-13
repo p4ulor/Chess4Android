@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.AndroidViewModel
@@ -15,7 +14,6 @@ import pt.isel.pdm.chess4android.*
 import pt.isel.pdm.chess4android.databinding.ActivityChallengesListBinding
 import pt.isel.pdm.chess4android.model.ChallengeInfo
 import pt.isel.pdm.chess4android.model.GameState
-import pt.isel.pdm.chess4android.model.User
 import pt.isel.pdm.chess4android.views.ChallengesListAdapter
 
 private const val TAG = "ChallengesList"
@@ -52,8 +50,8 @@ class ChallengesListActivity : AppCompatActivity() {
             it?.onSuccess { createdGameInfo ->
                 val intent = ChessGameActivity.buildIntent(
                     context = this,
-                    turn = User.firstToMove,
-                    local = User.firstToMove.opponent,
+                    isWhitesPlayer = false,
+                    isWhitesPlaying = true,
                     challengeInfo = createdGameInfo.first
                 )
                 startActivity(intent)
@@ -89,31 +87,26 @@ class ChallengesListViewModel (app: Application) : AndroidViewModel(app) {
     private val _challenges: MutableLiveData<Result<List<ChallengeInfo>>> = MutableLiveData()
     val challenges: LiveData<Result<List<ChallengeInfo>>> = _challenges
 
-    /**
-     * Gets the challenges list by fetching them from the server. The operation's result is exposed
-     * through [challenges]
-     */
-    fun fetchChallenges() =
+
+    fun fetchChallenges() { //Gets the challenges list from firebase. And assigns it to [challenges]
         fb.fetchChallenges(onComplete = {
             _challenges.value = it
         })
+    }
 
     // Contains information about the enrolment in a game.
     private val _enrolmentResult: MutableLiveData<Result<Pair<ChallengeInfo, GameState>>?> = MutableLiveData()
     val enrolmentResult: LiveData<Result<Pair<ChallengeInfo, GameState>>?> = _enrolmentResult
 
-    /**
-     * Tries to accept the given challenge. The result of the asynchronous operation is exposed
-     * through [enrolmentResult] LiveData instance.
-     */
+    // Tries to accept the given challenge. The result of the asynchronous operation is exposed through [enrolmentResult] LiveData instance.
     fun tryAcceptChallenge(challengeInfo: ChallengeInfo) {
         log(TAG, "Challenge accepted. Signalling by removing challenge from list")
-        fb.deleteChallenge(
-            challengeId = challengeInfo.id,
+        fb.deleteChallenge(challengeInfo.id,
             onComplete = {
                 it.onSuccess {
                     log(TAG, "We successfully deleted the challenge. Let's start the game")
-                    fb.createGame(challengeInfo, onComplete = { game ->
+                    fb.createGame(challengeInfo,
+                        onComplete = { game ->
                         _enrolmentResult.value = game
                     })
                 }

@@ -3,7 +3,6 @@ package pt.isel.pdm.chess4android.activities
 import android.app.Application
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.viewModels
 import androidx.core.view.isVisible
 import androidx.lifecycle.AndroidViewModel
@@ -13,7 +12,6 @@ import com.google.firebase.firestore.ListenerRegistration
 import pt.isel.pdm.chess4android.*
 import pt.isel.pdm.chess4android.databinding.ActivityCreateChallengeBinding
 import pt.isel.pdm.chess4android.model.ChallengeInfo
-import pt.isel.pdm.chess4android.model.User
 
 private const val TAG = "CreateChallenge"
 
@@ -38,8 +36,8 @@ class CreateChallengeActivity : AppCompatActivity() {
                 viewModel.created.value?.onSuccess { challenge ->
                     val intent = ChessGameActivity.buildIntent(
                         context = this,
-                        turn = User.firstToMove,
-                        local = User.firstToMove,
+                        isWhitesPlayer = true,
+                        isWhitesPlaying = true,
                         challengeInfo = challenge
                     )
                     startActivity(intent)
@@ -83,7 +81,7 @@ class CreateChallengeViewModel(app: Application) : AndroidViewModel(app) {
     private val fb: FireBaseChallengesRepo by lazy { getApplication<Chess4AndroidApp>().fireBase }
 
     //Used to publish the result of the challenge creation operation. Null if no challenge is currently published.
-    private val _created: MutableLiveData<Result<ChallengeInfo>?> = MutableLiveData(null)
+    val _created: MutableLiveData<Result<ChallengeInfo>?> = MutableLiveData(null)
     val created: LiveData<Result<ChallengeInfo>?> = _created
 
     //Used to publish the acceptance state of the challenge
@@ -107,7 +105,7 @@ class CreateChallengeViewModel(app: Application) : AndroidViewModel(app) {
     fun removeChallenge() {
         val currentChallenge = created.value
         check(currentChallenge != null && currentChallenge.isSuccess)
-        subscription?.let { fb.unsubscribeToChallengeAcceptance(it) }
+        subscription?.let { fb.cancelListeningToChallengeAcceptance(it) }
         currentChallenge.onSuccess {
             fb.deleteChallenge(it.id,
                 onComplete = { _created.value = null }
@@ -123,8 +121,7 @@ class CreateChallengeViewModel(app: Application) : AndroidViewModel(app) {
     private var subscription: ListenerRegistration? = null
 
     private fun waitForAcceptance(challengeInfo: ChallengeInfo) {
-        subscription = fb.subscribeToChallengeAcceptance(
-            challengeId = challengeInfo.id,
+        subscription = fb.listenToChallengeAcceptance(challengeInfo.id,
             onSubscriptionError = { _created.value = Result.failure(it) },
             onChallengeAccepted = { _accepted.value = true },
         )
