@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity() {
     //private val thisViewModel by viewModels<MainActivityViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        log("created"); super.onCreate(savedInstanceState)
+        log("onCreate"); super.onCreate(savedInstanceState)
         setContentView(layout.root) //mandatory before referencing view's using findViewById or layout.
         //setContentView(R.layout.activity_main); //alternative to what's above
 

@@ -21,11 +21,9 @@ class GameHistoryActivity : AppCompatActivity(), OnItemClickListener {
     private val viewModel by viewModels<GameHistoryViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState); setContentView(layout.root)
+        log(TAG, "onCreate"); super.onCreate(savedInstanceState); setContentView(layout.root)
 
         layout.gameListRecyclerView.layoutManager = LinearLayoutManager(this)
-
-        log(TAG, "onCreate")
     }
 
     override fun onResume() { //I wasn't able to do or find any better solutions in order to update the recycler view in order for it to update the checkBox after successfully completing the puzzle and going back to this activity

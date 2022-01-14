@@ -33,7 +33,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
     private var currentlySelectedPieceIndex: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        log("Created"); super.onCreate(savedInstanceState); setContentView(layout.root)
+        log("onCreate"); super.onCreate(savedInstanceState); setContentView(layout.root)
 
         myView = layout.boardView
         autoOpponentSwitch = layout.autoOpponent

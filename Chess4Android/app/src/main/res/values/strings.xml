@@ -43,4 +43,5 @@
     <string name="cancel">Cancel</string>
     <string name="errorChallenge">Error creating challenge</string>
     <string name="accept_challenge_dialog_title">Accept %s\'s challenge?</string>
+    <string name="yourePlayingAgainst">"Playing against "</string>
 </resources>

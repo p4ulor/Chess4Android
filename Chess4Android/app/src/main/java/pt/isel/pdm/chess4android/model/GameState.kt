@@ -22,7 +22,9 @@ data class FireBasePiece(
     val index: Byte,
     val pieceType: PIECETYPE,
     val isWhite: Boolean
-) : Parcelable
+) : Parcelable {
+    constructor(position: Position, pieceType: PIECETYPE, isWhite: Boolean) : this(Board.positionToIndex(position).toByte(), pieceType, isWhite)
+}
 
 fun initBoard() : Array<FireBasePiece> {
     return arrayOf(

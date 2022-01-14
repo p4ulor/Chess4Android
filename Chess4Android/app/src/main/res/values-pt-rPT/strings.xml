@@ -44,4 +44,5 @@
     <string name="cancel">Cancelar</string>
     <string name="errorChallenge">Erro ao criar desafio</string>
     <string name="accept_challenge_dialog_title">Aceitar desafio do %s?</string>
+    <string name="yourePlayingAgainst">"A jogar contra "</string>
 </resources>

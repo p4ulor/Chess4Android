@@ -51,8 +51,9 @@ class ChessGameActivity : AppCompatActivity() { //CONTAINS REPETITIVE CODE, FIXM
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        log(TAG, "Created"); super.onCreate(savedInstanceState); setContentView(layout.root)
+        log(TAG, "onCreate"); super.onCreate(savedInstanceState); setContentView(layout.root)
 
+        supportActionBar?.title = getString(R.string.yourePlayingAgainst)+intentChallengeInfo.challengerName
         myView = layout.boardView
         currentColorPlaying = layout.toggleColorButton
 
@@ -62,10 +63,10 @@ class ChessGameActivity : AppCompatActivity() { //CONTAINS REPETITIVE CODE, FIXM
             }
         }
 
-        /*viewModel._game.observe(this) {
-            //updateDataAndUI(it)
-            log(TAG,"I observed _game")
-        }*/
+        viewModel._game.observe(this) {
+            log(TAG,"I, $TAG, observed and will update the data and UI with the new GameState")
+            updateDataAndUI(it)
+        }
         currentColorPlaying.isChecked = intentWhitesPlaying
         viewModel.isWhitesPlaying.observe(this){
             currentColorPlaying.isChecked = it
@@ -127,10 +128,11 @@ class ChessGameActivity : AppCompatActivity() { //CONTAINS REPETITIVE CODE, FIXM
 
     private fun moveAndInvalidate(indexOrigin: Int, indexDestination: Int) {
         viewModel.board.movePieceToAndLeaveEmptyBehind(indexOrigin, indexDestination)
-        myView.invalidate(indexOrigin, viewModel.board.getPieceAtIndex(indexOrigin)) //new pos
-        myView.invalidate(indexDestination, viewModel.board.getPieceAtIndex(indexDestination)) //old pos
-        updateGameState()
-        //viewModel.game.value?.getOrNull()?.isWhitePlaying = viewModel.isWhitesPlaying.value == true
+        val pieceOrigin = viewModel.board.getPieceAtIndex(indexOrigin)
+        val pieceDestination = viewModel.board.getPieceAtIndex(indexDestination)
+        myView.invalidate(indexOrigin, pieceOrigin) //new pos
+        myView.invalidate(indexDestination,pieceDestination) //old pos
+        updateGameState(pieceOrigin, pieceDestination, null)
         viewModel.publishGameStateChangesToFireBase()
     }
 
@@ -141,7 +143,7 @@ class ChessGameActivity : AppCompatActivity() { //CONTAINS REPETITIVE CODE, FIXM
         result.onSuccess {
             val piece1 = it.changedPos1
             val piece2 = it.changedPos2
-            if(piece1!=null && piece2!=null){
+            if(piece1.index >=0 && piece2.index >=0){
                 viewModel.board.setPieceAtIndex(piece1)
                 viewModel.board.setPieceAtIndex(piece2)
                 myView.invalidate(piece1.index.toInt(), viewModel.board.getPieceAtIndex(piece1.index.toInt())) //new pos
@@ -159,26 +161,9 @@ class ChessGameActivity : AppCompatActivity() { //CONTAINS REPETITIVE CODE, FIXM
             .show()
     }
 
-    override fun onStart() {
-        log("Started")
-        //if(viewModel.myColor) viewModel.publishGameStateChangesToFireBase()
-        /*if(viewModel.myColor==false) {
-            viewModel.board.reverseBoard()
-            invalidateEverything()
-        }*/
-        super.onStart()
-    }
-
-    override fun onResume() {
-        log("Resumed")
-        //currentColorPlaying.isChecked = viewModel.isWhitesPlaying.value == true
-        super.onResume()
-    }
-
-    override fun onPause() { //runs after onBackBackPressed
-        log("paused")
-        super.onPause()
-    }
+    override fun onStart() { log("Started"); super.onStart() }
+    override fun onResume() { log("Resumed"); super.onResume() }
+    override fun onPause() { log("paused"); super.onPause()  } //runs after onBackBackPressed
 
     override fun onBackPressed() {
         //close game //todo
@@ -191,9 +176,12 @@ class ChessGameActivity : AppCompatActivity() { //CONTAINS REPETITIVE CODE, FIXM
         }
     }
 
-    private fun updateGameState() {
+    private fun updateGameState(pieceOrigin: Piece, pieceDestination: Piece, winner: Boolean?) {
         viewModel._game.value?.onSuccess {
             it.isWhitePlaying = !viewModel.isWhitesPlaying.value!!
+            it.changedPos1 = FireBasePiece(pieceOrigin.position, pieceOrigin.pieceType, pieceOrigin.isWhite)
+            it.changedPos2 = FireBasePiece(pieceDestination.position, pieceDestination.pieceType, pieceDestination.isWhite)
+            if(winner!=null) it.winnerColor = winner
         }
         log(TAG,"updatedGameState")
     }
@@ -222,6 +210,7 @@ class ChessGameActivityViewModel(application: Application, intentIsWhitesPlayer:
                     log(TAG, "I just published a new GameState and/or I'm synced with the server. Update color's turn")
                 } else {
                     log(TAG, "Woah, I gotta the GameState, update color's turn")
+                    log(TAG, "new game state: $it")
                     _game.value = Result.success(it)
                 }
                 isWhitesPlaying.value = it.isWhitePlaying //this is done here, so that the UI will only display that the other color will play only if this device is connected and got a response from the server
