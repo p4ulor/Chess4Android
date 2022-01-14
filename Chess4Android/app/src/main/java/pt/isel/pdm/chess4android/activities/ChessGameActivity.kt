@@ -52,7 +52,7 @@ class ChessGameActivity : AppCompatActivity() { //CONTAINS REPETITIVE CODE, FIXM
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        log("Created"); super.onCreate(savedInstanceState); setContentView(layout.root)
+        log(TAG, "Created"); super.onCreate(savedInstanceState); setContentView(layout.root)
 
         myView = layout.boardView
         currentColorPlaying = layout.toggleColorButton
@@ -63,8 +63,14 @@ class ChessGameActivity : AppCompatActivity() { //CONTAINS REPETITIVE CODE, FIXM
             }
         }
 
-        viewModel.game.observe(this) {
-            updateDataAndUI(it)
+        viewModel._game.observe(this) {
+            //updateDataAndUI(it)
+            log(TAG,"I observed _game")
+        }
+
+        viewModel.isWhitesPlaying.observe(this){
+            currentColorPlaying.isChecked = it
+            log(TAG, "color playing: $it. My color: ${viewModel.myColor}")
         }
         /*layout.forfeitButton.setOnClickListener {
             // TODO
@@ -73,6 +79,7 @@ class ChessGameActivity : AppCompatActivity() { //CONTAINS REPETITIVE CODE, FIXM
 
     private fun tileBehaviour(tile: Tile) {
         if(viewModel.winnerColor!=null) return
+        if(viewModel.myColor!=viewModel.isWhitesPlaying.value) return
         if(currentlySelectedPieceIndex==-1) {
             if(viewModel.board.getPieceAtIndex(tile.index).pieceType!= PIECETYPE.EMPTY){
                 val pieceColor = viewModel.board.getPieceAtIndex(tile.index).isWhite
@@ -122,7 +129,7 @@ class ChessGameActivity : AppCompatActivity() { //CONTAINS REPETITIVE CODE, FIXM
         myView.invalidate(indexOrigin, viewModel.board.getPieceAtIndex(indexOrigin)) //new pos
         myView.invalidate(indexDestination, viewModel.board.getPieceAtIndex(indexDestination)) //old pos
         switchColorTurn()
-        viewModel.game.value?.getOrNull()?.isWhitePlaying = viewModel.isWhitesPlaying.value == true
+        //viewModel.game.value?.getOrNull()?.isWhitePlaying = viewModel.isWhitesPlaying.value == true
         viewModel.publishGameStateChangesToFireBase()
     }
 
@@ -138,10 +145,8 @@ class ChessGameActivity : AppCompatActivity() { //CONTAINS REPETITIVE CODE, FIXM
                 viewModel.board.setPieceAtIndex(piece2)
                 myView.invalidate(piece1.index.toInt(), viewModel.board.getPieceAtIndex(piece1.index.toInt())) //new pos
                 myView.invalidate(piece2.index.toInt(), viewModel.board.getPieceAtIndex(piece2.index.toInt())) //old pos
+                switchColorTurn()
             }
-
-            viewModel.isWhitesPlaying.value = it.isWhitePlaying
-            //switchColorTurn()
         }
         result.onFailure { toast(R.string.errorChallenge, this) }
     }
@@ -156,14 +161,17 @@ class ChessGameActivity : AppCompatActivity() { //CONTAINS REPETITIVE CODE, FIXM
 
     override fun onStart() {
         log("Started")
-        viewModel.isWhitesPlaying.observe(this){
-            currentColorPlaying.isChecked = it
-        }
+        if(viewModel.myColor == true) viewModel.publishGameStateChangesToFireBase()
+        /*if(viewModel.myColor==false) {
+            viewModel.board.reverseBoard()
+            invalidateEverything()
+        }*/
         super.onStart()
     }
 
     override fun onResume() {
         log("Resumed")
+        currentColorPlaying.isChecked = viewModel.isWhitesPlaying.value == true
         super.onResume()
     }
 
@@ -185,13 +193,16 @@ class ChessGameActivity : AppCompatActivity() { //CONTAINS REPETITIVE CODE, FIXM
 
     private fun switchColorTurn() {
         viewModel.isWhitesPlaying.value = !viewModel.isWhitesPlaying.value!!
+        viewModel._game.value?.onSuccess {
+            it.isWhitePlaying = viewModel.isWhitesPlaying.value!!
+        }
+        log(TAG,"colors switched")
     }
 }
 
 class ChessGameActivityViewModel(application: Application, intentIsWhitesPlayer: Boolean, intentWhitesPlaying: Boolean, intentChallengeInfo: ChallengeInfo?) : AndroidViewModel(application) {
-    //firebase stuff
+
     private val fb: FireBaseChallengesRepo by lazy { getApplication<Chess4AndroidApp>().fireBase }
-    private lateinit var initialGameState: GameState
 
     var myColor: Boolean? = intentIsWhitesPlayer
     var isWhitesPlaying: MutableLiveData<Boolean> = MutableLiveData(intentWhitesPlaying)
@@ -207,6 +218,8 @@ class ChessGameActivityViewModel(application: Application, intentIsWhitesPlayer:
             onSubscriptionError = { _game.value = Result.failure(it) },
             onGameStateChange = {
                 _game.value = Result.success(it)
+                isWhitesPlaying.value = it.isWhitePlaying
+                log(TAG,"I listened to game state changes")
             }
     )
 
@@ -215,14 +228,16 @@ class ChessGameActivityViewModel(application: Application, intentIsWhitesPlayer:
         fb.updateGameState(
             _game.value?.getOrNull()!!,
             onComplete = { result ->
-                result.onFailure { _game.value = Result.failure(it) }
+                result.onFailure { _game.value = Result.failure(it)
+                }
+                log(TAG,"I published game state changes")
             })
     }
 
     override fun onCleared() { //View model is destroyed
         super.onCleared()
         fb.deleteGame(
-            challengeId = initialGameState.id,
+            challengeId = _game.value?.getOrNull()?.id!!,
             onComplete = { }
         )
         gameSubscription.remove()

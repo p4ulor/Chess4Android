@@ -33,7 +33,7 @@ class ChallengeViewHolder(private val view: ViewGroup) : RecyclerView.ViewHolder
         )
 
         animation.addUpdateListener { animator ->
-            val background = radialGradientDrawable() //view.background as GradientDrawable doesnt work cuz my background is state type background
+            val background = radialGradientDrawable() //view.background as GradientDrawable doesnt work cuz my background is state type of background
             background.setColor(animator.animatedValue as Int)
         }
 
