@@ -11,8 +11,8 @@ import kotlinx.parcelize.Parcelize
 data class GameState(
     val id: String,
     var isWhitePlaying: Boolean,
-    var changedPos1: FireBasePiece?,
-    var changedPos2: FireBasePiece?,
+    var changedPos1: FireBasePiece,
+    var changedPos2: FireBasePiece,
     var winnerColor: Boolean?
     //var board: Array<FireBasePiece>
 ) : Parcelable

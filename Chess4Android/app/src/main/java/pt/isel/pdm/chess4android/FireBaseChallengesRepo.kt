@@ -7,6 +7,8 @@ import com.google.firebase.ktx.Firebase
 import pt.isel.pdm.chess4android.model.ChallengeInfo
 import pt.isel.pdm.chess4android.model.GameState
 import com.google.gson.Gson
+import pt.isel.pdm.chess4android.model.FireBasePiece
+import pt.isel.pdm.chess4android.model.PIECETYPE
 
 private const val TAG = "FireBase"
 // firebase collection and property names
@@ -79,9 +81,9 @@ class FireBaseChallengesRepo {
     // there's no "fetchGames()" because it's a private thing, the ongoing games shouldn't be public or provided anywhere
 
     fun createGame(challenge: ChallengeInfo, onComplete: (Result<Pair<ChallengeInfo, GameState>>) -> Unit) {
-        val gameState = GameState(challenge.id, true, null, null, null)
+        val gameState = GameState(challenge.id, true, FireBasePiece(-1, PIECETYPE.EMPTY, false), FireBasePiece(-1, PIECETYPE.EMPTY, false), null)
         fs.collection(GAMES_COLLECTION).document(challenge.id)
-            .set(hashMapOf(GAME_STATE_KEY to mapper.toJson(challenge)))
+            .set(hashMapOf(GAME_STATE_KEY to mapper.toJson(gameState)))
             .addOnSuccessListener { onComplete(Result.success(Pair(challenge, gameState))) }
             .addOnFailureListener { onComplete(Result.failure(it)) }
     }

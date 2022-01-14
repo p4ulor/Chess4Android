@@ -15,7 +15,6 @@ import pt.isel.pdm.chess4android.model.*
 import pt.isel.pdm.chess4android.views.BoardView
 import pt.isel.pdm.chess4android.views.Tile
 import pt.isel.pdm.chess4android.views.tileMatrix
-import java.io.Serializable
 
 private const val TAG = "ChessGameActivity"
 private const val IS_WHITES_PLAYER = "isWhitesPlayer"
@@ -63,18 +62,20 @@ class ChessGameActivity : AppCompatActivity() { //CONTAINS REPETITIVE CODE, FIXM
             }
         }
 
-        viewModel._game.observe(this) {
+        /*viewModel._game.observe(this) {
             //updateDataAndUI(it)
             log(TAG,"I observed _game")
-        }
-
+        }*/
+        currentColorPlaying.isChecked = intentWhitesPlaying
         viewModel.isWhitesPlaying.observe(this){
             currentColorPlaying.isChecked = it
-            log(TAG, "color playing: $it. My color: ${viewModel.myColor}")
+            log(TAG, "color playing is now: $it. My color: ${viewModel.myColor}")
         }
         /*layout.forfeitButton.setOnClickListener {
             // TODO
         }*/
+
+        invalidateEverything() //cuz of screen rotation
     }
 
     private fun tileBehaviour(tile: Tile) {
@@ -128,7 +129,7 @@ class ChessGameActivity : AppCompatActivity() { //CONTAINS REPETITIVE CODE, FIXM
         viewModel.board.movePieceToAndLeaveEmptyBehind(indexOrigin, indexDestination)
         myView.invalidate(indexOrigin, viewModel.board.getPieceAtIndex(indexOrigin)) //new pos
         myView.invalidate(indexDestination, viewModel.board.getPieceAtIndex(indexDestination)) //old pos
-        switchColorTurn()
+        updateGameState()
         //viewModel.game.value?.getOrNull()?.isWhitePlaying = viewModel.isWhitesPlaying.value == true
         viewModel.publishGameStateChangesToFireBase()
     }
@@ -145,7 +146,6 @@ class ChessGameActivity : AppCompatActivity() { //CONTAINS REPETITIVE CODE, FIXM
                 viewModel.board.setPieceAtIndex(piece2)
                 myView.invalidate(piece1.index.toInt(), viewModel.board.getPieceAtIndex(piece1.index.toInt())) //new pos
                 myView.invalidate(piece2.index.toInt(), viewModel.board.getPieceAtIndex(piece2.index.toInt())) //old pos
-                switchColorTurn()
             }
         }
         result.onFailure { toast(R.string.errorChallenge, this) }
@@ -161,7 +161,7 @@ class ChessGameActivity : AppCompatActivity() { //CONTAINS REPETITIVE CODE, FIXM
 
     override fun onStart() {
         log("Started")
-        if(viewModel.myColor == true) viewModel.publishGameStateChangesToFireBase()
+        //if(viewModel.myColor) viewModel.publishGameStateChangesToFireBase()
         /*if(viewModel.myColor==false) {
             viewModel.board.reverseBoard()
             invalidateEverything()
@@ -171,7 +171,7 @@ class ChessGameActivity : AppCompatActivity() { //CONTAINS REPETITIVE CODE, FIXM
 
     override fun onResume() {
         log("Resumed")
-        currentColorPlaying.isChecked = viewModel.isWhitesPlaying.value == true
+        //currentColorPlaying.isChecked = viewModel.isWhitesPlaying.value == true
         super.onResume()
     }
 
@@ -191,12 +191,11 @@ class ChessGameActivity : AppCompatActivity() { //CONTAINS REPETITIVE CODE, FIXM
         }
     }
 
-    private fun switchColorTurn() {
-        viewModel.isWhitesPlaying.value = !viewModel.isWhitesPlaying.value!!
+    private fun updateGameState() {
         viewModel._game.value?.onSuccess {
-            it.isWhitePlaying = viewModel.isWhitesPlaying.value!!
+            it.isWhitePlaying = !viewModel.isWhitesPlaying.value!!
         }
-        log(TAG,"colors switched")
+        log(TAG,"updatedGameState")
     }
 }
 
@@ -204,22 +203,28 @@ class ChessGameActivityViewModel(application: Application, intentIsWhitesPlayer:
 
     private val fb: FireBaseChallengesRepo by lazy { getApplication<Chess4AndroidApp>().fireBase }
 
-    var myColor: Boolean? = intentIsWhitesPlayer
+    var myColor: Boolean = intentIsWhitesPlayer
     var isWhitesPlaying: MutableLiveData<Boolean> = MutableLiveData(intentWhitesPlaying)
     var winnerColor: Boolean? = null
     var board: Board = Board()
 
     val _game: MutableLiveData<Result<GameState>> by lazy {
-        MutableLiveData(Result.success(GameState(intentChallengeInfo?.id!! , intentWhitesPlaying, null, null, null)))
+        MutableLiveData(Result.success(GameState(intentChallengeInfo?.id!! , intentWhitesPlaying, FireBasePiece(-1, PIECETYPE.EMPTY, false), FireBasePiece(-1, PIECETYPE.EMPTY, false), null)))
     }
     val game: LiveData<Result<GameState>> = _game
 
+    // LISTENS, EVEN TO THIS PHONE'S PUBLICATION TO THE FIREBASE
     private val gameSubscription = fb.listenToGameStateChanges(_game.value?.getOrNull()?.id!!,
             onSubscriptionError = { _game.value = Result.failure(it) },
             onGameStateChange = {
-                _game.value = Result.success(it)
-                isWhitesPlaying.value = it.isWhitePlaying
-                log(TAG,"I listened to game state changes")
+                log(TAG, "Latest GameState says that the color playing is ${it.isWhitePlaying}")
+                if(isWhitesPlaying.value==it.isWhitePlaying){ //If I passed the turn to the other color, I'm not the one that needs to update my GameState, since I already have it applied
+                    log(TAG, "I just published a new GameState and/or I'm synced with the server. Update color's turn")
+                } else {
+                    log(TAG, "Woah, I gotta the GameState, update color's turn")
+                    _game.value = Result.success(it)
+                }
+                isWhitesPlaying.value = it.isWhitePlaying //this is done here, so that the UI will only display that the other color will play only if this device is connected and got a response from the server
             }
     )
 
