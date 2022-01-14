@@ -10,12 +10,9 @@ import android.widget.GridLayout
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import pt.isel.pdm.chess4android.R
 import pt.isel.pdm.chess4android.log
-import pt.isel.pdm.chess4android.model.BOARD_SIDE_SIZE
-import pt.isel.pdm.chess4android.model.Board
-import pt.isel.pdm.chess4android.model.PIECETYPE
+import pt.isel.pdm.chess4android.model.*
 
 //import androidx.test.core.app.ApplicationProvider.getApplicationContext
-import pt.isel.pdm.chess4android.model.Piece
 
 
 /**

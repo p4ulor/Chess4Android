@@ -104,10 +104,7 @@ class FireBaseChallengesRepo {
                 }
 
                 if (snapshot?.exists() == true) {
-                    val gameState = mapper.fromJson(
-                        snapshot.get(GAME_STATE_KEY) as String,
-                        GameState::class.java
-                    )
+                    val gameState = mapper.fromJson(snapshot.get(GAME_STATE_KEY) as String, GameState::class.java)
                     onGameStateChange(gameState)
                 }
             }

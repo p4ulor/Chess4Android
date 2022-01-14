@@ -245,6 +245,6 @@ fun makePiece(index: Byte, pieceType: PIECETYPE, isWhite: Boolean) : Piece? {
         PIECETYPE.ROOK -> ChessPieces.Rook(position, isWhite)
         PIECETYPE.KING -> ChessPieces.King(position, isWhite)
         PIECETYPE.QUEEN -> ChessPieces.Queen(position, isWhite)
-        else -> null
+        else -> ChessPieces.Empty(position)
     }
 }

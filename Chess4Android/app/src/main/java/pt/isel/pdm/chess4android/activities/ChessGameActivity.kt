@@ -64,23 +64,48 @@ class ChessGameActivity : AppCompatActivity() { //CONTAINS REPETITIVE CODE, FIXM
         }
 
         viewModel._game.observe(this) {
-            log(TAG,"I, $TAG, observed and will update the data and UI with the new GameState")
-            updateDataAndUI(it)
+            if(viewModel.myColor==it.getOrNull()?.isWhitePlaying){
+                log(TAG,"I, $TAG, observed _game and will update the data and UI with the new GameState")
+                updateDataAndUI(it)
+            } else log(TAG, "I, $TAG, observed _game, but I'm not gonna update my UI with the same data lol")
         }
-        currentColorPlaying.isChecked = intentWhitesPlaying
+
+        //currentColorPlaying.isChecked = intentWhitesPlaying
         viewModel.isWhitesPlaying.observe(this){
             currentColorPlaying.isChecked = it
             log(TAG, "color playing is now: $it. My color: ${viewModel.myColor}")
         }
+
+        viewModel.winnerColor.observe(this){
+            if(it!=null) {
+                if(it==viewModel.myColor){
+                    displayWin()
+                } else {
+                    displayLoss()
+                }
+            }
+        }
+
         /*layout.forfeitButton.setOnClickListener {
             // TODO
         }*/
 
         invalidateEverything() //cuz of screen rotation
+        toast(getString(R.string.yourPiecesAre)+"${if(intentIsWhitesPlayer) getString(R.string.whites) else getString(R.string.blacks)}", this)
+    }
+
+    private fun displayWin(){ //must be done here and not in observer or it doesnt work 4 some reason, same has displayLoss()
+        snackBar(getString(R.string.won))
+        play(R.raw.gawdamn, this)
+    }
+
+    private fun displayLoss(){
+        snackBar(getString(R.string.lost))
+        play(R.raw.my_wrong_button_sound, this)
     }
 
     private fun tileBehaviour(tile: Tile) {
-        if(viewModel.winnerColor!=null) return
+        if(viewModel.winnerColor.value!=null) return
         if(viewModel.myColor!=viewModel.isWhitesPlaying.value) return
         if(currentlySelectedPieceIndex==-1) {
             if(viewModel.board.getPieceAtIndex(tile.index).pieceType!= PIECETYPE.EMPTY){
@@ -127,12 +152,14 @@ class ChessGameActivity : AppCompatActivity() { //CONTAINS REPETITIVE CODE, FIXM
     }
 
     private fun moveAndInvalidate(indexOrigin: Int, indexDestination: Int) {
-        viewModel.board.movePieceToAndLeaveEmptyBehind(indexOrigin, indexDestination)
+        val winner = viewModel.board.movePieceToAndLeaveEmptyBehind(indexOrigin, indexDestination)
         val pieceOrigin = viewModel.board.getPieceAtIndex(indexOrigin)
         val pieceDestination = viewModel.board.getPieceAtIndex(indexDestination)
         myView.invalidate(indexOrigin, pieceOrigin) //new pos
         myView.invalidate(indexDestination,pieceDestination) //old pos
-        updateGameState(pieceOrigin, pieceDestination, null)
+        val win = if(winner==MoveStatus.BLACKS_WON) false else if(winner==MoveStatus.WHITES_WON) true else null
+        log(TAG, "Winner: $win")
+        updateGameState(pieceOrigin, pieceDestination, win)
         viewModel.publishGameStateChangesToFireBase()
     }
 
@@ -155,6 +182,14 @@ class ChessGameActivity : AppCompatActivity() { //CONTAINS REPETITIVE CODE, FIXM
 
     private fun snackBar(stringID: Int){ //https://material.io/components/snackbars/android#using-snackbars //or function: () -> (Unit) https://stackoverflow.com/a/44132689
         Snackbar.make(findViewById(R.id.boardView),getString(stringID), Snackbar.LENGTH_INDEFINITE)
+            .setAction(R.string.ok) {
+                super.onBackPressed()
+            }
+            .show()
+    }
+
+    private fun snackBar(string: String){ //https://material.io/components/snackbars/android#using-snackbars //or function: () -> (Unit) https://stackoverflow.com/a/44132689
+        Snackbar.make(findViewById(R.id.boardView),string, Snackbar.LENGTH_INDEFINITE)
             .setAction(R.string.ok) {
                 super.onBackPressed()
             }
@@ -193,7 +228,7 @@ class ChessGameActivityViewModel(application: Application, intentIsWhitesPlayer:
 
     var myColor: Boolean = intentIsWhitesPlayer
     var isWhitesPlaying: MutableLiveData<Boolean> = MutableLiveData(intentWhitesPlaying)
-    var winnerColor: Boolean? = null
+    var winnerColor: MutableLiveData<Boolean?> = MutableLiveData(null)
     var board: Board = Board()
 
     val _game: MutableLiveData<Result<GameState>> by lazy {
@@ -209,9 +244,12 @@ class ChessGameActivityViewModel(application: Application, intentIsWhitesPlayer:
                 if(isWhitesPlaying.value==it.isWhitePlaying){ //If I passed the turn to the other color, I'm not the one that needs to update my GameState, since I already have it applied
                     log(TAG, "I just published a new GameState and/or I'm synced with the server. Update color's turn")
                 } else {
-                    log(TAG, "Woah, I gotta the GameState, update color's turn")
+                    log(TAG, "Woah, that's my turn, I gotta update my GameState with the new GameState, and update color's turn")
                     log(TAG, "new game state: $it")
                     _game.value = Result.success(it)
+                }
+                if(it.winnerColor!=null){
+                    winnerColor.value = it.winnerColor
                 }
                 isWhitesPlaying.value = it.isWhitePlaying //this is done here, so that the UI will only display that the other color will play only if this device is connected and got a response from the server
             }
@@ -228,7 +266,7 @@ class ChessGameActivityViewModel(application: Application, intentIsWhitesPlayer:
             })
     }
 
-    override fun onCleared() { //View model is destroyed
+    override fun onCleared() { //View model is destroyed, when onBackPressed is ran, this is also runs
         super.onCleared()
         fb.deleteGame(
             challengeId = _game.value?.getOrNull()?.id!!,

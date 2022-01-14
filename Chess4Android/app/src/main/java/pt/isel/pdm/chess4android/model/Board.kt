@@ -245,21 +245,24 @@ class Board {
         }
     }
 
-    fun movePieceToAndLeaveEmptyBehind(origin: Position, destination: Position){
-        movePieceToAndLeaveEmptyBehind(positionToIndex(origin), positionToIndex(destination))
+    fun movePieceToAndLeaveEmptyBehind(origin: Position, destination: Position) : MoveStatus {
+        return movePieceToAndLeaveEmptyBehind(positionToIndex(origin), positionToIndex(destination))
     }
 
-    fun movePieceToAndLeaveEmptyBehind(indexOrigin: Int, indexDestination: Int){
-        if(isOutOfBounds(indexOrigin) || isOutOfBounds(indexDestination)) return
-        movePieceToAndLeaveEmptyBehind(indexDestination, getPieceAtIndex(indexOrigin))
+    fun movePieceToAndLeaveEmptyBehind(indexOrigin: Int, indexDestination: Int) : MoveStatus {
+        if(isOutOfBounds(indexOrigin) || isOutOfBounds(indexDestination)) return MoveStatus.NO_EFFECT
+        return movePieceToAndLeaveEmptyBehind(indexDestination, getPieceAtIndex(indexOrigin))
     }
 
-    private fun movePieceToAndLeaveEmptyBehind(indexDestination: Int, pieceOrigin: Piece){
-        if(isOutOfBounds(indexDestination)) return
+    private fun movePieceToAndLeaveEmptyBehind(indexDestination: Int, pieceOrigin: Piece) : MoveStatus {
+        if(isOutOfBounds(indexDestination)) return MoveStatus.NO_EFFECT
+        val ret = if(getPieceAtIndex(indexDestination).pieceType==PIECETYPE.KING) { if(pieceOrigin.isWhite) MoveStatus.WHITES_WON else MoveStatus.BLACKS_WON } else MoveStatus.MOVED
+
         val auxPosition = pieceOrigin.position
         pieceOrigin.position = indexToPosition(indexDestination) //change the position of the piece to the position of the destination that its going to (change the value the object has)
         setPieceAtIndex(indexDestination, pieceOrigin) //change the array at the index of destination (change the positions at which the objects are located in the array)
         setPieceAtIndex(positionToIndex(auxPosition), ChessPieces.Empty(Position(auxPosition.letter, auxPosition.number))) //change
+        return ret
     }
 
     private fun movePieceToAndLeaveEmptyBehind(position: Position, pieceOrigin: Piece) = movePieceToAndLeaveEmptyBehind(positionToIndex(position), pieceOrigin)
@@ -433,6 +436,13 @@ class Board {
         }
         return false
     }
+}
+
+enum class MoveStatus {
+    NO_EFFECT,
+    MOVED,
+    WHITES_WON,
+    BLACKS_WON
 }
 
 
