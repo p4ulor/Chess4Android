@@ -46,4 +46,8 @@
     <string name="yourePlayingAgainst">"Playing against "</string>
     <string name="yourPiecesAre">"Your pieces are the "</string>
     <string name="lost">You lost</string>
+    <string name="lobby">lobby</string>
+    <string name="forfeitButton">Forfeit</string>
+    <string name="blacksWon">Blacks won</string>
+    <string name="whitesWon">Whites won</string>
 </resources>

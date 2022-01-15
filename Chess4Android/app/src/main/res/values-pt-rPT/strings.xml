@@ -47,4 +47,6 @@
     <string name="yourePlayingAgainst">"A jogar contra "</string>
     <string name="yourPiecesAre">"A sua peças são as "</string>
     <string name="lost">Tu perdeste</string>
+    <string name="lobby">lobby</string>
+    <string name="forfeitButton">Desistir</string>
 </resources>

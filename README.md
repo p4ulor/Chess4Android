@@ -32,18 +32,9 @@ The limitations in this tag are the organization of the code and the lack of 1 c
 - **The carryover of the translation of the list of the moves indicated by the json to correctly alter or reflect upon the pieces's condition-states is not totally yet considered as do some other chess rules**. Per example, when a pawn reaches the other side, it turns into another piece except king and pawn, or handling of the king and queens castles when done by the user. This is some way is because the pieces dont yet have the capacity or access to have knowledge of the piece it's going to eat or affect, it only knows the position that the controller told him to go. This involves giving more info to the pieces. This fauly design also made the listener we set up for the tile a bit big because only the controller has acess to the board, and each individual piece doesn't.
 - General organization and uniformization of the coding of the moves
 
-### Activity 1
-![](_imgs/T1_1.png)
-
-### Activity 2
-Example from puzzle with id = KU4e1TVf
-
-Date: 21/11/2021
-
-![](_imgs/T1_2.png)
-
-### Activity 2 after completing a game
-![](_imgs/T1_2_2.png)
+### Activity 1 and 2
+![](_imgs/T1_1.png "Acitivity 1")
+![](_imgs/T1_2.png "Activity 2") ![](_imgs/T1_2_2.png "Activity2")
 
 ### Activity 3
 ![](_imgs/T1_3.png)
@@ -72,9 +63,21 @@ Date: 21/11/2021
 
 
 ### Tag **chess_royale_3**
-### Navigation details
-
-### Aditions and notes:
+### Aditions and notes (user):
+- Option to play chess games offline (you play alone, against yourself or with a friend by sharing the phone)
+- Play online with other users, using firestore-firebase
+- There are 3 new activities, ChessGameActivity, ChallengesListAcitivty and CreateChallengeActivity. ChessGameActivity is used for playing offline and online games. To play online or offline, the user will have to select the 3 dots button, select the "More" section and tap "Play online" or "Play offline". If the user selects "Play offline", the ChessGameActivity will launch. If the user selects "Play online", ChallengesListAcitivty will be launched, which will display the currently open challenges. To create a challenge, the user much create one with the button on the bottom and wait for some other user to accept it after selecting it from the list.
+- Added forfeit button (NOT IN THE IMAGES, BUT ITS THERE)
+- Supports landscape view
+- Draw-backs: some repetitive code, some lack of code organization or simplicity. It is what it is when I have to do it all myself. But hey, I learned a lot and I will continue working on this project.
+![](_imgs/T3_1.png)
+![](_imgs/T3_2.png)
+![](_imgs/T3_3.png)
+# AND IT WORKS. ALL DONE BY ME
+![](https://c.tenor.com/O5jZtKfuDRoAAAAd/penguinz0-yeah-baby.gif)
+Special thanks to:
+- My teacher, [Paulo Pereira](https://github.com/palbp), for his teaching skills, good humor and personality and help
+- Joe Rogan for keeping me entertained while listening to his podcasts, which avoided me from crashing my dopamine while doing this project. And thus, keeping me focuses
 
 # Techical details
 ## Libraries and technologies used

@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Button
 import android.widget.ToggleButton
 import androidx.activity.viewModels
 import androidx.lifecycle.*
@@ -40,6 +41,7 @@ class ChessGameActivity : AppCompatActivity() { //CONTAINS REPETITIVE CODE, FIXM
 
     private lateinit var myView: BoardView
     private lateinit var currentColorPlaying: ToggleButton
+    private lateinit var forfeitButton: Button
     private var currentlySelectedPieceIndex: Int = -1
 
     companion object { //this buildIntent() is used on 2 cases/perpectives: when the user that created a challenge has it's challenge accepted, when the user accepts a challenge that was created
@@ -58,9 +60,12 @@ class ChessGameActivity : AppCompatActivity() { //CONTAINS REPETITIVE CODE, FIXM
     override fun onCreate(savedInstanceState: Bundle?) {
         log(TAG, "onCreate"); super.onCreate(savedInstanceState); setContentView(layout.root)
 
-        supportActionBar?.title = getString(R.string.yourePlayingAgainst)+intentChallengeInfo?.challengerName
+        if(viewModel.isOnline) supportActionBar?.title = if(intentIsWhitesPlayer) intentChallengeInfo?.challengerName+"'s "+getString(R.string.lobby) else getString(R.string.yourePlayingAgainst)+intentChallengeInfo?.challengerName
+        else supportActionBar?.title = ""
+
         myView = layout.boardView
         currentColorPlaying = layout.toggleColorButton
+        forfeitButton = layout.forfeitButton
 
         tileMatrix.forEach { tile ->
             tile?.setOnClickListener {
@@ -81,13 +86,26 @@ class ChessGameActivity : AppCompatActivity() { //CONTAINS REPETITIVE CODE, FIXM
             log(TAG, "color playing is now: $it. My color: ${viewModel.myColor}")
         }
 
+        forfeitButton.setOnClickListener {
+            if(viewModel.isOnline) {
+                updateGameState(null, null, !viewModel.myColor)
+                viewModel.publishGameStateChangesToFireBase()
+            } else viewModel.winnerColor.value = !viewModel.myColor
+        }
+
         viewModel.winnerColor.observe(this){
             if(it!=null) {
-                if(it==viewModel.myColor){
-                    displayWin()
+                if(viewModel.isOnline) {
+                    if(it==viewModel.myColor){
+                        displayWin()
+                    } else {
+                        displayLoss()
+                    }
                 } else {
-                    displayLoss()
+                    if(viewModel.winnerColor.value == true) snackBar(R.string.whitesWon)
+                    else snackBar(R.string.blacksWon)
                 }
+
             }
         }
 
@@ -100,7 +118,7 @@ class ChessGameActivity : AppCompatActivity() { //CONTAINS REPETITIVE CODE, FIXM
     }
 
     private fun displayWin(){ //must be done here and not in observer or it doesnt work 4 some reason, same has displayLoss()
-        snackBar(getString(R.string.won))
+        if(viewModel.isOnline) snackBar(getString(R.string.won))
         play(R.raw.gawdamn, this)
     }
 
@@ -221,11 +239,13 @@ class ChessGameActivity : AppCompatActivity() { //CONTAINS REPETITIVE CODE, FIXM
         }
     }
 
-    private fun updateGameState(pieceOrigin: Piece, pieceDestination: Piece, winner: Boolean?) {
+    private fun updateGameState(pieceOrigin: Piece?, pieceDestination: Piece?, winner: Boolean?) {
         viewModel._game.value?.onSuccess {
             it.isWhitePlaying = !viewModel.isWhitesPlaying.value!!
-            it.changedPos1 = FireBasePiece(pieceOrigin.position, pieceOrigin.pieceType, pieceOrigin.isWhite)
-            it.changedPos2 = FireBasePiece(pieceDestination.position, pieceDestination.pieceType, pieceDestination.isWhite)
+            if(pieceOrigin!=null && pieceDestination!=null){
+                it.changedPos1 = FireBasePiece(pieceOrigin.position, pieceOrigin.pieceType, pieceOrigin.isWhite)
+                it.changedPos2 = FireBasePiece(pieceDestination.position, pieceDestination.pieceType, pieceDestination.isWhite)
+            }
             if(winner!=null) it.winnerColor = winner
         }
         log(TAG,"updatedGameState")

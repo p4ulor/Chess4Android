@@ -30,8 +30,7 @@
 - \# -> means check mate (game over)
 
 ### Extra rules
-- On a check, you can only move pieces that kill the piece that made the check, block it's path, or move the king out of the reach of that piece
-- [En Passant, pawn move](https://www.youtube.com/watch?v=c_KRIH0wnhE)
+- [En Passant, pawn move](https://www.youtube.com/watch?v=c_KRIH0wnhE). If your opponement's pawn moves 2 places (in a pawn's first move) and lands on side by side with one of your pawns, in your turn, with your pawn, you can move diagonaly and land on the position behind your oponements pawns and eat that piece.
 
 #### When a pawn reaches the opponent's side limit, it can turn into: a queen, horse, tower or bishop. Format examples:
 - d1=q   //turns into queen

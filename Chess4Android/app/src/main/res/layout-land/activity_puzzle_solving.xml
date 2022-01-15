@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:clickable="false"
-    tools:context=".PuzzleSolvingActivity">
+    android:clickable="false">
 
     <!--
      SwitchCompat so that it's compatible with previous android versions
@@ -31,9 +30,16 @@
         android:checked="false"
         android:minHeight="48dp"
         android:text="@string/solution"
+        android:textOff="O"
+        android:textOn="I"
+        android:textStyle="bold"
+        android:thumb="@drawable/switch_style"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:showText="true"
+        app:switchPadding="10px"
+        app:track="@drawable/switch_slide_style" />
 
     <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/autoOpponent"
@@ -43,19 +49,42 @@
         android:layout_marginTop="32dp"
         android:minHeight="48dp"
         android:text="@string/auto"
+        android:textOff="O"
+        android:textOn="I"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:thumb="@drawable/switch_style"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:showText="true"
+        app:switchPadding="15px"
+        app:track="@drawable/switch_slide_style" />
 
     <ToggleButton
         android:id="@+id/toggleColorButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="32dp"
         android:clickable="false"
         android:textOff="@string/blacks"
         android:textOn="@string/whites"
+        android:background="@drawable/toggle_button_style"
+        android:textColor="#8E8E8E"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/toggleShowHintButton"
+        app:layout_constraintStart_toStartOf="@+id/toggleShowHintButton"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ToggleButton
+        android:id="@+id/toggleShowHintButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="32dp"
+        android:checked="false"
+        android:text="ToggleButton"
+        android:textOff="@string/show_hint"
+        android:textOn=""
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/toggleColorButton" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

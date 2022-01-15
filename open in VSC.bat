@@ -1,1 +1,0 @@
-explorer.exe "%ProgramFiles%\Microsoft VS Code\Code.exe"
