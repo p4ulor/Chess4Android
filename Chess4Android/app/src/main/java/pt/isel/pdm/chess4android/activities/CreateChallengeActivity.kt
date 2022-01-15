@@ -34,7 +34,7 @@ class CreateChallengeActivity : AppCompatActivity() {
             if (it) {
                 log(TAG, "Someone accepted our challenge")
                 viewModel.created.value?.onSuccess { challenge ->
-                    val intent = ChessGameActivity.buildIntent(
+                    val intent = ChessGameActivity.onlineIntentConstructor(
                         context = this,
                         isWhitesPlayer = true,
                         isWhitesPlaying = true,

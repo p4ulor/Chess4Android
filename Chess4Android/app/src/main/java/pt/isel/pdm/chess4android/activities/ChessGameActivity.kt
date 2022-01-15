@@ -27,7 +27,7 @@ class ChessGameActivity : AppCompatActivity() { //CONTAINS REPETITIVE CODE, FIXM
 
     private val intentIsWhitesPlayer by lazy { intent.getBooleanExtra(IS_WHITES_PLAYER, true) }
     private val intentWhitesPlaying by lazy { intent.getBooleanExtra(IS_WHITES_PLAYING, true) }
-    private val intentChallengeInfo: ChallengeInfo by lazy { intent.getParcelableExtra(CHALLENGE_INFO)!! }
+    private val intentChallengeInfo: ChallengeInfo? by lazy { intent.getParcelableExtra(CHALLENGE_INFO) }
 
     private val viewModel: ChessGameActivityViewModel by viewModels {
         @Suppress("UNCHECKED_CAST")
@@ -43,17 +43,22 @@ class ChessGameActivity : AppCompatActivity() { //CONTAINS REPETITIVE CODE, FIXM
     private var currentlySelectedPieceIndex: Int = -1
 
     companion object { //this buildIntent() is used on 2 cases/perpectives: when the user that created a challenge has it's challenge accepted, when the user accepts a challenge that was created
-        fun buildIntent(context: Context, isWhitesPlayer: Boolean, isWhitesPlaying: Boolean, challengeInfo: ChallengeInfo) =
+        fun onlineIntentConstructor(context: Context, isWhitesPlayer: Boolean, isWhitesPlaying: Boolean, challengeInfo: ChallengeInfo) =
             Intent(context, ChessGameActivity::class.java)
                 .putExtra(IS_WHITES_PLAYER, isWhitesPlayer)
                 .putExtra(IS_WHITES_PLAYING, isWhitesPlaying)
                 .putExtra(CHALLENGE_INFO, challengeInfo)
+
+        fun offlineIntentConstructor(context: Context, isWhitesPlayer: Boolean, isWhitesPlaying: Boolean) =
+            Intent(context, ChessGameActivity::class.java)
+                .putExtra(IS_WHITES_PLAYER, isWhitesPlayer)
+                .putExtra(IS_WHITES_PLAYING, isWhitesPlaying)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         log(TAG, "onCreate"); super.onCreate(savedInstanceState); setContentView(layout.root)
 
-        supportActionBar?.title = getString(R.string.yourePlayingAgainst)+intentChallengeInfo.challengerName
+        supportActionBar?.title = getString(R.string.yourePlayingAgainst)+intentChallengeInfo?.challengerName
         myView = layout.boardView
         currentColorPlaying = layout.toggleColorButton
 
@@ -106,7 +111,7 @@ class ChessGameActivity : AppCompatActivity() { //CONTAINS REPETITIVE CODE, FIXM
 
     private fun tileBehaviour(tile: Tile) {
         if(viewModel.winnerColor.value!=null) return
-        if(viewModel.myColor!=viewModel.isWhitesPlaying.value) return
+        if(viewModel.myColor!=viewModel.isWhitesPlaying.value && viewModel.isOnline) return
         if(currentlySelectedPieceIndex==-1) {
             if(viewModel.board.getPieceAtIndex(tile.index).pieceType!= PIECETYPE.EMPTY){
                 val pieceColor = viewModel.board.getPieceAtIndex(tile.index).isWhite
@@ -159,8 +164,13 @@ class ChessGameActivity : AppCompatActivity() { //CONTAINS REPETITIVE CODE, FIXM
         myView.invalidate(indexDestination,pieceDestination) //old pos
         val win = if(winner==MoveStatus.BLACKS_WON) false else if(winner==MoveStatus.WHITES_WON) true else null
         log(TAG, "Winner: $win")
-        updateGameState(pieceOrigin, pieceDestination, win)
-        viewModel.publishGameStateChangesToFireBase()
+        if(viewModel.isOnline){
+            updateGameState(pieceOrigin, pieceDestination, win)
+            viewModel.publishGameStateChangesToFireBase()
+        } else {
+            viewModel.isWhitesPlaying.value = !viewModel.isWhitesPlaying.value!!
+            viewModel.winnerColor.value = win
+        }
     }
 
     // Used to update de board and the boardView according to the current state of the game
@@ -225,19 +235,19 @@ class ChessGameActivity : AppCompatActivity() { //CONTAINS REPETITIVE CODE, FIXM
 class ChessGameActivityViewModel(application: Application, intentIsWhitesPlayer: Boolean, intentWhitesPlaying: Boolean, intentChallengeInfo: ChallengeInfo?) : AndroidViewModel(application) {
 
     private val fb: FireBaseChallengesRepo by lazy { getApplication<Chess4AndroidApp>().fireBase }
-
+    var isOnline = intentChallengeInfo!=null
     var myColor: Boolean = intentIsWhitesPlayer
     var isWhitesPlaying: MutableLiveData<Boolean> = MutableLiveData(intentWhitesPlaying)
     var winnerColor: MutableLiveData<Boolean?> = MutableLiveData(null)
     var board: Board = Board()
 
     val _game: MutableLiveData<Result<GameState>> by lazy {
-        MutableLiveData(Result.success(GameState(intentChallengeInfo?.id!! , intentWhitesPlaying, FireBasePiece(-1, PIECETYPE.EMPTY, false), FireBasePiece(-1, PIECETYPE.EMPTY, false), null)))
+        MutableLiveData(Result.success(GameState(intentChallengeInfo?.id ?: "", intentWhitesPlaying, FireBasePiece(-1, PIECETYPE.EMPTY, false), FireBasePiece(-1, PIECETYPE.EMPTY, false), null)))
     }
     val game: LiveData<Result<GameState>> = _game
 
     // LISTENS, EVEN TO THIS PHONE'S PUBLICATION TO THE FIREBASE
-    private val gameSubscription = fb.listenToGameStateChanges(_game.value?.getOrNull()?.id!!,
+    private val gameSubscription = if(isOnline) {fb.listenToGameStateChanges(_game.value?.getOrNull()?.id!!,
             onSubscriptionError = { _game.value = Result.failure(it) },
             onGameStateChange = {
                 log(TAG, "Latest GameState says that the color playing is ${it.isWhitePlaying}")
@@ -252,8 +262,9 @@ class ChessGameActivityViewModel(application: Application, intentIsWhitesPlayer:
                     winnerColor.value = it.winnerColor
                 }
                 isWhitesPlaying.value = it.isWhitePlaying //this is done here, so that the UI will only display that the other color will play only if this device is connected and got a response from the server
-            }
-    )
+            })
+            } else null
+
 
     fun publishGameStateChangesToFireBase(){
         if(_game.value?.getOrNull()==null) return
@@ -268,10 +279,12 @@ class ChessGameActivityViewModel(application: Application, intentIsWhitesPlayer:
 
     override fun onCleared() { //View model is destroyed, when onBackPressed is ran, this is also runs
         super.onCleared()
-        fb.deleteGame(
-            challengeId = _game.value?.getOrNull()?.id!!,
-            onComplete = { }
-        )
-        gameSubscription.remove()
+        if(isOnline){
+            fb.deleteGame(
+                challengeId = _game.value?.getOrNull()?.id!!,
+                onComplete = { }
+            )
+            gameSubscription?.remove()
+        }
     }
 }

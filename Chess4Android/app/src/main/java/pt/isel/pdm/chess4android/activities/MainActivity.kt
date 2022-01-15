@@ -96,7 +96,11 @@ class MainActivity : AppCompatActivity() {
             }
 
             R.id.play_offline_item -> {
-                startActivity(Intent(this, ChessGameActivity::class.java))
+                startActivity(ChessGameActivity.offlineIntentConstructor(
+                    context = this,
+                    isWhitesPlayer = true,
+                    isWhitesPlaying = true
+                ))
                 true
             }
 

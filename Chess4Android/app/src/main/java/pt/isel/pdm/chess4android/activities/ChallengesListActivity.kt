@@ -48,7 +48,7 @@ class ChallengesListActivity : AppCompatActivity() {
 
         viewModel.enrolmentResult.observe(this) {
             it?.onSuccess { createdGameInfo ->
-                val intent = ChessGameActivity.buildIntent(
+                val intent = ChessGameActivity.onlineIntentConstructor(
                     context = this,
                     isWhitesPlayer = false,
                     isWhitesPlaying = true,
