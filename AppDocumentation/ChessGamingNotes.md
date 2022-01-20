@@ -19,7 +19,10 @@
 - Q -> Queen
 - ?x?? -> Movement that envolves a piece from the column ? killing the piece in position ??. b**x**c5 per example
 
-## Special movements for the king (only when the king is selected, this is possible, when selecting the rook, it can't switch with king)
+### Extra rules
+- [En Passant, pawn move](https://www.youtube.com/watch?v=c_KRIH0wnhE). If your opponement's pawn moves 2 places (in a pawn's first move) and lands on side by side with one of your pawns, in your turn, with your pawn, you can move diagonaly and land on the position behind your oponements pawns and eat that piece.
+- Pawn promotion. Occurs when a pawn reaches the farthest rank from its original square. In other words, the tip of the other opponent board. When this happens, the player can replace the pawn for a queen, a rook, a bishop, or a knigh
+### Special movements for the king (only when the king is selected, this is possible, when selecting the rook, it can't switch with king)
 - O-O -> Kingside castle
 - O-O-O -> Queenside castle (meaning the move is done towards the side of where the queen is initially positioned at, in respective to the piece's color)
 - [Read more here](https://en.wikipedia.org/wiki/Castling
@@ -29,8 +32,6 @@
 - \+ -> means, that it's a check (the color that played can capture the opposite color king)
 - \# -> means check mate (game over)
 
-### Extra rules
-- [En Passant, pawn move](https://www.youtube.com/watch?v=c_KRIH0wnhE). If your opponement's pawn moves 2 places (in a pawn's first move) and lands on side by side with one of your pawns, in your turn, with your pawn, you can move diagonaly and land on the position behind your oponements pawns and eat that piece.
 
 #### When a pawn reaches the opponent's side limit, it can turn into: a queen, horse, tower or bishop. Format examples:
 - d1=q   //turns into queen

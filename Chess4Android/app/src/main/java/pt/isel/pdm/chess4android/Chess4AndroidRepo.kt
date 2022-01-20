@@ -80,7 +80,7 @@ class Chess4AndroidRepo(private val historyGameDAO: GameTableDAO) {
                                 }
                         }
                     }
-                    callback(apiResult)
+                    //callback(apiResult) //commenting this out fixed activity launching twice
                 }
             }
         }
