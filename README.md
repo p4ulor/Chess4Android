@@ -23,7 +23,7 @@ You can:
 ![](AppDocumentation/AppDemo_arrows.png)
 
 ## Fundamental libraries and technologies used
-- [Kotlin serialization](https://github.com/Kotlin/kotlinx.serialization)
+- [Kotlin serialization](https://github.com/Kotlin/kotlinx.serialization). Used for turning the json string data obtained from the lichess API and convert it to an object
 - [Android Volley](https://developer.android.com/training/volley/simple). Used for making a get request do the lichess API
 - [Android Room](https://developer.android.com/training/data-storage/room). Used for storing chess puzzles in the phone's local database
 - [Firebase](https://developer.android.com/studio/write/firebase?hl=en). Used for playing online. To create games, accept games and pass data between the user's moves and player turns.
@@ -31,7 +31,7 @@ You can:
 - [LiveData](https://developer.android.com/topic/libraries/architecture/livedata?hl=en). Used for observing values in the activitie's ViewModel and notifying them to the activity
 
 
-## This is how proud I am for doing. ALL DONE BY ME
+## This is how proud I am for doing this project. ALL DONE BY ME
 ![](https://c.tenor.com/O5jZtKfuDRoAAAAd/penguinz0-yeah-baby.gif)
 
 Special thanks to:
