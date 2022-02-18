@@ -13,7 +13,7 @@ import pt.isel.pdm.chess4android.model.GameDTO
 class GameHistoryViewAdapter(
     private var gamesHistoryData: List<GameDTO>,
     private val itemClickedListener: OnItemClickListener
-                                                    ) : RecyclerView.Adapter<HistoryItemViewHolder>() { // a view that will create tuples that ammount to only filling up the whole screen, and that constant number of views will be reused when scrolling through all the tuples
+    ) : RecyclerView.Adapter<HistoryItemViewHolder>() { // a view that will create tuples that ammount to only filling up the whole screen, and that constant number of views will be reused when scrolling through all the tuples
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HistoryItemViewHolder { //creates View tuples/holders. It's called by the layout manager when it needs a new view
         val view = LayoutInflater.from(parent.context).inflate(R.layout.history_item_tuple_view, parent, false)
@@ -25,8 +25,6 @@ class GameHistoryViewAdapter(
     }
 
     override fun getItemCount(): Int = gamesHistoryData.size
-
-    //-------------------- Above methods are obligated to be overrated
 
     fun loadNewHistoryData(newHistory: List<GameDTO>){
         gamesHistoryData = newHistory

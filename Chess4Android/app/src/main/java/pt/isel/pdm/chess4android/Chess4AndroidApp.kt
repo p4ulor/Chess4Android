@@ -21,6 +21,7 @@ private const val TAG = "MYLOG_"
 private const val DATEPATTERN = "dd/M/yyyy" //The 'M' must be uppercase or it will read the minutes
 private const val DB = "game-history" //DataBase key
 
+// Do not rely on this class so save values in memory
 class Chess4AndroidApp : Application() { // synonyms to apply to this class to understand what it represents: AppViewModel, SuperViewModel, SuperActivity, AppRootActivity,  omnipresent object that lives throughout the app's lifecycle and in all activities, will be used as the means to access our local DB and has global methods
     init { Log.i(TAG, "Chess4AndroidApp executed") }
 

@@ -14,6 +14,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
 import pt.isel.pdm.chess4android.*
 import java.io.*
 import java.util.*
@@ -34,7 +35,7 @@ class MainActivity : AppCompatActivity() {
 
     private val viewModel: MainActivityViewModel by viewModels()
     //alternative:
-    //private val thisViewModel by viewModels<MainActivityViewModel>()
+    //private val viewModel by viewModels<MainActivityViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         log("onCreate"); super.onCreate(savedInstanceState)
@@ -69,8 +70,13 @@ class MainActivity : AppCompatActivity() {
 
     // "on" overwritten methods
 
+    override fun onStop() {
+        log(TAG+"stopped")
+        super.onStop()
+    }
+
     override fun onDestroy() {
-        log("destroyed")
+        log(TAG+"destroyed")
         super.onDestroy()
     }
 

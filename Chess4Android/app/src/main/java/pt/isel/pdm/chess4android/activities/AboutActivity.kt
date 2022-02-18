@@ -15,6 +15,7 @@ class AboutActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState); setContentView(R.layout.activity_about)
 
+        //Implicit intents:
         findViewById<ImageView>(R.id.gitHubButtonAndImage).setOnClickListener {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(GITHUBURL)).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK

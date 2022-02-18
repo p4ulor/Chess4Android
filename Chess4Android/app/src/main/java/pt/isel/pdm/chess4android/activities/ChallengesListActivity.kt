@@ -10,6 +10,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.firebase.auth.FirebaseAuth
 import pt.isel.pdm.chess4android.*
 import pt.isel.pdm.chess4android.databinding.ActivityChallengesListBinding
 import pt.isel.pdm.chess4android.model.ChallengeInfo
@@ -22,6 +23,22 @@ class ChallengesListActivity : AppCompatActivity() {
 
     private val layout by lazy { ActivityChallengesListBinding.inflate(layoutInflater) }
     private val viewModel: ChallengesListViewModel by viewModels()
+
+    private val userAuth: FirebaseAuth = FirebaseAuth.getInstance()
+
+    init {
+        userAuth.signInAnonymously()
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    // Sign in success, update UI with the signed-in user's information
+                    log("signInAnonymously:success")
+                } else {
+                    // If sign in fails, display a message to the user.
+                    log("signInAnonymously:failure")
+                    toast("Authentication failed.", this)
+                }
+            }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) { //Sets up the screen behaviour
         super.onCreate(savedInstanceState); setContentView(layout.root)

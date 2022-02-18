@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.PersistableBundle
 import androidx.activity.viewModels
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -61,6 +62,7 @@ class GameHistoryActivity : AppCompatActivity(), OnItemClickListener {
             toast(R.string.clickedBox, this)
         }
     }
+
 }
 
 class GameHistoryViewModel(application: Application) : AndroidViewModel(application){

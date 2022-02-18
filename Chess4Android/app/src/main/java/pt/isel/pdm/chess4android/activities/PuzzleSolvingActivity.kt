@@ -33,7 +33,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
     private var currentlySelectedPieceIndex: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        log("onCreate"); super.onCreate(savedInstanceState); setContentView(layout.root)
+        log(TAG+"onCreate"); super.onCreate(savedInstanceState); setContentView(layout.root)
 
         myView = layout.boardView
         autoOpponentSwitch = layout.autoOpponent
@@ -176,7 +176,7 @@ class PuzzleSolvingActivity : AppCompatActivity() {
     }
 
     override fun onStart() {
-        log("Started")
+        log(TAG+"Started")
         viewModel.isWhitesPlaying.observe(this){
             currentColorPlaying.isChecked = it
         }
@@ -184,12 +184,12 @@ class PuzzleSolvingActivity : AppCompatActivity() {
     }
 
     override fun onResume() {
-        log("Resumed")
+        log(TAG+"Resumed")
         super.onResume()
     }
 
     override fun onPause() { //runs after onBackBackPressed
-        log("paused")
+        log(TAG+"paused")
         super.onPause()
     }
 

@@ -113,10 +113,7 @@ class Chess4AndroidRepo(private val historyGameDAO: GameTableDAO) {
     }
 
     //Not used, maybe for now
-    private fun readTXTFileFromAssets(
-        context: Application,
-        string: String
-    ): String { //asset files are read only (by the app). And the user cannot access them through android's file explorer. https://stackoverflow.com/questions/10562904/is-asset-folder-read-only
+    private fun readTXTFileFromAssets(context: Application, string: String): String { //asset files are read only (by the app). And the user cannot access them through android's file explorer. https://stackoverflow.com/questions/10562904/is-asset-folder-read-only
         val i: InputStream = context.assets.open(string) //or ctx.resources.assets.open()
         val s: Scanner = Scanner(i).useDelimiter("\\A") //https://stackoverflow.com/questions/309424/how-do-i-read-convert-an-inputstream-into-a-string-in-java
         return if (s.hasNext()) s.next() else "" //reads only 1 line

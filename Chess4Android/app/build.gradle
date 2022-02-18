@@ -55,7 +55,9 @@ dependencies {
 
     //Firestore, to play online, multiplayer
     implementation 'com.google.firebase:firebase-firestore-ktx:24.0.0'
+    implementation 'com.google.firebase:firebase-auth-ktx:21.0.1'
     implementation 'com.google.code.gson:gson:2.8.9'
+
 
     //View model and lifecycle
     def lifecycle_version = "2.3.1"
