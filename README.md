@@ -46,7 +46,7 @@ Current tasks:
 - 14/20 (exam)
 
 Special thanks to:
-- My teacher, [Paulo Pereira](https://github.com/palbp), for his teaching skills, good humor and personality and help
+- My teacher, [Paulo Pereira](https://github.com/palbp), for his teaching skills, good humor and personality and help. My teacher [youtube playlist for the semester I did this discipline](https://www.youtube.com/playlist?list=PL8XxoCaL3dBj-9DhstfK_krmviLwfN7mX)
 - Joe Rogan for keeping me entertained while listening to his podcasts, which avoided me from crashing my dopamine while doing this project. And thus, keeping me focused
 - Three 6 Mafia's music for getting me through the some stress I go through sometimes and for giving me resilience, hype me up, make me man up and put in work
 

@@ -35,6 +35,6 @@ data class Player (
 
 @Serializable
 data class Perf(
-    val icon: String,
+    val key: String, //previously, it was "icon"
     val name: String
 )
